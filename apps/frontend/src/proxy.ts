@@ -88,7 +88,12 @@ export async function proxy(request: NextRequest) {
 
   const org = nextUrl.searchParams.get('org');
   const url = new URL(nextUrl).search;
-  if (!nextUrl.pathname.startsWith('/auth') && !authCookie) {
+  // Terms and Privacy are the URLs given to TikTok app review and are linked
+  // from the register form, so they have to be readable without an account.
+  const isLegalPage = ['/terms', '/privacy'].some((p) =>
+    nextUrl.pathname.startsWith(p)
+  );
+  if (!nextUrl.pathname.startsWith('/auth') && !isLegalPage && !authCookie) {
     const providers = ['google', 'settings'];
     const findIndex = providers.find((p) => nextUrl.href.indexOf(p) > -1);
     const additional = !findIndex
