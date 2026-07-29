@@ -12,7 +12,6 @@ import clsx from 'clsx';
 import useCookie from 'react-use-cookie';
 import useSWR from 'swr';
 import { orderBy } from 'lodash';
-import { SVGLine } from '@gitroom/frontend/components/launches/launches.component';
 import ImageWithFallback from '@gitroom/react/helpers/image.with.fallback';
 import SafeImage from '@gitroom/react/helpers/safe.image';
 import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
@@ -22,6 +21,7 @@ import { Integration } from '@prisma/client';
 import Link from 'next/link';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
+import { ActiveMarker } from '@gitroom/frontend/components/ui/active.marker';
 
 export const MediaPortal: FC<{
   media: { path: string; id: string }[];
@@ -43,7 +43,7 @@ export const MediaPortal: FC<{
   const t = useT();
   if (!waitForClass) return null;
   return (
-    <div className="pl-[14px] pr-[24px] whitespace-nowrap editor rm-bg">
+    <div className="pl-[16px] pr-[24px] whitespace-nowrap editor rm-bg">
       <MultiMediaComponent
         allData={[{ content: value }]}
         text={value}
@@ -107,18 +107,18 @@ export const AgentList: FC<{ onChange: (arr: any[]) => void }> = ({
   return (
     <div
       className={clsx(
-        'trz bg-newBgColorInner flex flex-col gap-[15px] transition-all relative',
+        'trz bg-newBgColorInner flex flex-col gap-[16px] transition-all relative',
         collapseMenu === '1' ? 'group sidebar w-[100px]' : 'w-[260px]'
       )}
     >
-      <div className="absolute top-0 start-0 w-full h-full p-[20px] overflow-auto scrollbar scrollbar-thumb-fifth scrollbar-track-newBgColor">
+      <div className="absolute top-0 start-0 w-full h-full p-[20px] overflow-auto scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent">
         <div className="flex items-center">
-          <h2 className="group-[.sidebar]:hidden flex-1 text-[20px] font-[500] mb-[15px]">
+          <h2 className="group-[.sidebar]:hidden flex-1 t-title-3 mb-[16px]">
             {t('select_channels', 'Select Channels')}
           </h2>
           <div
             onClick={() => setCollapseMenu(collapseMenu === '1' ? '0' : '1')}
-            className="-mt-3 group-[.sidebar]:rotate-[180deg] group-[.sidebar]:mx-auto text-btnText bg-btnSimple rounded-[6px] w-[24px] h-[24px] flex items-center justify-center cursor-pointer select-none"
+            className="-mt-[12px] group-[.sidebar]:rotate-[180deg] group-[.sidebar]:mx-auto text-btnText bg-btnSimple rounded-thumb w-[24px] h-[24px] flex items-center justify-center cursor-pointer select-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -137,44 +137,46 @@ export const AgentList: FC<{ onChange: (arr: any[]) => void }> = ({
             </svg>
           </div>
         </div>
-        <div className={clsx('flex flex-col gap-[15px]')}>
+        <div className={clsx('flex flex-col gap-[16px]')}>
           {sortedIntegrations.map((integration, index) => (
             <div
               onClick={setIntegration(integration)}
               key={integration.id}
               className={clsx(
-                'flex gap-[12px] items-center group/profile justify-center hover:bg-boxHover rounded-e-[8px] hover:opacity-100 cursor-pointer',
+                'relative flex gap-[12px] items-center group/profile justify-center hover:bg-surfaceHover rounded-e-control hover:opacity-100 cursor-pointer',
                 !selected.some((p) => p.id === integration.id) && 'opacity-20'
               )}
             >
+              {/* Sanctioned accent use: the 2px x 16px active marker. It is
+                  bound to selection, never to :hover. */}
+              {selected.some((p) => p.id === integration.id) && (
+                <ActiveMarker />
+              )}
               <div
                 className={clsx(
-                  'relative rounded-full flex justify-center items-center gap-[6px]',
+                  'relative rounded-pill flex justify-center items-center gap-[8px]',
                   integration.disabled && 'opacity-50'
                 )}
               >
                 {(integration.inBetweenSteps || integration.refreshNeeded) && (
                   <div className="absolute start-0 top-0 w-[39px] h-[46px] cursor-pointer">
-                    <div className="bg-red-500 w-[15px] h-[15px] rounded-full start-0 -top-[5px] absolute z-[200] text-[10px] flex justify-center items-center">
+                    <div className="bg-criticalTint text-critical w-[15px] h-[15px] rounded-pill start-0 -top-[4px] absolute z-[200] t-caption flex justify-center items-center">
                       !
                     </div>
-                    <div className="bg-primary/60 w-[39px] h-[46px] start-0 top-0 absolute rounded-full z-[199]" />
+                    <div className="bg-scrim w-[39px] h-[46px] start-0 top-0 absolute rounded-pill z-[199]" />
                   </div>
                 )}
-                <div className="h-full w-[4px] -ms-[12px] rounded-s-[3px] opacity-0 group-hover/profile:opacity-100 transition-opacity">
-                  <SVGLine />
-                </div>
                 <ImageWithFallback
                   fallbackSrc={`/icons/platforms/${integration.identifier}.png`}
                   src={integration.picture}
-                  className="rounded-[8px]"
+                  className="rounded-control"
                   alt={integration.identifier}
                   width={36}
                   height={36}
                 />
                 <SafeImage
                   src={`/icons/platforms/${integration.identifier}.png`}
-                  className="rounded-[8px] absolute z-10 bottom-[5px] -end-[5px] border border-fifth"
+                  className="rounded-control absolute z-10 bottom-[4px] -end-[4px] border border-fifth"
                   alt={integration.identifier}
                   width={18.41}
                   height={18.41}
@@ -224,15 +226,15 @@ const Threads: FC = () => {
   return (
     <div
       className={clsx(
-        'trz bg-newBgColorInner flex flex-col gap-[15px] transition-all relative',
+        'trz bg-newBgColorInner flex flex-col gap-[16px] transition-all relative',
         'w-[260px]'
       )}
     >
-      <div className="absolute top-0 start-0 w-full h-full p-[20px] overflow-auto scrollbar scrollbar-thumb-fifth scrollbar-track-newBgColor">
-        <div className="mb-[15px] justify-center flex group-[.sidebar]:pb-[15px]">
+      <div className="absolute top-0 start-0 w-full h-full p-[20px] overflow-auto scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent">
+        <div className="mb-[16px] justify-center flex group-[.sidebar]:pb-[16px]">
           <Link
             href={`/agents`}
-            className="text-white whitespace-nowrap flex-1 pt-[12px] pb-[14px] ps-[16px] pe-[20px] group-[.sidebar]:p-0 min-h-[44px] max-h-[44px] rounded-md bg-btnPrimary flex justify-center items-center gap-[5px] outline-none"
+            className="text-ink whitespace-nowrap flex-1 pt-[12px] pb-[16px] ps-[16px] pe-[20px] group-[.sidebar]:p-0 min-h-large max-h-large rounded-thumb bg-btnPrimary flex justify-center items-center gap-[4px] outline-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -244,13 +246,13 @@ const Threads: FC = () => {
             >
               <path
                 d="M10.5001 4.16699V15.8337M4.66675 10.0003H16.3334"
-                stroke="white"
+                stroke="currentColor"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </svg>
-            <div className="flex-1 text-start text-[16px] group-[.sidebar]:hidden">
+            <div className="flex-1 text-start t-body group-[.sidebar]:hidden">
               {t('start_a_new_chat', 'Start a new chat')}
             </div>
           </Link>
@@ -259,7 +261,7 @@ const Threads: FC = () => {
           {data?.threads?.map((p: any) => (
             <Link
               className={clsx(
-                'overflow-ellipsis overflow-hidden whitespace-nowrap hover:bg-newBgColor px-[10px] py-[6px] rounded-[10px] cursor-pointer',
+                'overflow-ellipsis overflow-hidden whitespace-nowrap hover:bg-newBgColor px-[8px] py-[8px] rounded-control cursor-pointer',
                 p.id === id && 'bg-newBgColor'
               )}
               href={`/agents/${p.id}`}

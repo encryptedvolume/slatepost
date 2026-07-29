@@ -20,9 +20,9 @@ interface Announcement {
 }
 
 const colorStyles: Record<AnnouncementColor, { bg: string; hover: string }> = {
-  INFO: { bg: 'bg-blue-600', hover: 'hover:bg-blue-500' },
-  WARNING: { bg: 'bg-amber-600', hover: 'hover:bg-amber-500' },
-  ERROR: { bg: 'bg-red-600', hover: 'hover:bg-red-500' },
+  INFO: { bg: 'bg-surfaceActive', hover: 'hover:bg-surfaceHover' },
+  WARNING: { bg: 'bg-surfaceActive', hover: 'hover:bg-surfaceHover' },
+  ERROR: { bg: 'bg-criticalTint text-critical', hover: 'hover:bg-criticalTint' },
 };
 
 const useAnnouncements = () => {
@@ -70,7 +70,7 @@ const AnnouncementDetailModal: FC<{
 
   return (
     <div className="flex flex-col gap-[16px] min-w-[500px]">
-      <div className="text-newTextColor/60 text-[13px]">
+      <div className="text-inkSecondary t-secondary">
         {new Date(announcement.createdAt).toLocaleDateString()}
       </div>
       <div className="whitespace-pre-wrap text-newTextColor">
@@ -81,7 +81,7 @@ const AnnouncementDetailModal: FC<{
           <Button
             onClick={handleDelete}
             loading={deleting}
-            className="!bg-red-700 rounded-[4px]"
+            className="!bg-criticalTint text-critical rounded-thumb"
           >
             {t('delete_announcement', 'Delete Announcement')}
           </Button>
@@ -132,7 +132,7 @@ export const AnnouncementBanner: FC = () => {
 
   return (
     <div
-      className={`${style.bg} ${style.hover} text-white px-[16px] py-[8px] text-center cursor-pointer rounded-[8px] text-[14px] font-[500] transition-colors`}
+      className={`${style.bg} ${style.hover} text-ink px-[16px] py-[8px] text-center cursor-pointer rounded-control t-control transition-colors`}
       onClick={handleClick(latest)}
     >
       {latest.title}

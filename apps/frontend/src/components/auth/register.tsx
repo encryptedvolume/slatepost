@@ -11,7 +11,7 @@ import { CreateOrgUserDto } from '@gitroom/nestjs-libraries/dtos/auth/create.org
 import { GithubProvider } from '@gitroom/frontend/components/auth/providers/github.provider';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LoadingComponent } from '@gitroom/frontend/components/layout/loading';
-import clsx from 'clsx';
+import { ssoRowClassName as ssoRow } from '@gitroom/frontend/components/auth/login';
 import { GoogleProvider } from '@gitroom/frontend/components/auth/providers/google.provider';
 import { OauthProvider } from '@gitroom/frontend/components/auth/providers/oauth.provider';
 import { useFireEvents } from '@gitroom/helpers/utils/use.fire.events';
@@ -149,20 +149,20 @@ export function RegisterAfter({
     <FormProvider {...form}>
       <form className="flex-1 flex" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col flex-1">
-          <div>
-            <h1 className="text-[40px] font-[500] -tracking-[0.8px] text-start cursor-pointer">
-              {t('sign_up', 'Sign Up')}
-            </h1>
-          </div>
-          <div className="text-[14px] mt-[32px] mb-[12px]">
-            {t('continue_with', 'Continue With')}
-          </div>
+          <h1 className="t-title-1 text-ink">{t('sign_up', 'Sign Up')}</h1>
+          {!isAfterProvider && (
+            <div className="t-secondary text-inkTertiary mt-[32px] mb-[12px]">
+              {t('continue_with', 'Continue With')}
+            </div>
+          )}
           <div className="flex flex-col">
             {!isAfterProvider &&
               (!isGeneral ? (
-                <GithubProvider />
+                <div className={ssoRow}>
+                  <GithubProvider />
+                </div>
               ) : (
-                <div className="gap-[8px] flex">
+                <div className={ssoRow}>
                   {genericOauth && isGeneral ? (
                     <OauthProvider />
                   ) : (
@@ -173,17 +173,17 @@ export function RegisterAfter({
                 </div>
               ))}
             {!isAfterProvider && (
-              <div className="h-[20px] mb-[24px] mt-[24px] relative">
-                <div className="absolute w-full h-[1px] bg-fifth top-[50%] -translate-y-[50%]" />
-                <div
-                  className={`absolute z-[1] justify-center items-center w-full start-0 -top-[4px] flex`}
-                >
-                  <div className="px-[16px]">{t('or', 'or')}</div>
+              <div className="relative my-[32px] h-[18px]">
+                <div className="absolute inset-x-0 top-1/2 h-[1px] bg-hairline" />
+                <div className="absolute inset-0 flex justify-center">
+                  <span className="bg-canvas px-[12px] t-secondary text-inkTertiary">
+                    {t('or', 'or')}
+                  </span>
                 </div>
               </div>
             )}
-            <div className="flex flex-col gap-[12px]">
-              <div className="text-textColor">
+            <div className="flex flex-col gap-[16px]">
+              <div>
                 {!isAfterProvider && (
                   <>
                     <Input
@@ -212,15 +212,15 @@ export function RegisterAfter({
                   placeholder={t('label_company', 'Company')}
                 />
               </div>
-              <div className={clsx('text-[12px]')}>
+              <div className="t-secondary text-inkSecondary measure">
                 {t(
                   'by_registering_you_agree_to_our',
                   'By registering you agree to our'
                 )}
                 &nbsp;
                 <a
-                  href={`https://postiz.com/terms`}
-                  className="underline hover:font-bold"
+                  href={`https://slatepost.lol/terms`}
+                  className="text-ink underline underline-offset-2"
                   rel="nofollow"
                 >
                   {t('terms_of_service', 'Terms of Service')}
@@ -228,30 +228,28 @@ export function RegisterAfter({
                 &nbsp;
                 {t('and', 'and')}&nbsp;
                 <a
-                  href={`https://postiz.com/privacy`}
+                  href={`https://slatepost.lol/privacy`}
                   rel="nofollow"
-                  className="underline hover:font-bold"
+                  className="text-ink underline underline-offset-2"
                 >
                   {t('privacy_policy', 'Privacy Policy')}
                 </a>
                 &nbsp;
               </div>
-              <div className="text-center mt-6">
-                <div className="w-full flex">
-                  <Button
-                    type="submit"
-                    className="flex-1 rounded-[10px] !h-[52px]"
-                    loading={loading}
-                  >
-                    {t('create_account', 'Create Account')}
-                  </Button>
-                </div>
-                <p className="mt-4 text-sm">
+              <div className="flex flex-col gap-[24px] mt-[8px]">
+                <Button
+                  type="submit"
+                  className="w-full !h-large"
+                  loading={loading}
+                >
+                  {t('create_account', 'Create Account')}
+                </Button>
+                <p className="t-secondary text-inkSecondary">
                   {t('already_have_an_account', 'Already Have An Account?')}
                   &nbsp;
                   <Link
                     href="/auth/login"
-                    className="underline  cursor-pointer"
+                    className="text-ink underline underline-offset-2"
                   >
                     {t('sign_in', 'Sign In')}
                   </Link>

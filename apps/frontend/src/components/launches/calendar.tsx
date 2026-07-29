@@ -300,11 +300,12 @@ export const DayView = () => {
   }, [integrations, posts]);
 
   return (
-    <div className="flex flex-col gap-[10px] flex-1 relative">
-      <div className="absolute start-0 top-0 w-full h-full flex flex-col overflow-auto scrollbar scrollbar-thumb-fifth scrollbar-track-newBgColor">
+    <div className="flex flex-col gap-[8px] flex-1 relative">
+      <div className="absolute start-0 top-0 w-full h-full flex flex-col overflow-auto scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent">
         {options.map((option) => (
           <Fragment key={option[0].time}>
-            <div className="text-center text-[14px] min-h-[21px]">
+            {/* Times take tabular figures so the column does not jitter. */}
+            <div className="text-center t-secondary tabular text-inkSecondary min-h-[24px]">
               {newDayjs()
                 .utc()
                 .startOf('day')
@@ -314,7 +315,7 @@ export const DayView = () => {
             </div>
             <div
               key={option[0].time}
-              className="min-h-[60px] rounded-[10px] flex justify-center items-center gap-[10px] mb-[20px]"
+              className="min-h-[64px] rounded-none flex justify-center items-center gap-[8px] mb-[24px]"
             >
               <CalendarContext.Provider
                 value={{
@@ -361,25 +362,23 @@ export const WeekView = () => {
   return (
     <div className="flex flex-col text-textColor flex-1">
       <div className="flex-1 relative">
-        <div className="grid [grid-template-columns:136px_repeat(7,_minmax(0,_1fr))] gap-[4px] rounded-[10px] absolute h-full start-0 top-0 w-full overflow-auto scrollbar scrollbar-thumb-fifth scrollbar-track-newBgColor">
-          <div className="z-10 bg-newTableHeader flex justify-center items-center flex-col h-[62px] rounded-[8px] sticky top-0"></div>
+        {/* The calendar is a grid, not a card grid: radius 0, gap 0, and every
+            cell separated by a 1px hairline. No shadow, forever. The gutter is
+            96px — a spacing token — rather than the old 136. */}
+        <div className="grid [grid-template-columns:96px_repeat(7,_minmax(0,_1fr))] gap-0 rounded-none absolute h-full start-0 top-0 w-full overflow-auto scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent">
+          <div className="z-10 bg-surfaceSunken flex justify-center items-center flex-col h-[64px] rounded-none border-b border-e border-hairline sticky top-0"></div>
           {localizedDays.map((day, index) => (
             <div
               key={day.name}
-              className="p-2 text-center bg-newTableHeader flex justify-center items-center flex-col h-[62px] rounded-[8px] sticky top-0 z-[20]"
+              className="px-[8px] text-center bg-surfaceSunken flex justify-center items-center flex-col gap-[4px] h-[64px] rounded-none border-b border-hairline [&:not(:last-child)]:border-e sticky top-0 z-[20]"
             >
-              <div className="text-[14px] font-[500] text-newTableText">
-                {day.name}
-              </div>
-              <div
-                className={clsx(
-                  'text-[14px] font-[600] flex items-center justify-center gap-[6px]',
-                  day.day === newDayjs().format('L') &&
-                    'text-newTableTextFocused'
-                )}
-              >
+              <div className="t-control text-inkSecondary">{day.name}</div>
+              {/* Calendar day numbers are the caption token, tabular. */}
+              <div className="t-caption tabular flex items-center justify-center gap-[4px] text-ink">
                 {day.day === newDayjs().format('L') && (
-                  <div className="w-[6px] h-[6px] bg-newTableTextFocused rounded-full" />
+                  /* One of the four sanctioned uses of Signal Amber: the 6px
+                     scheduled/queued/now dot. */
+                  <div className="w-[6px] h-[6px] bg-accent rounded-pill" />
                 )}
                 {day.day}
               </div>
@@ -387,14 +386,14 @@ export const WeekView = () => {
           ))}
           {hours.map((hour) => (
             <Fragment key={hour}>
-              <div className="p-2 pe-4 text-center items-center justify-center flex text-[14px] text-newTableText">
+              <div className="px-[8px] text-center items-center justify-center flex t-secondary tabular text-inkSecondary border-b border-e border-hairline">
                 {convertTimeFormatBasedOnLocality(hour)}
               </div>
               {localizedDays.map((day, indexDay) => (
                 <Fragment
                   key={`${startDate}-${day.date.format('YYYY-MM-DD')}-${hour}`}
                 >
-                  <div className="relative">
+                  <div className="relative border-b border-e border-hairline">
                     <CalendarColumn
                       getDate={day.date.hour(hour).startOf('hour')}
                     />
@@ -460,19 +459,19 @@ export const MonthView = () => {
   return (
     <div className="flex flex-col text-textColor flex-1">
       <div className="flex-1 flex relative">
-        <div className="grid grid-cols-7 grid-rows-[62px_auto] gap-[4px] rounded-[10px] absolute start-0 top-0 overflow-auto w-full h-full scrollbar scrollbar-thumb-tableBorder scrollbar-track-secondary">
+        <div className="grid grid-cols-7 grid-rows-[64px_auto] gap-0 rounded-none absolute start-0 top-0 overflow-auto w-full h-full scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent">
           {localizedDays.map((day) => (
             <div
               key={day}
-              className="z-[20] p-2 bg-newTableHeader flex justify-center items-center flex-col h-[62px] rounded-[8px] sticky top-0"
+              className="z-[20] px-[8px] bg-surfaceSunken flex justify-center items-center flex-col h-[64px] rounded-none border-b border-e border-hairline sticky top-0"
             >
-              <div>{day}</div>
+              <div className="t-control text-inkSecondary">{day}</div>
             </div>
           ))}
           {calendarDays.map((date, index) => (
             <div
               key={index}
-              className="text-center items-center justify-center flex"
+              className="text-center items-center justify-center flex border-b border-e border-hairline"
             >
               <CalendarColumn
                 getDate={newDayjs(date.day).endOf('day')}
@@ -525,20 +524,20 @@ export const ListView = () => {
   if (listPosts.length === 0) {
     return (
       <div className="flex flex-col flex-1 items-center justify-center">
-        <div className="text-textColor text-[16px]">{emptyMessage}</div>
+        <div className="t-body text-inkSecondary">{emptyMessage}</div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-[10px] flex-1 relative">
-      <div className="absolute start-0 top-0 w-full h-full flex flex-col overflow-auto scrollbar scrollbar-thumb-fifth scrollbar-track-newBgColor">
+    <div className="flex flex-col gap-[8px] flex-1 relative">
+      <div className="absolute start-0 top-0 w-full h-full flex flex-col overflow-auto scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent">
         {groupedPosts.map(([dateKey, datePosts]) => (
           <Fragment key={dateKey}>
-            <div className="text-center text-[14px] min-h-[21px] text-textColor font-[500] mt-[10px]">
+            <div className="text-center t-body-emphasis tabular min-h-[24px] text-ink mt-[8px]">
               {newDayjs(dateKey).format(isUSCitizen() ? 'dddd, MMMM D, YYYY' : 'dddd, D MMMM YYYY')}
             </div>
-            <div className="flex flex-col gap-[10px] mb-[20px] px-[10px]">
+            <div className="flex flex-col gap-[8px] mb-[24px] px-[8px]">
               {datePosts.map((post) => (
                 <CalendarItem
                   key={post.id}
@@ -640,6 +639,21 @@ export const CalendarColumn: FC<{
       .isBefore(newDayjs().startOf('hour').utc());
   }, [getDate, num]);
 
+  // The "now" rule is drawn only in the hour cell that currently contains the
+  // clock, and only in the two hour-resolution views. `num` ticks every couple
+  // of minutes, which is what re-positions it.
+  const isNowColumn = useMemo(() => {
+    if (display !== 'week' && display !== 'day') {
+      return false;
+    }
+    return getDate.local().isSame(newDayjs().local(), 'hour');
+  }, [getDate, display, num]);
+
+  const nowOffsetPercent = useMemo(
+    () => (newDayjs().local().minute() / 60) * 100,
+    [num]
+  );
+
   const { start, stop } = useInterval(
     useCallback(() => {
       if (isBeforeNow) {
@@ -677,13 +691,13 @@ export const CalendarColumn: FC<{
               title: t('what_do_you_want_to_do', 'What do you want to do?'),
               children: (
                 <div className="flex flex-col">
-                  <div className="text-[20px] mb-[20px]">
+                  <div className="t-title-3 mb-[24px]">
                     {t(
                       'post_already_published_drag',
                       'This post was already published, what do you want to do?'
                     )}
                   </div>
-                  <div className="flex w-full gap-[10px]">
+                  <div className="flex w-full gap-[8px]">
                     <div className="flex-1 flex">
                       <Button
                         type="button"
@@ -825,42 +839,54 @@ export const CalendarColumn: FC<{
       className={clsx(
         'flex flex-col w-full min-h-full relative',
         isBeforeNow && 'repeated-strip',
-        loading && 'animate-pulse',
-        isBeforeNow
-          ? 'cursor-not-allowed'
-          : 'border border-newTextColor/5 rounded-[8px]'
+        isBeforeNow ? 'cursor-not-allowed' : 'rounded-none'
       )}
       ref={drop as any}
     >
+      {/* The 1px "now" rule — one of the four sanctioned uses of Signal Amber.
+          It is drawn only in the cell that owns the current hour, positioned
+          by the minute within it. */}
+      {isNowColumn && (
+        <div
+          className="absolute start-0 end-0 h-[1px] bg-accent z-[30] pointer-events-none"
+          style={{ top: `${nowOffsetPercent}%` }}
+          aria-hidden="true"
+        />
+      )}
       {display === 'month' && (
-        <div className={clsx('pt-[6px] text-[14px]')}>{getDate.date()}</div>
+        /* Calendar day numbers are the caption token, tabular. */
+        <div className={clsx('pt-[8px] t-caption tabular text-inkSecondary')}>
+          {getDate.date()}
+        </div>
       )}
       <div
         className={clsx(
-          'relative flex flex-col flex-1 text-white rounded-[8px] min-h-[70px]',
-          canDrop && 'border border-[#612BD3]'
+          'relative flex flex-col flex-1 rounded-none min-h-[96px]',
+          // Selection/drop is surfaceActive plus a strong hairline — never a
+          // coloured outline, and never the legacy purple.
+          canDrop && 'border border-lineStrong bg-surfaceActive'
         )}
       >
         <div
           className={clsx(
-            'flex-col text-[12px] pointer w-full flex scrollbar scrollbar-thumb-tableBorder scrollbar-track-secondary',
+            'flex-col t-caption pointer w-full flex scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent',
             isBeforeNow ? 'flex-1' : 'cursor-pointer',
             isBeforeNow && postList.length === 0 && 'col-calendar'
           )}
         >
           {loading && (
-            <div className="h-full w-full p-[5px] animate-pulse absolute left-0 top-0 z-[50]">
-              <div className="h-full w-full bg-newSettings rounded-[10px]" />
+            <div className="h-full w-full p-[4px] absolute left-0 top-0 z-[50]">
+              <div className="h-full w-full bg-skeleton rounded-none" />
             </div>
           )}
           {list.map((post) => (
             <div
               key={post.id}
               className={clsx(
-                'text-textColor p-[2.5px] relative flex flex-col justify-center items-center'
+                'text-ink p-[4px] relative flex flex-col justify-center items-center'
               )}
             >
-              <div className="relative w-full flex flex-col items-center p-[2.5px]">
+              <div className="relative w-full flex flex-col items-center">
                 <CalendarItem
                   display={display as 'day' | 'week' | 'month'}
                   isBeforeNow={isBeforeNow}
@@ -880,7 +906,7 @@ export const CalendarColumn: FC<{
           ))}
           {!showAll && postList.length > 3 && (
             <div
-              className="text-center hover:underline py-[5px] text-textColor"
+              className="text-center hover:underline py-[4px] t-secondary text-inkSecondary"
               onClick={showAllFunc}
             >
               {t('show_more', '+ Show more')} ({postList.length - 3})
@@ -888,7 +914,7 @@ export const CalendarColumn: FC<{
           )}
           {showAll && postList.length > 3 && (
             <div
-              className="text-center hover:underline py-[5px]"
+              className="text-center hover:underline py-[4px] t-secondary text-inkSecondary"
               onClick={showLessFunc}
             >
               {t('show_less', '- Show less')}
@@ -897,33 +923,33 @@ export const CalendarColumn: FC<{
         </div>
         {!isBeforeNow && (
           <div
-            className="pb-[2.5px] px-[5px] flex-1 flex"
+            className="pb-[4px] px-[4px] flex-1 flex"
             onClick={integrations.length ? addModal : addProvider}
           >
             <div
               className={clsx(
                 display === ('month' as any)
-                  ? 'flex-1 min-h-[40px] w-full'
+                  ? 'flex-1 min-h-large w-full'
                   : !postList.length
-                  ? 'min-h-full w-full p-[5px]'
-                  : 'min-h-[40px] w-full',
-                'flex items-center justify-center cursor-pointer pb-[2.5px]'
+                  ? 'min-h-full w-full p-[4px]'
+                  : 'min-h-large w-full',
+                'flex items-center justify-center cursor-pointer pb-[4px]'
               )}
             >
               {display !== 'day' && (
                 <div
                   className={clsx(
-                    'group hover:before:h-[30px] w-full h-full rounded-[10px] flex justify-center items-center text-white'
+                    'group w-full h-full rounded-none flex justify-center items-center text-inkTertiary'
                   )}
                 >
                   <div
-                    className={`group-hover:before:content-["+"] pb-[5px] flex justify-center items-center rounded-[8px] transition-all group-hover:bg-btnPrimary w-full h-full max-w-[40px] max-h-[40px]`}
+                    className={`group-hover:before:content-["+"] flex justify-center items-center rounded-control transition-colors duration-state ease-state group-hover:bg-surfaceActive group-hover:text-ink w-full h-full max-w-[44px] max-h-large`}
                   />
                 </div>
               )}
               {display === 'day' && (
                 <div
-                  className={`w-full h-full rounded-[10px] py-[10px] flex-wrap hover:border hover:border-seventh flex justify-center items-center gap-[20px] opacity-30 grayscale hover:grayscale-0 hover:opacity-100`}
+                  className={`w-full h-full rounded-none py-[8px] flex-wrap hover:border hover:border-line flex justify-center items-center gap-[24px] opacity-30 grayscale hover:grayscale-0 hover:opacity-100`}
                 >
                   {integrations.map((selectedIntegrations) => (
                     <div
@@ -932,14 +958,14 @@ export const CalendarColumn: FC<{
                     >
                       <div
                         className={clsx(
-                          'relative w-[34px] h-[34px] rounded-[8px] flex justify-center items-center filter transition-all duration-500'
+                          'relative w-[32px] h-[32px] rounded-thumb flex justify-center items-center filter transition-opacity duration-state ease-state'
                         )}
                       >
                         <SafeImage
                           src={
                             selectedIntegrations.picture || '/no-picture.jpg'
                           }
-                          className="rounded-[8px]"
+                          className="rounded-thumb"
                           alt={selectedIntegrations.identifier}
                           width={32}
                           height={32}
@@ -947,13 +973,13 @@ export const CalendarColumn: FC<{
                         {selectedIntegrations.identifier === 'youtube' ? (
                           <img
                             src="/icons/platforms/youtube.svg"
-                            className="absolute z-10 -bottom-[5px] -end-[5px]"
+                            className="absolute z-10 -bottom-[4px] -end-[4px]"
                             width={20}
                           />
                         ) : (
                           <SafeImage
                             src={`/icons/platforms/${selectedIntegrations.identifier}.png`}
-                            className="rounded-[8px] absolute z-10 -bottom-[5px] -end-[5px] border border-fifth"
+                            className="rounded-thumb absolute z-10 -bottom-[4px] -end-[4px] border border-line"
                             alt={selectedIntegrations.identifier}
                             width={20}
                             height={20}
@@ -1036,7 +1062,9 @@ const CalendarItem: FC<{
       className={clsx(
         'w-full flex h-full flex-1 flex-col group',
         'relative',
-        state === 'ERROR' && 'rounded-[10px] ring-2 ring-red-500'
+        // Error is a hairline tint, not a 2px coloured ring: a border is never
+        // the critical colour and never wider than 1px.
+        state === 'ERROR' && 'rounded-none border border-criticalBorder'
       )}
       style={{
         opacity,
@@ -1044,7 +1072,7 @@ const CalendarItem: FC<{
     >
       {state === 'ERROR' && (
         <div
-          className="absolute -top-[6px] -left-[6px] z-20 w-[18px] h-[18px] rounded-full bg-red-500 flex items-center justify-center text-white text-[11px] font-bold cursor-pointer"
+          className="absolute -top-[4px] -start-[4px] z-20 w-[16px] h-[16px] rounded-pill bg-criticalTint text-critical border border-criticalBorder flex items-center justify-center t-caption cursor-pointer"
           data-tooltip-id="tooltip"
           data-tooltip-content={post.error || 'An error occurred while publishing this post'}
         >
@@ -1059,47 +1087,51 @@ const CalendarItem: FC<{
           />
         </div>
       )}
+      {/* The chip fill is always a token surface (--slate-primary-bg). A tag's
+          colour is user data and can be any hex, so it is never allowed to
+          become the backdrop a label has to resolve against — it is carried by
+          the 6px swatch dot below instead. */}
       <div
         className={clsx(
-          'text-white text-[11px] max-h-[24px] h-[24px] min-h-[24px] w-full rounded-tr-[10px] rounded-tl-[10px] flex items-center justify-center gap-[10px] px-[5px] bg-btnPrimary'
+          'text-primaryText t-caption max-h-[24px] h-[24px] min-h-[24px] w-full rounded-none flex items-center justify-center gap-[8px] px-[8px] bg-btnPrimary'
         )}
-        style={{
-          backgroundColor: post?.tags?.[0]?.tag?.color,
-        }}
       >
-        <div
-          className={clsx(
-            post?.tags?.[0]?.tag?.color ? 'mix-blend-difference' : '',
-            'group-hover:hidden cursor-pointer'
-          )}
-        >
+        {/* The 6px scheduled/queued dot — one of the four sanctioned uses of
+            Signal Amber, and the one that carries its declared meaning. It is
+            the sole visual carrier of queued state, so SC 1.4.11 applies: the
+            1px ring in the chip's own ink is what gives it a 3:1 boundary. */}
+        {state === 'QUEUE' && (
+          <div
+            className="w-[6px] h-[6px] shrink-0 rounded-pill bg-accent border border-primaryText group-hover:hidden"
+            data-tooltip-id="tooltip"
+            data-tooltip-content="Queued"
+          />
+        )}
+        {!!post?.tags?.[0]?.tag?.color && (
+          <div
+            className="w-[6px] h-[6px] shrink-0 rounded-pill group-hover:hidden"
+            style={{ backgroundColor: post.tags[0].tag.color }}
+          />
+        )}
+        <div className="group-hover:hidden cursor-pointer">
           {post.tags.map((p) => p.tag.name).join(', ')}
         </div>
         {copyDebugJson && (
           <div
-            className={clsx(
-              'hidden group-hover:block hover:underline cursor-pointer',
-              post?.tags?.[0]?.tag?.color && 'mix-blend-difference'
-            )}
+            className="hidden group-hover:block hover:underline cursor-pointer"
             onClick={copyDebugJson}
           >
             <CopyDebug />
           </div>
         )}
         <div
-          className={clsx(
-            'hidden group-hover:block hover:underline cursor-pointer',
-            post?.tags?.[0]?.tag?.color && 'mix-blend-difference'
-          )}
+          className="hidden group-hover:block hover:underline cursor-pointer"
           onClick={duplicatePost}
         >
           <Duplicate />
         </div>
         <div
-          className={clsx(
-            'hidden group-hover:block hover:underline cursor-pointer',
-            post?.tags?.[0]?.tag?.color && 'mix-blend-difference'
-          )}
+          className="hidden group-hover:block hover:underline cursor-pointer"
           onClick={preview}
         >
           <Preview />
@@ -1108,20 +1140,14 @@ const CalendarItem: FC<{
           <></>
         ) : post.releaseId === 'missing' && missingRelease ? (
           <div
-            className={clsx(
-              'hidden group-hover:block hover:underline cursor-pointer',
-              post?.tags?.[0]?.tag?.color && 'mix-blend-difference'
-            )}
+            className="hidden group-hover:block hover:underline cursor-pointer"
             onClick={missingRelease}
           >
             <Statistics />
           </div>
         ) : post.releaseId !== 'missing' ? (
           <div
-            className={clsx(
-              'hidden group-hover:block hover:underline cursor-pointer',
-              post?.tags?.[0]?.tag?.color && 'mix-blend-difference'
-            )}
+            className="hidden group-hover:block hover:underline cursor-pointer"
             onClick={statistics}
           >
             <Statistics />
@@ -1130,10 +1156,7 @@ const CalendarItem: FC<{
           <></>
         )}{' '}
         <div
-          className={clsx(
-            'hidden group-hover:block hover:underline cursor-pointer',
-            post?.tags?.[0]?.tag?.color && 'mix-blend-difference'
-          )}
+          className="hidden group-hover:block hover:underline cursor-pointer"
           onClick={deletePost}
         >
           <DeletePost />
@@ -1142,22 +1165,22 @@ const CalendarItem: FC<{
       <div
         onClick={editPost}
         className={clsx(
-          'gap-[5px] w-full flex h-full flex-1 rounded-br-[10px] rounded-bl-[10px] p-[8px] text-[14px] bg-newColColor',
+          'gap-[8px] w-full flex h-full flex-1 rounded-none p-[8px] t-secondary bg-newColColor',
           'relative',
           isBeforeNow && '!grayscale'
         )}
       >
         <div className={clsx('relative min-w-[20px]')}>
           <img
-            className="w-[20px] h-[20px] rounded-[8px]"
+            className="w-[20px] h-[20px] rounded-thumb"
             src={post.integration.picture! || '/no-picture.jpg'}
           />
           <img
-            className="w-[12px] h-[12px] rounded-[8px] absolute z-10 top-[10px] end-0 border border-fifth"
+            className="w-[12px] h-[12px] rounded-thumb absolute z-10 top-[12px] end-0 border border-line"
             src={`/icons/platforms/${post.integration?.providerIdentifier}.png`}
           />
         </div>
-        <div className="w-full flex-1 flex flex-col min-h-[40px]">
+        <div className="w-full flex-1 flex flex-col min-h-large">
           <div className="text-start">
             {state === 'DRAFT' ? t('draft', 'Draft') + ': ' : ''}
           </div>
@@ -1168,8 +1191,14 @@ const CalendarItem: FC<{
               </div>
             </div>
         </div>
+        {/* Secondary, not tertiary. The chip's backdrop is `newColColor` =
+            --slate-surface-active, not --slate-surface: tertiary measures
+            4.09:1 light (#737373 on #eeeeee) and 3.93:1 dark (#808080 on
+            #242424), both under the 4.5:1 SC 1.4.3 floor at this 12px size.
+            Secondary is 6.05:1 / 6.01:1 on the same surface. This is the
+            most-read metadata in the product. */}
         {showTime && (
-          <div className="text-textColor/50 text-[12px] whitespace-nowrap flex items-center">
+          <div className="text-inkSecondary t-caption tabular whitespace-nowrap flex items-center">
             {newDayjs(post.publishDate).local().format(isUSCitizen() ? 'hh:mm A' : 'HH:mm')}
           </div>
         )}
@@ -1213,10 +1242,10 @@ const DebugJsonModal: FC<{ post: any }> = ({ post }) => {
 
   return (
     <div className="flex flex-col gap-[16px] p-[16px]">
-      <div className="text-textColor text-[14px]">
+      <div className="t-body text-inkSecondary">
         {t('debug_choose_copy', 'Choose what you want to copy')}
       </div>
-      <div className="flex gap-[10px]">
+      <div className="flex gap-[8px]">
         <Button onClick={copyPostId}>
           {t('copy_post_id', 'Copy post id')}
         </Button>
@@ -1334,21 +1363,21 @@ export const SetSelectionModal: FC<{
   const t = useT();
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="text-lg font-medium">
+    <div className="flex flex-col gap-[16px]">
+      <div className="t-title-3">
         {t('choose_set_or_continue', 'Choose a set or continue without one')}
       </div>
 
-      <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
+      <div className="flex flex-col gap-[8px] max-h-[240px] overflow-y-auto">
         {sets.map((set) => (
           <div
             key={set.id}
             onClick={() => onSelect(set)}
-            className="p-3 border border-tableBorder rounded-lg cursor-pointer hover:transition-colors"
+            className="p-[12px] border border-line rounded-control cursor-pointer hover:bg-surfaceHover transition-colors duration-state ease-state"
           >
-            <div className="font-medium">{set.name}</div>
+            <div className="t-body-emphasis">{set.name}</div>
             {set.description && (
-              <div className="text-sm text-gray-400 mt-1">
+              <div className="t-secondary text-inkSecondary mt-[4px]">
                 {set.description}
               </div>
             )}
@@ -1356,13 +1385,10 @@ export const SetSelectionModal: FC<{
         ))}
       </div>
 
-      <div className="flex gap-2 pt-2 border-t border-tableBorder">
-        <button
-          onClick={onContinueWithoutSet}
-          className="flex-1 px-4 py-2 text-textColor rounded-lg hover:transition-colors"
-        >
+      <div className="flex gap-[8px] pt-[8px] border-t border-line">
+        <Button secondary onClick={onContinueWithoutSet} className="flex-1">
           {t('continue_without_set', 'Continue without set')}
-        </button>
+        </Button>
       </div>
     </div>
   );

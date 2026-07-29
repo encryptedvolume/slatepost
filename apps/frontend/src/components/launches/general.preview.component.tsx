@@ -37,11 +37,11 @@ export const GeneralPreviewComponent: FC<{
       newContent
         .slice(start, end)
         .replace(/\[\[\[([.\s\S]*?)]]]/, (match, match1) => {
-          return `<span class="font-bold font-[arial]" style="color: #ae8afc">${match1}</span>`;
+          return `<span class="t-body-emphasis" style="color: var(--slate-text-primary)">${match1}</span>`;
         }) +
-      `<mark class="bg-red-500" data-tooltip-id="tooltip" data-tooltip-content="This text will be cropped">` +
+      `<mark class="bg-criticalTint text-critical" data-tooltip-id="tooltip" data-tooltip-content="This text will be cropped">` +
       newContent.slice(end).replace(/\[\[\[([.\s\S]*?)]]]/, (match, match1) => {
-        return `<span class="font-bold font-[arial]" style="color: #ae8afc">${match1}</span>`;
+        return `<span class="t-body-emphasis" style="color: var(--slate-text-primary)">${match1}</span>`;
       }) +
       `</mark>`;
 
@@ -49,7 +49,7 @@ export const GeneralPreviewComponent: FC<{
   });
 
   return (
-    <div className={clsx('w-full p-[15px]')}>
+    <div className={clsx('w-full p-[16px]')}>
       <div className="w-full h-full relative flex flex-col">
         {renderContent.map((value, index) => (
           <div
@@ -69,13 +69,13 @@ export const GeneralPreviewComponent: FC<{
                       : integration?.picture || '/no-picture.jpg'
                   }
                   alt="x"
-                  className="rounded-full relative z-[2]"
+                  className="rounded-pill relative z-[2]"
                 />
 
                 {current !== 'global' && (
                   <SafeImage
                     src={`/icons/platforms/${integration?.identifier}.png`}
-                    className="min-w-[20px] min-h-[20px] rounded-full absolute z-10 -bottom-[5px] -end-[5px] border border-fifth"
+                    className="min-w-[20px] min-h-[20px] rounded-pill absolute z-10 -bottom-[4px] -end-[4px] border border-fifth"
                     alt={integration.identifier}
                     width={20}
                     height={20}
@@ -83,15 +83,15 @@ export const GeneralPreviewComponent: FC<{
                 )}
               </div>
               {index !== topValue.length - 1 && (
-                <div className="flex-1 w-[2px] h-[calc(100%-10px)] bg-customColor25 absolute top-[10px] z-[1]" />
+                <div className="flex-1 w-[2px] h-[calc(100%-10px)] bg-customColor25 absolute top-[8px] z-[1]" />
               )}
             </div>
             <div className="flex-1 flex flex-col gap-[4px]">
               <div className="flex">
-                <div className="h-[22px] text-[15px] font-[700]">
+                <div className="h-[22px] t-body-emphasis">
                   {current === 'global' ? 'Global Edit' : integration?.name}
                 </div>
-                <div className="text-[15px] text-customColor26 mt-[1px] ms-[2px]">
+                <div className="t-body text-customColor26 mt-[1px] ms-[2px]">
                   <svg
                     viewBox="0 0 22 22"
                     aria-label="Verified account"
@@ -104,7 +104,7 @@ export const GeneralPreviewComponent: FC<{
                     </g>
                   </svg>
                 </div>
-                <div className="text-[15px] font-[400] text-customColor27 ms-[4px]">
+                <div className="t-body text-customColor27 ms-[4px]">
                   {current === 'global'
                     ? ''
                     : integration?.display || '@username'}
@@ -119,7 +119,7 @@ export const GeneralPreviewComponent: FC<{
               {!!value?.images?.length && (
                 <div
                   className={clsx(
-                    'w-full rounded-[16px] overflow-hidden mt-[12px]',
+                    'w-full rounded-card overflow-hidden mt-[12px]',
                     value?.images?.length > 3
                       ? 'grid grid-cols-2 gap-[4px]'
                       : 'flex gap-[4px]'

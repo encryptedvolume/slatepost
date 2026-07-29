@@ -56,9 +56,9 @@ export const Canonical: FC<
     return form.setValue(props.name, id);
   }, [form]);
   return (
-    <div className="flex flex-col gap-[6px]">
-      <div className="flex items-center gap-[3px]">
-        <div className={`text-[14px]`}>
+    <div className="flex flex-col gap-[8px]">
+      <div className="flex items-center gap-[2px]">
+        <div className={`t-control`}>
           <TranslatedLabel
             label={label}
             translationKey={translationKey}
@@ -85,12 +85,12 @@ export const Canonical: FC<
       <input
         {...(disableForm ? {} : form.register(props.name))}
         className={clsx(
-          'bg-input h-[44px] px-[16px] outline-none border-fifth border rounded-[4px] text-inputText placeholder-inputText',
+          'bg-input h-large px-[16px] outline-none border-fifth border rounded-thumb text-ink placeholder:text-inkTertiary',
           className
         )}
         {...rest}
       />
-      <div className="text-red-400 text-[12px]">{err || <>&nbsp;</>}</div>
+      <div className="text-critical t-caption">{err || <>&nbsp;</>}</div>
     </div>
   );
 };

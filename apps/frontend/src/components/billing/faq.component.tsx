@@ -2,11 +2,9 @@
 
 import { FC, useCallback, useState } from 'react';
 import clsx from 'clsx';
-import { useVariables } from '@gitroom/react/helpers/variable.context';
 import { useUser } from '@gitroom/frontend/components/layout/user.context';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 const useFaqList = () => {
-  const { isGeneral } = useVariables();
   const user = useUser();
   const t = useT();
   return [
@@ -15,11 +13,11 @@ const useFaqList = () => {
           {
             title: t(
               'faq_am_i_going_to_be_charged_by_postiz',
-              'Am I going to be charged by Postiz?'
+              'Am I going to be charged by Slate?'
             ),
             description: t(
               'faq_to_confirm_credit_card_information_postiz_will_hold',
-              'To confirm credit card information Postiz will hold $2 and release it immediately, you can cancel your subscription anytime from settings without talking to a person'
+              'To confirm credit card information Slate will hold $2 and release it immediately, you can cancel your subscription anytime from settings without talking to a person'
             ),
           },
         ]
@@ -27,24 +25,18 @@ const useFaqList = () => {
     {
       title: t(
         'faq_can_i_trust_postiz_gitroom',
-        `Can I trust ${isGeneral ? 'Postiz' : 'Gitroom'}?`
+        'Can I trust Slate?'
       ),
       description: t(
         'faq_postiz_gitroom_is_proudly_open_source',
-        `${
-          isGeneral ? 'Postiz' : 'Gitroom'
-        } is proudly open-source! We believe in an ethical and transparent culture, meaning that ${
-          isGeneral ? 'Postiz' : 'Gitroom'
-        } will live forever. You can check out the entire code or use it for personal projects. To view the open-source repository, <a href="https://github.com/gitroomhq/postiz-app" target="_blank" style="text-decoration: underline;">click here</a>.`
+        `Slate is proudly open-source! We believe in an ethical and transparent culture, meaning that Slate will live forever. You can check out the entire code or use it for personal projects. To view the open-source repository, <a href="https://github.com/gitroomhq/postiz-app" target="_blank" style="text-decoration: underline;">click here</a>.`
       ),
     },
     {
       title: t('faq_what_are_channels', 'What are channels?'),
       description: t(
         'faq_postiz_gitroom_allows_you_to_schedule_posts',
-        `${
-          isGeneral ? 'Postiz' : 'Gitroom'
-        } allows you to schedule your posts between different channels.
+        `Slate allows you to schedule your posts between different channels.
 A channel is a publishing platform where you can schedule your posts.
 For example, you can schedule your posts on X, Facebook, Instagram, TikTok, YouTube, Reddit, Linkedin, Dribbble, Threads and Pinterest.`
       ),
@@ -69,12 +61,12 @@ export const FAQSection: FC<{
   }, [show]);
   return (
     <div
-      className="bg-sixth p-[24px] border border-tableBorder rounded-[8px] flex flex-col"
+      className="bg-sixth p-[24px] border border-tableBorder rounded-control flex flex-col"
       onClick={changeShow}
     >
-      <div className={`text-[20px] cursor-pointer flex justify-center`}>
+      <div className={`t-title-3 cursor-pointer flex justify-center`}>
         <div className="flex-1">{title}</div>
-        <div className="flex items-center justify-center w-[32px]">
+        <div className="flex items-center justify-center w-[32px] text-inkSecondary">
           {!show ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -85,11 +77,11 @@ export const FAQSection: FC<{
             >
               <path
                 d="M18 12.75H6C5.59 12.75 5.25 12.41 5.25 12C5.25 11.59 5.59 11.25 6 11.25H18C18.41 11.25 18.75 11.59 18.75 12C18.75 12.41 18.41 12.75 18 12.75Z"
-                fill="white"
+                fill="currentColor"
               />
               <path
                 d="M12 18.75C11.59 18.75 11.25 18.41 11.25 18V6C11.25 5.59 11.59 5.25 12 5.25C12.41 5.25 12.75 5.59 12.75 6V18C12.75 18.41 12.41 18.75 12 18.75Z"
-                fill="white"
+                fill="currentColor"
               />
             </svg>
           ) : (
@@ -102,7 +94,7 @@ export const FAQSection: FC<{
             >
               <path
                 d="M24 17H8C7.45333 17 7 16.5467 7 16C7 15.4533 7.45333 15 8 15H24C24.5467 15 25 15.4533 25 16C25 16.5467 24.5467 17 24 17Z"
-                fill="#ECECEC"
+                fill="currentColor"
               />
             </svg>
           )}
@@ -110,7 +102,7 @@ export const FAQSection: FC<{
       </div>
       <div
         className={clsx(
-          'transition-all duration-500 overflow-hidden',
+          'transition-all duration-surface ease-move overflow-hidden',
           !show ? 'max-h-[0]' : 'max-h-[500px]'
         )}
       >
@@ -118,7 +110,7 @@ export const FAQSection: FC<{
           onClick={(e) => {
             e.stopPropagation();
           }}
-          className={`mt-[16px] w-full text-wrap font-[400] text-[16px] text-customColor17 select-text max-w-[450px]`}
+          className={`mt-[16px] w-full text-wrap t-body text-customColor17 select-text max-w-[450px]`}
           dangerouslySetInnerHTML={{
             __html: description,
           }}
@@ -132,10 +124,10 @@ export const FAQComponent: FC = () => {
   const list = useFaqList();
   return (
     <div>
-      {/*<h3 className="text-[24px] mt-[48px] mb-[40px] tablet:mt-[80px]">*/}
+      {/*<h3 className="t-title-2 mt-[48px] mb-[32px] tablet:mt-[64px]">*/}
       {/*  {t('frequently_asked_questions', 'Frequently Asked Questions')}*/}
       {/*</h3>*/}
-      <div className="gap-[24px] flex-col flex select-none  mt-[48px] mb-[40px] tablet:mt-[80px]">
+      <div className="gap-[24px] flex-col flex select-none  mt-[48px] mb-[32px] tablet:mt-[64px]">
         {list.map((item, index) => (
           <FAQSection key={index} {...item} />
         ))}

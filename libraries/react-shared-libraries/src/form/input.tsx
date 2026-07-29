@@ -50,9 +50,9 @@ export const Input: FC<
     }
   }, [watch]);
   return (
-    <div className="flex flex-col gap-[6px]">
+    <div className="flex flex-col gap-[8px]">
       {!!label && (
-        <div className={`text-[14px]`}>
+        <div className="t-control text-inkSecondary">
           <TranslatedLabel
             label={label}
             translationKey={translationKey}
@@ -60,24 +60,28 @@ export const Input: FC<
           />
         </div>
       )}
+      {/* 36px control, 10 radius, 1px hairline. The border is never the accent
+          and never the critical color — an invalid field is announced by its
+          message, not by a colored outline. */}
       <div
         className={clsx(
-          'bg-newBgColorInner h-[42px] border-newTableBorder border rounded-[8px] text-textColor placeholder-textColor flex items-center justify-center',
+          'bg-surface h-control border border-lineControl rounded-control text-ink flex items-center justify-center',
+          'transition-colors duration-state ease-state focus-within:border-ink',
           className
         )}
       >
-        {icon && <div className="ps-[16px]">{icon}</div>}
+        {icon && <div className="ps-[12px] text-inkTertiary">{icon}</div>}
         <input
           className={clsx(
-            'h-full bg-transparent outline-none flex-1 text-[14px] text-textColor',
-            icon ? 'pl-[8px] pe-[16px]' : 'px-[16px]'
+            'h-full bg-transparent outline-none flex-1 t-control text-ink placeholder:text-inkTertiary',
+            icon ? 'ps-[8px] pe-[12px]' : 'px-[12px]'
           )}
           {...(disableForm ? {} : form.register(props.name))}
           {...rest}
         />
       </div>
       {!removeError && (
-        <div className="text-red-400 text-[12px]">{err || <>&nbsp;</>}</div>
+        <div className="text-critical t-secondary">{err || <>&nbsp;</>}</div>
       )}
     </div>
   );

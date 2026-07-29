@@ -29,9 +29,9 @@ import { Sets } from '@gitroom/frontend/components/sets/sets';
 import { SignaturesComponent } from '@gitroom/frontend/components/settings/signatures.component';
 import { Autopost } from '@gitroom/frontend/components/autopost/autopost';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
-import { SVGLine } from '@gitroom/frontend/components/launches/launches.component';
 import { GlobalSettings } from '@gitroom/frontend/components/settings/global.settings';
 import { ApprovedAppsComponent } from '@gitroom/frontend/components/approved-apps/approved-apps.component';
+import { ActiveMarker } from '@gitroom/frontend/components/ui/active.marker';
 export const SettingsPopup: FC<{
   getRef?: Ref<any>;
 }> = (props) => {
@@ -86,7 +86,10 @@ export const SettingsPopup: FC<{
   const t = useT();
   const list = useMemo(() => {
     const arr = [];
-    arr.push({ tab: 'global_settings', label: t('global_settings', 'Global Settings') });
+    arr.push({
+      tab: 'global_settings',
+      label: t('global_settings', 'Global Settings'),
+    });
     // Populate tabs based on user permissions
     if (user?.tier?.team_members && isGeneral) {
       arr.push({ tab: 'teams', label: t('teams', 'Teams') });
@@ -106,7 +109,10 @@ export const SettingsPopup: FC<{
     if (user?.tier?.public_api && isGeneral && showLogout) {
       arr.push({ tab: 'api', label: t('developers', 'Developers') });
     }
-    arr.push({ tab: 'approved_apps', label: t('approved_apps', 'Approved Apps') });
+    arr.push({
+      tab: 'approved_apps',
+      label: t('approved_apps', 'Approved Apps'),
+    });
 
     return arr;
   }, [user, isGeneral, showLogout, t]);
@@ -117,32 +123,36 @@ export const SettingsPopup: FC<{
 
   return (
     <>
-      <div className="bg-newBgColorInner p-[20px] flex flex-col transition-all w-[260px]">
-        <div className="flex flex-1 flex-col gap-[15px]">
+      {/* Settings rail. Separation is a 1px hairline, never a filled panel, so
+          the rail carries no background of its own. Rows are the MenuItem
+          geometry — 44px, 10 radius, control type, surfaceActive when selected
+          plus the 2x16 Signal Amber marker. */}
+      <div className="border-e border-hairline p-[20px] flex flex-col transition-colors duration-state ease-state w-[260px]">
+        <div className="flex flex-1 flex-col gap-[8px]">
           {list.map(({ tab: tabKey, label }) => (
             <div
               key={tabKey}
               className={clsx(
-                'cursor-pointer flex items-center gap-[12px] group/profile hover:bg-boxHover rounded-e-[8px]',
-                tabKey === tab && 'bg-boxHover'
+                'relative cursor-pointer w-full h-large flex items-center px-[12px] rounded-control',
+                'transition-colors duration-state ease-state',
+                tabKey === tab
+                  ? 'bg-surfaceActive text-ink'
+                  : 'text-inkSecondary hover:bg-surfaceHover hover:text-ink'
               )}
               onClick={() => setTab(tabKey)}
             >
-              <div
-                className={clsx(
-                  'h-full w-[4px] rounded-s-[3px] opacity-0 group-hover/profile:opacity-100 transition-opacity',
-                  tabKey === tab && 'opacity-100'
-                )}
-              >
-                <SVGLine />
-              </div>
-              {label}
+              {tabKey === tab && (
+                <ActiveMarker />
+              )}
+              <span className="flex-1 truncate text-start t-control">
+                {label}
+              </span>
             </div>
           ))}
         </div>
         <div>
           {showLogout && (
-            <div className="mt-4">
+            <div className="mt-[16px]">
               <LogoutComponent />
             </div>
           )}
@@ -157,7 +167,7 @@ export const SettingsPopup: FC<{
             <div
               className={clsx(
                 'w-full mx-auto gap-[24px] flex flex-col relative',
-                !getRef && 'rounded-[4px]'
+                !getRef && 'rounded-thumb'
               )}
             >
               {tab === 'global_settings' && (
@@ -225,7 +235,7 @@ export const SettingsComponent = () => {
     }
     settings.openModal({
       children: (
-        <div className="relative flex gap-[20px] flex-col flex-1 rounded-[4px] border border-customColor6 bg-sixth p-[16px] w-[500px] mx-auto">
+        <div className="relative flex gap-[20px] flex-col flex-1 bg-surface border border-line rounded-card p-[20px] w-[500px] mx-auto">
           <SettingsPopup />
         </div>
       ),

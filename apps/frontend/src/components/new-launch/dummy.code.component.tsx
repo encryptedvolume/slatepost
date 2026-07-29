@@ -10,10 +10,10 @@ export const DummyCodeComponent: FC<{ code: any }> = ({ code }) => {
   const toaster = useToaster();
 
   return (
-    <div className="rounded-[4px] border border-customColor6 bg-sixth px-[16px] pb-[16px] relative w-full">
+    <div className="rounded-thumb border border-hairline bg-sixth px-[16px] pb-[16px] relative w-full">
       <TopTitle title={`Output`}>
         <Button
-          className="mr-[50px]"
+          className="mr-[48px]"
           onClick={() => {
             copy(JSON.stringify(code, null, 2));
             toaster.show('Code copied to clipboard', 'success');

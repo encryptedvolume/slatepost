@@ -161,8 +161,8 @@ export const TagsComponentInner: FC<{
     <div
       ref={ref}
       className={clsx(
-        'border rounded-[8px] justify-center flex items-center relative h-[44px] text-[15px] font-[600] select-none',
-        isOpen ? 'border-[#612BD3]' : 'border-newTextColor/10'
+        'border rounded-control justify-center flex items-center relative h-large t-body-strong select-none',
+        isOpen ? 'border-lineStrong' : 'border-line'
       )}
     >
       <div
@@ -177,13 +177,15 @@ export const TagsComponentInner: FC<{
             t('add_new_tag', 'Add New Tag')
           ) : (
             <>
-              <div
-                className="h-full flex justify-center items-center px-[8px] rounded-[4px]"
-                style={{ backgroundColor: tagValue[0].color }}
-              >
-                <span className="text-shadow-tags text-[#fff]">
-                  {tagValue[0].name}
-                </span>
+              {/* A tag's colour is user data and can be any hex, so a label is
+                  never painted on it — the colour rides a 6px swatch dot and
+                  the name stays on a token surface in `ink`. */}
+              <div className="h-full flex justify-center items-center gap-[4px]">
+                <span
+                  className="w-[6px] h-[6px] shrink-0 rounded-pill"
+                  style={{ backgroundColor: tagValue[0].color }}
+                />
+                <span className="text-ink">{tagValue[0].name}</span>
               </div>
               {tagValue.length > 1 ? <span>+{tagValue.length - 1}</span> : null}
             </>
@@ -194,7 +196,7 @@ export const TagsComponentInner: FC<{
         </div>
       </div>
       {isOpen && (
-        <div className="z-[300] absolute start-0 bottom-[100%] w-[240px] bg-newBgColorInner p-[12px] menu-shadow -translate-y-[10px] flex flex-col">
+        <div className="z-[300] absolute start-0 bottom-[100%] w-[240px] bg-newBgColorInner p-[12px] menu-shadow -translate-y-[8px] flex flex-col">
           {(data?.tags || []).map((p: any) => (
             <div
               onClick={() => {
@@ -217,24 +219,23 @@ export const TagsComponentInner: FC<{
                 });
               }}
               key={p.name}
-              className="min-h-[40px] py-[8px] px-[20px] -mx-[12px] flex gap-[8px] items-center group"
+              className="min-h-control py-[8px] px-[20px] -mx-[12px] flex gap-[8px] items-center group"
             >
               <Check
                 onChange={() => {}}
                 value={!!tagValue.find((a) => a.id === p.id)}
               />
-              <div className="h-full flex items-center flex-1 break-all">
+              <div className="h-full flex items-center gap-[8px] flex-1 break-all">
                 <span
-                  className="text-[#fff] px-[8px] rounded-[8px] text-shadow-tags"
+                  className="w-[6px] h-[6px] shrink-0 rounded-pill"
                   style={{ backgroundColor: p.color }}
-                >
-                  {p.name}
-                </span>
+                />
+                <span className="text-ink">{p.name}</span>
               </div>
               {!tagValue.find((a) => a.id === p.id) && (
                 <div
                   onClick={(e) => deleteTag(p, e)}
-                  className="ms-auto transition-opacity cursor-pointer text-red-500 text-[14px] font-[600]"
+                  className="ms-auto transition-opacity cursor-pointer text-critical t-control-strong"
                 >
                   ×
                 </div>
@@ -243,12 +244,12 @@ export const TagsComponentInner: FC<{
           ))}
           <div
             onClick={addTag}
-            className="cursor-pointer gap-[8px] flex w-full h-[34px] rounded-[8px] mt-[12px] px-[16px] justify-center items-center bg-[#612BD3] text-white"
+            className="cursor-pointer gap-[8px] flex w-full h-control rounded-control mt-[12px] px-[16px] justify-center items-center bg-primaryBg text-primaryText"
           >
             <div>
               <PlusIcon />
             </div>
-            <div className="text-[13px] font-[600]">
+            <div className="t-secondary-strong">
               {t('add_new_tag', 'Add New Tag')}
             </div>
           </div>
@@ -266,11 +267,11 @@ const Check: FC<{ value: boolean; onChange: (value: boolean) => void }> = ({
     <div
       onClick={() => onChange(!value)}
       className={clsx(
-        'text-[10px] font-[500] text-center flex border border-btnSimple rounded-[6px] min-w-[20px] min-h-[20px] w-[20px] h-[20px] justify-center items-center',
-        value && 'bg-[#612BD3]'
+'t-caption text-center flex border border-btnSimple rounded-thumb min-w-[20px] min-h-[20px] w-[20px] h-[20px] justify-center items-center',
+        value && 'bg-primaryBg'
       )}
     >
-      {value ? <CheckmarkIcon className="text-white" /> : ''}
+      {value ? <CheckmarkIcon className="text-ink" /> : ''}
     </div>
   );
 };
@@ -443,26 +444,33 @@ export const TagsComponentA: FC<{
               (f) => f.label === tag.tag.label
             );
             return (
+              // Same rule as the two call sites above: a tag's colour is user
+              // data and can be any hex, so it never becomes the backdrop a
+              // label has to resolve against. The chip fill is a token surface
+              // and the colour rides a 6px swatch dot beside the name.
               <div
-                className={`min-w-[50px] float-left ms-[4px] p-[3px] rounded-sm relative`}
-                style={{
-                  backgroundColor: findTag?.color,
-                }}
+                className={`min-w-[50px] float-left ms-[4px] p-[2px] rounded-thumb relative bg-surfaceActive`}
               >
                 <div
-                  className="absolute -top-[5px] start-[10px] text-[12px] text-red-600 bg-white px-[3px] rounded-full"
+                  className="absolute -top-[4px] start-[8px] t-caption text-critical bg-surface px-[2px] rounded-pill"
                   onClick={edit(findTag)}
                 >
                   {t('edit', 'Edit')}
                 </div>
                 <div
-                  className="absolute -top-[5px] -start-[5px] text-[12px] text-red-600 bg-white px-[3px] rounded-full"
+                  className="absolute -top-[4px] -start-[4px] t-caption text-critical bg-surface px-[2px] rounded-pill"
                   onClick={() => onDelete(findIndex)}
                 >
                   X
                 </div>
-                <div className="text-white mix-blend-difference">
-                  {tag.tag.label}
+                <div className="flex items-center gap-[4px] px-[4px]">
+                  {!!findTag?.color && (
+                    <span
+                      className="w-[6px] h-[6px] shrink-0 rounded-pill"
+                      style={{ backgroundColor: findTag.color }}
+                    />
+                  )}
+                  <span className="text-ink">{tag.tag.label}</span>
                 </div>
               </div>
             );
@@ -481,7 +489,7 @@ const ConfirmDeleteModal: FC<{
 
   return (
     <div className="flex flex-col gap-[16px]">
-      <p className="text-[14px]">
+      <p className="t-control">
         {t(
           'confirm_delete_tag',
           'Are you sure you want to delete the tag "{{tagName}}"?',
@@ -502,7 +510,7 @@ const ConfirmDeleteModal: FC<{
             resolve(true);
             close();
           }}
-          className="bg-red-500 hover:bg-red-600"
+          className="bg-criticalTint text-critical hover:bg-criticalTint"
         >
           {t('delete', 'Delete')}
         </Button>

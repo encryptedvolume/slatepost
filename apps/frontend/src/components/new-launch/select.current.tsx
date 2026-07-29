@@ -98,7 +98,7 @@ export const SelectCurrent: FC = () => {
         <div
           ref={contentRef}
           className={clsx(
-            'flex gap-[6px] w-full overflow-x-auto scrollbar scrollbar-thumb-tableBorder scrollbar-track-secondary',
+            'flex gap-[8px] w-full overflow-x-auto scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent',
             locked && 'opacity-50 pointer-events-none'
           )}
         >
@@ -108,10 +108,10 @@ export const SelectCurrent: FC = () => {
               setCurrent('global');
             }}
             className={clsx(
-              'cursor-pointer flex gap-[8px] rounded-[8px] w-[40px] h-[40px] justify-center items-center bg-newBgLineColor',
+              'cursor-pointer flex gap-[8px] rounded-control w-[36px] h-control justify-center items-center bg-newBgLineColor',
               current !== 'global'
-                ? 'text-[#A3A3A3]'
-                : 'border border-[#FC69FF] text-[#FC69FF]'
+                ? 'text-inkSecondary'
+                : 'border border-lineStrong text-ink'
             )}
           >
             <div>
@@ -126,15 +126,15 @@ export const SelectCurrent: FC = () => {
               }}
               key={integration.id}
               className={clsx(
-                'border cursor-pointer relative flex gap-[8px] w-[40px] h-[40px] rounded-[8px] items-center bg-newBgLineColor justify-center',
+                'border cursor-pointer relative flex gap-[8px] w-[36px] h-control rounded-control items-center bg-newBgLineColor justify-center',
                 current === integration.id
-                  ? 'border-[#FC69FF] text-[#FC69FF]'
+                  ? 'border-lineStrong text-ink'
                   : 'border-transparent'
               )}
             >
               <div
                 onClick={removeSocial(integration)}
-                className="absolute justify-center items-center flex w-[8px] h-[8px] -top-[1px] -start-[3px] bg-red-500 rounded-full text-white text-[8px]"
+                className="absolute justify-center items-center flex w-[8px] h-[8px] -top-[1px] -start-[2px] bg-criticalTint text-critical rounded-pill t-caption"
               >
                 X
               </div>
@@ -145,12 +145,12 @@ export const SelectCurrent: FC = () => {
                   'data-tooltip-content': integration.name,
                 }}
                 className={clsx(
-                  'relative w-full h-full rounded-full flex justify-center items-center filter transition-all duration-500'
+                  'relative w-full h-full rounded-pill flex justify-center items-center filter transition-all duration-state ease-state'
                 )}
               >
                 <SafeImage
                   src={integration.picture || '/no-picture.jpg'}
-                  className="rounded-full min-w-[26px]"
+                  className="rounded-pill min-w-[26px]"
                   alt={integration.identifier}
                   width={26}
                   height={26}
@@ -168,7 +168,7 @@ export const SelectCurrent: FC = () => {
                 ) : (
                   <SafeImage
                     src={`/icons/platforms/${integration.identifier}.png`}
-                    className="min-w-[12px] min-h-[12px] rounded-[3px] absolute z-10 bottom-[6px] end-[6px]"
+                    className="min-w-[12px] min-h-[12px] rounded-thumb absolute z-10 bottom-[8px] end-[8px]"
                     alt={integration.identifier}
                     width={12}
                     height={12}
@@ -179,7 +179,7 @@ export const SelectCurrent: FC = () => {
           ))}
         </div>
       </div>
-      <div className={clsx(hasScroll ? 'h-[55px]' : 'h-[40px]')} />
+      <div className={clsx(hasScroll ? 'h-[51px]' : 'h-control')} />
     </>
   );
 };
@@ -203,7 +203,7 @@ export const IsGlobal: FC<{ id: string }> = ({ id }) => {
         'no_longer_global_mode',
         'No longer in global mode'
       )}
-      className="w-[8px] h-[8px] bg-[#FC69FF] -top-[1px] -end-[3px] absolute rounded-full"
+      className="w-[8px] h-[8px] bg-inkSecondary -top-[1px] -end-[2px] absolute rounded-pill"
     />
   );
 };

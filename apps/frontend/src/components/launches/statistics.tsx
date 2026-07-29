@@ -76,7 +76,7 @@ export const StatisticsModal: FC<{
   return (
     <div className="relative min-h-[200px]">
       {isLoading ? (
-        <div className="flex items-center justify-center py-[40px]">
+        <div className="flex items-center justify-center py-[32px]">
           <LoadingComponent />
         </div>
       ) : isMissing ? (
@@ -85,9 +85,9 @@ export const StatisticsModal: FC<{
         <div className="flex flex-col gap-[24px]">
           {/* Post Analytics Section */}
           {analyticsData && Array.isArray(analyticsData) && analyticsData.length > 0 && (
-            <div className="flex flex-col gap-[14px]">
+            <div className="flex flex-col gap-[16px]">
               <div className="flex items-center justify-between">
-                <h3 className="text-[18px] font-[500]">
+                <h3 className="t-title-3">
                   {t('post_analytics', 'Post Analytics')}
                 </h3>
                 <div className="max-w-[150px]">
@@ -109,21 +109,27 @@ export const StatisticsModal: FC<{
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[16px]">
                 {analyticsData.map((p: AnalyticsData, index: number) => {
-                  const colorVariants = ['purple', 'green', 'blue'] as const;
+                  const colorVariants = [
+                    'primary',
+                    'secondary',
+                    'tertiary',
+                  ] as const;
                   const color = colorVariants[index % colorVariants.length];
                   return (
                     <div key={`analytics-${index}`} className="group">
-                      <div className="flex flex-col h-full bg-newTableHeader border border-newTableBorder rounded-[12px] overflow-hidden transition-all duration-200 hover:border-[#612bd3]/50">
-                        <div className="flex items-center justify-between px-[16px] pt-[14px] pb-[8px]">
-                          <div className="flex items-center gap-[10px]">
+                      <div className="flex flex-col h-full bg-newTableHeader border border-newTableBorder rounded-card overflow-hidden transition-colors duration-state ease-state hover:border-lineStrong">
+                        <div className="flex items-center justify-between px-[16px] pt-[16px] pb-[8px]">
+                          <div className="flex items-center gap-[8px]">
                             <div
-                              className={`w-[8px] h-[8px] rounded-full ${
-                                color === 'purple' ? 'bg-[#612bd3]' : ''
-                              } ${color === 'green' ? 'bg-[#32d583]' : ''} ${
-                                color === 'blue' ? 'bg-[#1d9bf0]' : ''
+                              className={`w-[8px] h-[8px] rounded-pill ${
+                                color === 'primary' ? 'bg-primaryBg' : ''
+                              } ${
+                                color === 'secondary' ? 'bg-inkSecondary' : ''
+                              } ${
+                                color === 'tertiary' ? 'bg-inkTertiary' : ''
                               }`}
                             />
-                            <span className="text-[15px] font-medium text-newTableText">
+                            <span className="t-body-emphasis text-newTableText">
                               {p.label}
                             </span>
                           </div>
@@ -133,8 +139,8 @@ export const StatisticsModal: FC<{
                             <ChartSocial data={p.data} color={color} key={`chart-${index}`} />
                           </div>
                         </div>
-                        <div className="px-[16px] pb-[14px]">
-                          <div className="text-[36px] leading-[42px] font-semibold tracking-tight">
+                        <div className="px-[16px] pb-[16px]">
+                          <div className="t-display tabular">
                             {totals[index]}
                           </div>
                         </div>
@@ -147,34 +153,34 @@ export const StatisticsModal: FC<{
           )}
 
           {/* Short Links Statistics Section */}
-          <div className="flex flex-col gap-[14px]">
-            <h3 className="text-[18px] font-[500]">
+          <div className="flex flex-col gap-[16px]">
+            <h3 className="t-title-3">
               {t('short_links_statistics', 'Short Links Statistics')}
             </h3>
             {statisticsData?.clicks?.length === 0 ? (
-              <div className="text-gray-400">
+              <div className="text-inkSecondary">
                 {t('no_short_link_results', 'No short link results')}
               </div>
             ) : (
               <div className="grid grid-cols-3">
-                <div className="bg-forth p-[4px] rounded-tl-lg">
+                <div className="bg-forth p-[4px] rounded-tl-control">
                   {t('short_link', 'Short Link')}
                 </div>
                 <div className="bg-forth p-[4px]">
                   {t('original_link', 'Original Link')}
                 </div>
-                <div className="bg-forth p-[4px] rounded-tr-lg">
+                <div className="bg-forth p-[4px] rounded-tr-control">
                   {t('clicks', 'Clicks')}
                 </div>
                 {statisticsData?.clicks?.map((p: any) => (
                   <Fragment key={p.short}>
-                    <div className="p-[4px] py-[10px] bg-customColor6">
+                    <div className="p-[4px] py-[8px] bg-hairline">
                       {p.short}
                     </div>
-                    <div className="p-[4px] py-[10px] bg-customColor6">
+                    <div className="p-[4px] py-[8px] bg-hairline">
                       {p.original}
                     </div>
-                    <div className="p-[4px] py-[10px] bg-customColor6">
+                    <div className="p-[4px] py-[8px] bg-hairline">
                       {p.clicks}
                     </div>
                   </Fragment>
@@ -186,7 +192,7 @@ export const StatisticsModal: FC<{
           {/* No analytics available message */}
           {(!analyticsData || !Array.isArray(analyticsData) || analyticsData.length === 0) &&
             (!statisticsData?.clicks || statisticsData.clicks.length === 0) && (
-              <div className="text-center text-gray-400 py-[20px]">
+              <div className="text-center text-inkSecondary py-[20px]">
                 {t('no_statistics_available', 'No statistics available for this post')}
               </div>
             )}

@@ -87,9 +87,9 @@ const SummaryCard: FC<{ label: string; value: number }> = ({
   label,
   value,
 }) => (
-  <div className="border border-newTableBorder rounded-[8px] p-[16px] bg-newBgColorInner">
-    <div className="text-[12px] opacity-70">{label}</div>
-    <div className="text-[28px] font-[600]">{value.toLocaleString()}</div>
+  <div className="border border-newTableBorder rounded-control p-[16px] bg-newBgColorInner">
+    <div className="t-caption opacity-70">{label}</div>
+    <div className="t-title-1 tabular">{value.toLocaleString()}</div>
   </div>
 );
 
@@ -97,20 +97,20 @@ const PerSocialTable: FC<{ title: string; block: StatsBlock }> = ({
   title,
   block,
 }) => (
-  <div className="border border-newTableBorder rounded-[8px] overflow-hidden">
-    <div className="grid grid-cols-[1fr_120px] gap-[12px] px-[12px] py-[10px] bg-newBgColorInner text-[12px] uppercase opacity-70 border-b border-newTableBorder">
+  <div className="border border-newTableBorder rounded-control overflow-hidden">
+    <div className="grid grid-cols-[1fr_120px] gap-[12px] px-[12px] py-[8px] bg-newBgColorInner t-caption uppercase opacity-70 border-b border-newTableBorder">
       <div>{title}</div>
       <div className="text-right">Count</div>
     </div>
     {block.perSocial.length === 0 ? (
-      <div className="px-[12px] py-[10px] text-[13px] opacity-70">
+      <div className="px-[12px] py-[8px] t-secondary opacity-70">
         No data for this timeframe.
       </div>
     ) : (
       block.perSocial.map((row) => (
         <div
           key={row.provider}
-          className="grid grid-cols-[1fr_120px] gap-[12px] px-[12px] py-[10px] text-[13px] border-b border-newTableBorder last:border-b-0"
+          className="grid grid-cols-[1fr_120px] gap-[12px] px-[12px] py-[8px] t-secondary border-b border-newTableBorder last:border-b-0"
         >
           <div className="capitalize">{row.provider}</div>
           <div className="text-right">{row.count.toLocaleString()}</div>
@@ -147,9 +147,9 @@ export const AdminStatsComponent: FC = () => {
   return (
     <div className="flex flex-col gap-[16px] text-textColor">
       <div className="flex items-center justify-between">
-        <div className="text-[20px] font-[600]">Admin Stats</div>
+        <div className="t-title-3">Admin Stats</div>
         {data && (
-          <div className="text-[13px] opacity-70">
+          <div className="t-secondary opacity-70">
             {new Date(data.from).toLocaleDateString()} —{' '}
             {new Date(data.to).toLocaleDateString()}
           </div>
@@ -165,9 +165,9 @@ export const AdminStatsComponent: FC = () => {
               key={preset.label}
               type="button"
               onClick={() => applyRange(next)}
-              className={`h-[32px] px-[12px] rounded-[8px] text-[13px] border cursor-pointer whitespace-nowrap ${
+              className={`h-[32px] px-[12px] rounded-control t-secondary border cursor-pointer whitespace-nowrap ${
                 active
-                  ? 'bg-forth text-white border-forth'
+                  ? 'bg-forth text-ink border-forth'
                   : 'bg-newBgColorInner text-textColor border-newTableBorder hover:bg-tableBorder'
               }`}
             >
@@ -177,26 +177,26 @@ export const AdminStatsComponent: FC = () => {
         })}
       </div>
 
-      <div className="flex flex-wrap gap-[12px] items-end bg-newBgColorInner border border-newTableBorder rounded-[8px] p-[12px]">
-        <div className="flex flex-col gap-[6px]">
-          <div className="text-[12px] opacity-70">From</div>
+      <div className="flex flex-wrap gap-[12px] items-end bg-newBgColorInner border border-newTableBorder rounded-control p-[12px]">
+        <div className="flex flex-col gap-[8px]">
+          <div className="t-caption opacity-70">From</div>
           <input
             type="date"
             value={fromInput}
             max={toInput}
             onChange={(e) => setFromInput(e.target.value)}
-            className="bg-newBgColorInner h-[38px] border border-newTableBorder rounded-[8px] px-[10px] text-[14px] text-textColor"
+            className="bg-newBgColorInner h-control border border-newTableBorder rounded-control px-[8px] t-control text-textColor"
           />
         </div>
-        <div className="flex flex-col gap-[6px]">
-          <div className="text-[12px] opacity-70">To</div>
+        <div className="flex flex-col gap-[8px]">
+          <div className="t-caption opacity-70">To</div>
           <input
             type="date"
             value={toInput}
             min={fromInput}
             max={today()}
             onChange={(e) => setToInput(e.target.value)}
-            className="bg-newBgColorInner h-[38px] border border-newTableBorder rounded-[8px] px-[10px] text-[14px] text-textColor"
+            className="bg-newBgColorInner h-control border border-newTableBorder rounded-control px-[8px] t-control text-textColor"
           />
         </div>
         <Button
@@ -207,7 +207,7 @@ export const AdminStatsComponent: FC = () => {
         </Button>
 
         <label
-          className="flex items-center gap-[6px] text-[13px] cursor-pointer h-[38px]"
+          className="flex items-center gap-[8px] t-secondary cursor-pointer h-control"
           title='Only count errors whose message matches "message":"Unknown Error" (affects the error stats only)'
         >
           <input
@@ -222,7 +222,7 @@ export const AdminStatsComponent: FC = () => {
       {isLoading ? (
         <LoadingComponent />
       ) : error || !data ? (
-        <div className="text-red-400">Failed to load stats.</div>
+        <div className="text-critical">Failed to load stats.</div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-[12px]">

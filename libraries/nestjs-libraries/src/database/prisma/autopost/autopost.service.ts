@@ -275,10 +275,19 @@ export class AutopostService {
       tags: [],
       posts: state.integrations.map((i) => ({
         settings: {
-          __type: i.providerIdentifier as any,
+          // TikTok is the only provider; drafts default to the safe path -
+          // UPLOAD sends to the user's inbox rather than publishing.
+          __type: 'tiktok' as const,
           title: '',
-          tags: [],
-          subreddit: [],
+          privacy_level: 'SELF_ONLY' as const,
+          duet: false,
+          stitch: false,
+          comment: false,
+          autoAddMusic: 'yes' as const,
+          brand_content_toggle: false,
+          brand_organic_toggle: false,
+          video_made_with_ai: false,
+          content_posting_method: 'UPLOAD' as const,
         },
         group: makeId(10),
         integration: { id: i.id },

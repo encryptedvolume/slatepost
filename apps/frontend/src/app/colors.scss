@@ -1,240 +1,362 @@
+/* ---------------------------------------------------------------------------
+   Slate — near-monochrome design tokens.
+
+   One true-neutral ramp (R=G=B at every step) carries 100% of structure,
+   surface and text. Every neutral semantic token below is a `var(--n…)` onto
+   that ramp — the ramp is genuinely the only place a neutral can come from,
+   and adding a colour means adding a ramp step first.
+
+   The ramp does not carry, and is not claimed to carry, four kinds of value.
+   Per theme they are exactly nine tokens, and they are the complete set of
+   literals in this file:
+     - `--slate-scrim` and `--slate-shadow-overlay`, which need an alpha
+       channel a flat ramp step cannot express;
+     - `--slate-accent` and `--slate-selection`, which are amber;
+     - `--slate-critical`, `-tint`, `-border`, `--slate-success`, `-tint`,
+       which are functional hues.
+
+   Accent budget — Signal Amber is a status colour, never a decoration, and
+   it has exactly four uses in the product:
+     1. focus ring                 global.scss `*:focus-visible`
+     2. scheduled/queued state dot calendar.tsx (day cell + post chip)
+     3. active nav marker          ui/active.marker.tsx, 2 x 16
+     4. calendar "now" line        calendar.tsx, 1px rule
+   `--slate-selection` is a fifth amber *tint* (not `--slate-accent`): the
+   ::selection wash in global.scss. It is listed here because it is amber and
+   therefore spends brand attention, even though it is a separate token.
+   Upload progress is NOT on this list — the progress fill draws in
+   `--slate-surface-active` (global.scss `.uppy-ProgressBar-inner`) and
+   `--slate-primary-bg` (media.settings.component.tsx). An earlier version of
+   this comment claimed it as a fifth accent use; it never was.
+   Primary actions are ink (black on light, white on dark).
+
+   Two functional-only hues (critical, success) exist for post lifecycle state
+   and are explicitly not brand colors.
+
+   The legacy `--new-*` and `--color-custom*` variables are kept only while
+   call sites remain, and every one of them is a `var()` onto a semantic token
+   below rather than a literal. `--color-custom*` is deprecated: 28 of the
+   original 55 survive, the other 27 were deleted here and from
+   tailwind.config.cjs once their last reference went.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* Neutral ramp — identical in both themes, R=G=B at every step, monotonic:
+     a higher number is always darker. Steps carry no meaning on their own;
+     the semantic tokens below are the only thing a component may name. */
+  --n0: #ffffff;
+  --n50: #fafafa;
+  --n100: #f5f5f5;
+  --n150: #eeeeee;
+  --n200: #e5e5e5;
+  --n300: #d4d4d4;
+  --n400: #a3a3a3;
+  --n450: #a1a1a1;
+  --n500: #8a8a8a;
+  --n525: #808080;
+  --n600: #737373;
+  /* Named n650, not n550: #6a6a6a is *darker* than n600 (#737373), so any
+     label below 600 would break the ramp's one invariant. */
+  --n650: #6a6a6a;
+  --n700: #525252;
+  --n800: #333333;
+  --n825: #262626;
+  --n850: #242424;
+  --n875: #1f1f1f;
+  --n900: #1a1a1a;
+  --n925: #161616;
+  --n950: #0f0f0f;
+  --n1000: #000000;
+
+  /* Labels and glyphs that sit on user content rather than on a surface —
+     a post tag's colour swatch, a control over a media thumbnail's scrim.
+     That backdrop is user data, not a palette step, so the mark cannot
+     resolve against the theme; it is constant in both. This is the only
+     token that is deliberately theme-independent. */
+  --slate-on-swatch: var(--n0);
+
+  /* Type stacks. Two families ship: the system UI stack and the system mono
+     stack. Nothing in the product sets a family literally. */
+  --slate-font-ui: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --slate-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    monospace;
+
+  /* Motion — three durations, two easings. Nothing else ships. */
+  --slate-dur-state: 120ms;
+  --slate-dur-enter: 180ms;
+  --slate-dur-surface: 240ms;
+  --slate-ease-state: cubic-bezier(0.4, 0, 0.2, 1);
+  --slate-ease-move: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
 :root {
   .dark {
-    --new-back-drop: #000;
-    --new-settings: #242323;
-    --new-border: #252525;
-    --new-bgColor: #0e0e0e;
-    --new-bgColorInner: #1a1919;
-    --new-sep: #454444;
-    --new-bgLineColor: #212121;
-    --new-textItemFocused: #1a1919;
-    --new-textItemBlur: #999999;
-    --new-boxFocused: #fff;
-    --new-textColor: 255 255 255;
-    --new-blockSeparator: #272626;
-    --new-btn-simple: #313030;
-    --new-btn-text: #ffffff;
-    --new-btn-primary: #612bd3;
-    --new-ai-btn: #d82d7e;
-    --new-box-hover: #201f1f;
-    --new-table-border: #2b2b2b;
-    --new-table-header: #1e1d1d;
-    --new-table-text: #9c9c9c;
-    --new-table-text-focused: #fc69ff;
-    --new-small-strips: #191818;
-    --new-big-strips: #161515;
-    --new-col-color: #2c2b2b;
-    --new-menu-dots: #696868;
-    --new-menu-hover: #fff;
-    --menu-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.5);
-    --popup-color: rgba(65, 64, 66, 0.3);
-    --border-preview: transparent;
+    /* ---- Slate semantic tokens (dark) ---- */
+    --slate-canvas: var(--n950);
+    --slate-surface: var(--n925);
+    --slate-surface-sunken: var(--n950);
+    --slate-surface-hover: var(--n900);
+    --slate-surface-active: var(--n850);
+    --slate-surface-overlay: var(--n900);
+    /* Literal, and one of the eleven the header names: a scrim is a
+       translucent wash over arbitrary content, so it needs an alpha channel
+       the ramp does not carry. The colour is the ramp's dark endpoint. */
+    --slate-scrim: rgba(0, 0, 0, 0.56);
+    /* Separation is 1px hairlines only — the system bans shadows and filled
+       boxes, so this ramp carries 100% of structure. The reference is Apple's
+       `opaqueSeparator`, which is 1.71:1 on its backdrop; the old #1f1f1f /
+       #2a2a2a pair sat at 1.10:1 and 1.26:1 on --slate-surface and was not
+       perceptible. Three distinct steps, monotonic in both themes. */
+    --slate-hairline: var(--n825);
+    --slate-line: var(--n800);
+    --slate-line-strong: var(--n700);
+    /* The boundary that *identifies* a control (input, textarea, select,
+       secondary button). WCAG 2.1 SC 1.4.11 wants 3:1 against the adjacent
+       surface, which `line` and `hairline` do not reach — they are decorative
+       separators and are exempt. 3.35:1 on --slate-surface. */
+    --slate-line-control: var(--n650);
+    --slate-text-primary: var(--n50);
+    --slate-text-secondary: var(--n450);
+    /* Tertiary clears 4.5:1 on `surface` and `canvas` ONLY. It does not
+       clear it on `surface-active` (3.93:1 dark / 4.09:1 light) or on
+       `surface-hover`, and the earlier justification for this token only
+       ever measured it against `surface`. Anything raised — a calendar
+       chip, a selected row, an active tab — takes `secondary`, which is
+       6.01:1 dark / 6.05:1 light on `surface-active`. */
+    --slate-text-tertiary: var(--n525);
+    --slate-text-inverse: var(--n950);
+    --slate-primary-bg: var(--n50);
+    --slate-primary-bg-hover: var(--n0);
+    --slate-primary-text: var(--n950);
+    --slate-skeleton: var(--n875);
+
+    /* Signal Amber — status only, four uses; see the accent budget in the
+       file header. Not on the ramp, and deliberately so: it is the one hue
+       that is allowed to be a hue. */
+    --slate-accent: #f0a63c;
+    /* The ::selection wash. An amber tint rather than `--slate-accent`
+       itself, but it spends the same brand attention, so the header counts
+       it against the budget. */
+    --slate-selection: #241b0d;
+
+    /* Functional only — post lifecycle state. Never branding, never on the
+       neutral ramp. */
+    --slate-critical: #f2857c;
+    --slate-critical-tint: #2a1412;
+    --slate-critical-border: #472220;
+    --slate-success: #6fbf7f;
+    --slate-success-tint: #12200f;
+
+    /* The only elevation shadow in the product. Overlays only. */
+    --slate-shadow-overlay: 0 1px 2px rgba(0, 0, 0, 0.4),
+      0 8px 24px rgba(0, 0, 0, 0.48);
+
+    /* ---- Legacy aliases ---- */
+    --new-back-drop: var(--slate-canvas);
+    --new-settings: var(--slate-surface-active);
+    --new-border: var(--slate-line);
+    --new-bgColor: var(--slate-canvas);
+    --new-bgColorInner: var(--slate-surface);
+    --new-sep: var(--slate-line-strong);
+    --new-bgLineColor: var(--slate-hairline);
+    --new-textItemFocused: var(--slate-text-primary);
+    --new-textItemBlur: var(--slate-text-secondary);
+    --new-boxFocused: var(--slate-surface-active);
+    --new-textColor: 250 250 250;
+    --new-blockSeparator: var(--slate-line);
+    --new-btn-simple: var(--slate-surface-active);
+    --new-btn-text: var(--slate-text-primary);
+    --new-btn-primary: var(--slate-primary-bg);
+    --new-ai-btn: var(--slate-primary-bg);
+    --new-box-hover: var(--slate-surface-hover);
+    --new-table-border: var(--slate-line);
+    --new-table-header: var(--slate-surface-hover);
+    --new-table-text: var(--slate-text-secondary);
+    --new-table-text-focused: var(--slate-text-primary);
+    --new-small-strips: var(--slate-surface-hover);
+    --new-big-strips: var(--slate-surface);
+    --new-col-color: var(--slate-surface-active);
+    --new-menu-dots: var(--slate-text-tertiary);
+    --new-menu-hover: var(--slate-text-primary);
+    --menu-shadow: var(--slate-shadow-overlay);
+    --popup-color: var(--slate-scrim);
+    --border-preview: var(--slate-line);
     --preview-box-shadow: none;
-    --linkedin-border: #2e3438;
-    --linkedin-bg: #1b1f23;
-    --linkedin-text: #c6c7c8;
-    --facebook-bg: #242526;
-    --facebook-bg-comment: #333334;
-    --instagram-bg: #0b1014;
-    --tiktok-item-bg: #2a2a2a;
-    --tiktok-item-icon-bg: #FFF;
-    --youtube-bg: #0F0F0F;
-    --youtube-button: #F1F1F1;
-    --youtube-action-color: #272727;
-    --youtube-svg-border: #A0A0A0;
+    --tiktok-item-bg: var(--slate-surface-active);
+    --tiktok-item-icon-bg: var(--slate-text-primary);
   }
   .light {
-    --new-back-drop: #2d1b57;
-    --new-settings: #eceef1;
-    --new-sep: #d5d9dd;
-    --new-border: #eaecee;
-    --new-bgColor: #f0f2f4;
-    --new-bgColorInner: #ffffff;
-    --new-bgLineColor: #e7e9eb;
-    --new-textItemFocused: #3900b2;
-    --new-textItemBlur: #777b7f;
-    --new-boxFocused: #ebe8ff;
-    --new-textColor: 14 14 14;
-    --new-blockSeparator: #f2f2f4;
-    --new-btn-simple: #eceef1;
-    --new-btn-text: #0e0e0e;
-    --new-btn-primary: #612bd3;
-    --new-ai-btn: #d82d7e;
-    --new-box-hover: #f4f6f8;
-    --new-table-border: #e7e9eb;
-    --new-table-header: #f5f7f9;
-    --new-table-text: #777b7f;
-    --new-table-text-focused: #fc69ff;
-    --new-small-strips: #191818;
-    --new-big-strips: #f5f7f9;
-    --new-col-color: #eff1f3;
-    --new-menu-dots: #696868;
-    --new-menu-hover: #000;
-    --menu-shadow: -22px 83px 24px 0 rgba(55, 52, 75, 0),
-      -14px 53px 22px 0 rgba(55, 52, 75, 0.01),
-      -8px 30px 19px 0 rgba(55, 52, 75, 0.05),
-      -3px 13px 14px 0 rgba(55, 52, 75, 0.09),
-      -1px 3px 8px 0 rgba(55, 52, 75, 0.1);
-    --popup-color: rgba(55, 37, 97, 0.2);
-    --border-preview: #f1f0f3;
-    --preview-box-shadow: 0 386px 108px 0 rgba(38, 32, 64, 0),
-      0 247px 99px 0 rgba(38, 32, 64, 0.01),
-      0 139px 83px 0 rgba(38, 32, 64, 0.03),
-      0 62px 62px 0 rgba(38, 32, 64, 0.04), 0 15px 34px 0 rgba(38, 32, 64, 0.05);
-    --linkedin-border: #e9e5df;
-    --linkedin-bg: #fff;
-    --linkedin-text: #707070;
-    --facebook-bg: #fff;
-    --facebook-bg-comment: #f6f6f6;
-    --instagram-bg: #fff;
-    --tiktok-item-bg: #EEF1F0;
-    --tiktok-item-icon-bg: #454645;
-    --youtube-bg: #FFF;
-    --youtube-button: #000;
-    --youtube-action-color: #F1F1F1;
-    --youtube-svg-border: #1A1A1A;
+    /* ---- Slate semantic tokens (light) ---- */
+    --slate-canvas: var(--n50);
+    --slate-surface: var(--n0);
+    --slate-surface-sunken: var(--n100);
+    --slate-surface-hover: var(--n100);
+    --slate-surface-active: var(--n150);
+    --slate-surface-overlay: var(--n0);
+    /* Literal — see the dark block. Colour is the ramp's --n950. */
+    --slate-scrim: rgba(15, 15, 15, 0.32);
+    /* See the dark block. 1.26:1 / 1.48:1 / 2.52:1 on --slate-surface — the
+       old #eeeeee / #e5e5e5 pair was 1.16:1 and 1.26:1 and vanished. */
+    --slate-hairline: var(--n200);
+    --slate-line: var(--n300);
+    --slate-line-strong: var(--n400);
+    /* See the dark block. --n500 of the ramp; 3.45:1 on --slate-surface. */
+    --slate-line-control: var(--n500);
+    --slate-text-primary: var(--n950);
+    --slate-text-secondary: var(--n700);
+    /* See the dark block: `surface` / `canvas` only, never on a raised
+       surface. */
+    --slate-text-tertiary: var(--n600);
+    --slate-text-inverse: var(--n0);
+    --slate-primary-bg: var(--n950);
+    --slate-primary-bg-hover: var(--n850);
+    --slate-primary-text: var(--n0);
+    --slate-skeleton: var(--n150);
+
+    /* Signal Amber — four uses; see the accent budget in the file header. */
+    --slate-accent: #a35a00;
+    /* The ::selection wash — an amber tint, counted against the budget. */
+    --slate-selection: #fbf3e8;
+
+    --slate-critical: #b3261e;
+    --slate-critical-tint: #fdf2f1;
+    --slate-critical-border: #efcfcc;
+    --slate-success: #2f6b3a;
+    --slate-success-tint: #f1f7f2;
+
+    --slate-shadow-overlay: 0 1px 2px rgba(0, 0, 0, 0.04),
+      0 8px 24px rgba(0, 0, 0, 0.12);
+
+    /* ---- Legacy aliases ---- */
+    --new-back-drop: var(--slate-canvas);
+    --new-settings: var(--slate-surface-active);
+    --new-sep: var(--slate-line-strong);
+    --new-border: var(--slate-line);
+    --new-bgColor: var(--slate-canvas);
+    --new-bgColorInner: var(--slate-surface);
+    --new-bgLineColor: var(--slate-hairline);
+    --new-textItemFocused: var(--slate-text-primary);
+    --new-textItemBlur: var(--slate-text-secondary);
+    --new-boxFocused: var(--slate-surface-active);
+    --new-textColor: 15 15 15;
+    --new-blockSeparator: var(--slate-line);
+    --new-btn-simple: var(--slate-surface-hover);
+    --new-btn-text: var(--slate-text-primary);
+    --new-btn-primary: var(--slate-primary-bg);
+    --new-ai-btn: var(--slate-primary-bg);
+    --new-box-hover: var(--slate-surface-hover);
+    --new-table-border: var(--slate-line);
+    --new-table-header: var(--slate-surface-sunken);
+    --new-table-text: var(--slate-text-secondary);
+    --new-table-text-focused: var(--slate-text-primary);
+    --new-small-strips: var(--slate-surface-sunken);
+    --new-big-strips: var(--slate-surface-sunken);
+    --new-col-color: var(--slate-surface-active);
+    --new-menu-dots: var(--slate-text-tertiary);
+    --new-menu-hover: var(--slate-text-primary);
+    --menu-shadow: var(--slate-shadow-overlay);
+    --popup-color: var(--slate-scrim);
+    --border-preview: var(--slate-hairline);
+    --preview-box-shadow: none;
+    --tiktok-item-bg: var(--slate-surface-sunken);
+    --tiktok-item-icon-bg: var(--slate-text-primary);
   }
 }
 
 :root {
   .dark {
-    --color-primary: #0e0e0e;
-    --color-secondary: #090b13;
-    --color-text: #ffffff;
-    --color-third: #080b13;
-    --color-forth: #612ad5;
-    --color-fifth: var(--new-bgLineColor);
-    --color-sixth: var(--new-table-header);
-    --color-seventh: #7236f1;
-    --color-gray: #8c8c8c;
-    --color-input: var(--new-table-header);
-    --color-input-text: #64748b;
-    --color-table-border: var(--new-table-border);
-    --color-custom1: #324264;
-    --color-custom2: #141c2c;
-    --color-custom3: #0b0f1c;
-    --color-custom4: #8155dd;
-    --color-custom5: #e9e9f1;
-    --color-custom6: var(--new-bgLineColor);
-    --color-custom7: #7950f2;
-    --color-custom8: var(--new-btn-simple);
-    --color-custom9: #354258;
-    --color-custom10: #e4b895;
-    --color-custom11: #8b90ff;
-    --color-custom12: #b7c1ff;
-    --color-custom13: #ffac30;
-    --color-custom14: #576a9a;
-    --color-custom15: #0a0a0a;
-    --color-custom16: #121a2d;
-    --color-custom17: #d3d3d3;
-    --color-custom18: #aaaaaa;
-    --color-custom19: #f97066;
-    --color-custom20: #121b2c;
-    --color-custom21: #506490;
-    --color-custom22: #b91c1c;
-    --color-custom23: #000000;
-    --color-custom24: #eaff00;
-    --color-custom25: #2e3336;
-    --color-custom26: #1d9bf0;
-    --color-custom27: #71767b;
-    --color-custom28: #b69dec;
-    --color-custom29: #291259;
-    --color-custom30: #5826c2;
-    --color-custom31: #0f1727;
-    --color-custom32: #181818;
-    --color-custom33: #f2f2f2;
-    --color-custom34: #334155;
-    --color-custom35: #242424;
-    --color-custom36: #6b6b6b;
-    --color-custom37: #0b1416;
-    --color-custom38: #d9d9d9;
-    --color-custom39: #ffffff;
-    --color-custom40: #0e0e0e;
-    --color-custom41: #cebdf2;
-    --color-custom42: #32d583;
-    --color-custom43: #425379;
-    --color-custom44: #283450;
-    --color-custom45: #832ad5;
-    --color-custom46: #658dac;
-    --color-custom47: #182034;
-    --color-custom48: #080b14;
-    --color-custom49: #0a0b14;
-    --color-custom50: #262373;
-    --color-custom51: #4f46e5;
-    --color-custom52: #eaeef2;
-    --color-custom53: #7c7d86;
-    --color-custom54: #afb8c1;
-    --color-custom55: #1b263b;
-    --color-modalCustom: #000000;
+    --color-primary: var(--slate-canvas);
+    --color-secondary: var(--slate-surface);
+    --color-text: var(--slate-text-primary);
+    --color-third: var(--slate-surface);
+    --color-forth: var(--slate-primary-bg);
+    --color-fifth: var(--slate-hairline);
+    --color-sixth: var(--slate-surface);
+    --color-seventh: var(--slate-surface-active);
+    --color-gray: var(--slate-text-tertiary);
+    --color-input: var(--slate-surface-sunken);
+    --color-table-border: var(--slate-line);
+    /* ---- Deprecated: --color-custom*  ----
+       Do not add a call site and do not add a variable. Every entry is now a
+       var() onto a token above rather than a raw hex, so the header claim at
+       the top of this file is literally true and nothing here can drift off
+       the ramp. Each one is pinned per theme to the step it already used, so
+       the rewrite is byte-identical to what shipped — a handful of aliases
+       therefore name different semantic tokens in the two blocks, which is
+       exactly the incoherence that makes them deprecated. They are deleted
+       here and from tailwind.config.cjs as their last call site migrates;
+       custom6 and custom18 went first, being the two most used. */
+    --color-custom1: var(--slate-line);
+    --color-custom2: var(--slate-surface);
+    --color-custom3: var(--slate-surface-hover);
+    --color-custom4: var(--slate-text-secondary);
+    --color-custom5: var(--slate-text-primary);
+    --color-custom8: var(--slate-surface-active);
+    --color-custom10: var(--slate-text-secondary);
+    --color-custom11: var(--slate-text-secondary);
+    --color-custom12: var(--slate-text-tertiary);
+    --color-custom13: var(--slate-text-primary);
+    --color-custom14: var(--slate-text-tertiary);
+    --color-custom16: var(--slate-canvas);
+    --color-custom17: var(--slate-text-primary);
+    --color-custom21: var(--slate-line);
+    --color-custom25: var(--slate-line);
+    --color-custom26: var(--slate-text-primary);
+    --color-custom27: var(--slate-text-tertiary);
+    --color-custom28: var(--slate-text-secondary);
+    --color-custom29: var(--slate-surface-active);
+    --color-custom30: var(--slate-surface-active);
+    --color-custom39: var(--slate-text-primary);
+    --color-custom40: var(--slate-canvas);
+    --color-custom45: var(--slate-text-primary);
+    --color-custom51: var(--slate-surface-active);
+    --color-custom52: var(--slate-surface-hover);
+    --color-custom53: var(--slate-text-tertiary);
+    --color-custom54: var(--slate-line-strong);
+    --color-custom55: var(--slate-line);
+    --color-modalCustom: var(--slate-canvas);
   }
   .light {
-    --color-primary: #f0f2f4;
-    --color-secondary: #fff;
-    --color-text: #000;
-    --color-third: white;
-    --color-forth: #612ad5;
-    --color-fifth: var(--new-bgLineColor);
-    --color-sixth: var(--new-table-header);
-    --color-seventh: #7236f1;
-    --color-gray: #8c8c8c;
-    --color-input: var(--new-table-header);
-    --color-input-text: #64748b;
-    --color-table-border: #efefef;
-    --color-custom1: #324264;
-    --color-custom2: #f8f8f8;
-    --color-custom3: #fff;
-    --color-custom4: #8155dd;
-    --color-custom5: #e9e9f1;
-    --color-custom6: var(--new-bgLineColor);
-    --color-custom7: #7950f2;
-    --color-custom8: var(--new-btn-simple);
-    --color-custom9: #354258;
-    --color-custom10: #e4b895;
-    --color-custom11: #8b90ff;
-    --color-custom12: #b7c1ff;
-    --color-custom13: #ffac30;
-    --color-custom14: #576a9a;
-    --color-custom15: #0a0a0a;
-    --color-custom16: #121a2d;
-    --color-custom17: #000;
-    --color-custom18: #000;
-    --color-custom19: #f97066;
-    --color-custom20: #f5f5f5;
-    --color-custom21: #506490;
-    --color-custom22: #b91c1c;
-    --color-custom23: #f5f5f5;
-    --color-custom24: #eaff00;
-    --color-custom25: #2e3336;
-    --color-custom26: #1d9bf0;
-    --color-custom27: #71767b;
-    --color-custom28: #b69dec;
-    --color-custom29: #291259;
-    --color-custom30: #efefef;
-    --color-custom31: #e0e0e0;
-    --color-custom32: #181818;
-    --color-custom33: #f2f2f2;
-    --color-custom34: #334155;
-    --color-custom35: #242424;
-    --color-custom36: #6b6b6b;
-    --color-custom37: #0b1416;
-    --color-custom38: #d9d9d9;
-    --color-custom39: #000;
-    --color-custom40: #fff;
-    --color-custom41: #cebdf2;
-    --color-custom42: #32d583;
-    --color-custom43: #425379;
-    --color-custom44: #283450;
-    --color-custom45: #832ad5;
-    --color-custom46: #658dac;
-    --color-custom47: #182034;
-    --color-custom48: #fff;
-    --color-custom49: #0a0b14;
-    --color-custom50: #262373;
-    --color-custom51: #4f46e5;
-    --color-custom52: #eaeef2;
-    --color-custom53: #7c7d86;
-    --color-custom54: #afb8c1;
-    --color-custom55: #d5d7e1;
+    --color-primary: var(--slate-canvas);
+    --color-secondary: var(--slate-surface);
+    --color-text: var(--slate-text-primary);
+    --color-third: var(--slate-surface);
+    --color-forth: var(--slate-primary-bg);
+    --color-fifth: var(--slate-hairline);
+    --color-sixth: var(--slate-surface);
+    --color-seventh: var(--slate-surface-active);
+    --color-gray: var(--slate-text-tertiary);
+    --color-input: var(--slate-surface);
+    --color-table-border: var(--slate-line);
+    --color-custom1: var(--slate-line-strong);
+    --color-custom2: var(--slate-surface-sunken);
+    --color-custom3: var(--slate-surface);
+    --color-custom4: var(--slate-text-secondary);
+    --color-custom5: var(--slate-surface-active);
+    --color-custom8: var(--slate-surface-hover);
+    --color-custom10: var(--slate-text-tertiary);
+    --color-custom11: var(--slate-text-tertiary);
+    --color-custom12: var(--slate-text-tertiary);
+    --color-custom13: var(--slate-text-primary);
+    --color-custom14: var(--slate-text-tertiary);
+    --color-custom16: var(--slate-text-primary);
+    --color-custom17: var(--slate-text-primary);
+    --color-custom21: var(--slate-line);
+    --color-custom25: var(--slate-line);
+    --color-custom26: var(--slate-text-primary);
+    --color-custom27: var(--slate-text-tertiary);
+    --color-custom28: var(--slate-text-secondary);
+    --color-custom29: var(--slate-surface-active);
+    --color-custom30: var(--slate-surface-active);
+    --color-custom39: var(--slate-text-primary);
+    --color-custom40: var(--slate-surface);
+    --color-custom45: var(--slate-text-primary);
+    --color-custom51: var(--slate-surface-active);
+    --color-custom52: var(--slate-surface-sunken);
+    --color-custom53: var(--slate-text-tertiary);
+    --color-custom54: var(--slate-line-strong);
+    --color-custom55: var(--slate-line);
     --color-modalCustom: transparent;
   }
 }

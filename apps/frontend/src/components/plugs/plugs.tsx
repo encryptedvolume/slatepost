@@ -15,8 +15,8 @@ import { PlugsContext } from '@gitroom/frontend/components/plugs/plugs.context';
 import { Plug } from '@gitroom/frontend/components/plugs/plug';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import useCookie from 'react-use-cookie';
-import { SVGLine } from '@gitroom/frontend/components/launches/launches.component';
 import { LoadingComponent } from '@gitroom/frontend/components/layout/loading';
+import { ActiveMarker } from '@gitroom/frontend/components/ui/active.marker';
 export const Plugs = () => {
   const fetch = useFetch();
   const router = useRouter();
@@ -86,7 +86,7 @@ export const Plugs = () => {
 
   if (isLoading || plugLoading) {
     return (
-      <div className="bg-newBgColorInner p-[20px] flex flex-1 flex-col gap-[15px] transition-all items-center justify-center">
+      <div className="bg-newBgColorInner p-[20px] flex flex-1 flex-col gap-[16px] transition-all items-center justify-center">
         <LoadingComponent />
       </div>
     );
@@ -94,16 +94,14 @@ export const Plugs = () => {
 
   if (!sortedIntegrations.length && !isLoading) {
     return (
-      <div className="bg-newBgColorInner p-[20px] flex flex-1 flex-col gap-[15px] transition-all items-center justify-center">
-        <div>
-          <img src="/peoplemarketplace.svg" />
-        </div>
-        <div className="text-[48px]">
+      <div className="p-[24px] flex flex-1 flex-col gap-[16px] items-center justify-center text-center">
+        <div className="t-title-2">
           {t(
             'there_are_not_plugs_matching_your_channels',
             'There are not plugs matching your channels'
           )}
-          <br />
+        </div>
+        <div className="t-secondary text-inkSecondary measure">
           {t(
             'you_have_to_add_x_linkedin_page_threads_or_bluesky',
             'You have to add: X, LinkedIn Page, Threads or Bluesky'
@@ -122,18 +120,18 @@ export const Plugs = () => {
     <>
       <div
         className={clsx(
-          'bg-newBgColorInner p-[20px] flex flex-col gap-[15px] transition-all',
+          'bg-newBgColorInner p-[20px] flex flex-col gap-[16px] transition-all',
           collapseMenu === '1' ? 'group sidebar w-[100px]' : 'w-[260px]'
         )}
       >
         <div className="flex gap-[12px] flex-col">
           <div className="flex items-center">
-            <h2 className="group-[.sidebar]:hidden flex-1 text-[20px] font-[500]">
+            <h2 className="group-[.sidebar]:hidden flex-1 t-title-3">
               {t('channels')}
             </h2>
             <div
               onClick={() => setCollapseMenu(collapseMenu === '1' ? '0' : '1')}
-              className="group-[.sidebar]:rotate-[180deg] group-[.sidebar]:mx-auto text-btnText bg-btnSimple rounded-[6px] w-[24px] h-[24px] flex items-center justify-center cursor-pointer select-none"
+              className="group-[.sidebar]:rotate-[180deg] group-[.sidebar]:mx-auto text-btnText bg-btnSimple rounded-thumb w-[24px] h-[24px] flex items-center justify-center cursor-pointer select-none"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -170,39 +168,41 @@ export const Plugs = () => {
                 setCurrent(index);
               }}
               className={clsx(
-                'flex gap-[8px] items-center justify-center group/profile hover:bg-boxHover rounded-e-[8px]',
+                'relative flex gap-[8px] items-center justify-center group/profile hover:bg-surfaceHover rounded-e-control',
                 currentIntegration.id !== integration.id &&
                   'opacity-20 hover:opacity-100 cursor-pointer'
               )}
             >
+              {/* Sanctioned accent use: the 2px x 16px active marker. It is
+                  bound to selection, never to :hover. */}
+              {currentIntegration.id === integration.id && (
+                <ActiveMarker />
+              )}
               <div
                 className={clsx(
-                  'relative rounded-full flex justify-center items-center gap-[8px]',
+                  'relative rounded-pill flex justify-center items-center gap-[8px]',
                   integration.disabled && 'opacity-50'
                 )}
               >
                 {(integration.inBetweenSteps || integration.refreshNeeded) && (
-                  <div className="absolute start-0 top-0 w-[39px] h-[46px] cursor-pointer">
-                    <div className="bg-red-500 w-[15px] h-[15px] rounded-full start-0 -top-[5px] absolute z-[200] text-[10px] flex justify-center items-center">
+                  <div className="absolute start-0 top-0 w-[36px] h-control cursor-pointer">
+                    <div className="bg-criticalTint text-critical w-[15px] h-[15px] rounded-pill start-0 -top-[4px] absolute z-[200] t-caption flex justify-center items-center">
                       !
                     </div>
-                    <div className="bg-primary/60 w-[39px] h-[46px] start-0 top-0 absolute rounded-full z-[199]" />
+                    <div className="bg-scrim w-[36px] h-control start-0 top-0 absolute rounded-pill z-[199]" />
                   </div>
                 )}
-                <div className="h-full w-[4px] -ms-[12px] rounded-s-[3px] opacity-0 group-hover/profile:opacity-100 transition-opacity">
-                  <SVGLine />
-                </div>
                 <ImageWithFallback
                   fallbackSrc={`/icons/platforms/${integration.identifier}.png`}
                   src={integration.picture}
-                  className="rounded-[8px]"
+                  className="rounded-control"
                   alt={integration.identifier}
                   width={36}
                   height={36}
                 />
                 <SafeImage
                   src={`/icons/platforms/${integration.identifier}.png`}
-                  className="rounded-[8px] absolute z-10 bottom-[5px] -end-[5px] border border-fifth"
+                  className="rounded-control absolute z-10 bottom-[4px] -end-[4px] border border-fifth"
                   alt={integration.identifier}
                   width={18.41}
                   height={18.41}

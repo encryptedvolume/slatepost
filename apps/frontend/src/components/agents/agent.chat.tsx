@@ -65,14 +65,14 @@ export const AgentChat: FC = () => {
             '--copilot-kit-background-color': 'var(--new-bg-color)',
           } as CopilotKitCSSProperties
         }
-        className="trz agent bg-newBgColorInner flex flex-col gap-[15px] transition-all flex-1 items-center relative"
+        className="trz agent bg-newBgColorInner flex flex-col gap-[16px] transition-all flex-1 items-center relative"
       >
         <div className="absolute left-0 w-full h-full pb-[20px]">
           <CopilotChat
             className="w-full h-full"
             labels={{
               title: t('your_assistant', 'Your Assistant'),
-              initial: t('agent_welcome_message', `Hello, I am your Postiz agent 🙌🏻.
+              initial: t('agent_welcome_message', `Hello, I am your Slate agent.
               
 I can schedule a post or multiple posts to multiple channels and generate pictures and videos.
 
@@ -152,7 +152,7 @@ const Message: FC<UserMessageProps> = (props) => {
   const convertContentToImagesAndVideo = useMemo(() => {
     return (props.message?.content || '')
       .replace(/Video: (http.*mp4\n)/g, (match, p1) => {
-        return `<video controls class="h-[150px] w-[150px] rounded-[8px] mb-[10px]"><source src="${p1.trim()}" type="video/mp4">Your browser does not support the video tag.</video>`;
+        return `<video controls class="h-[150px] w-[150px] rounded-control mb-[8px]"><source src="${p1.trim()}" type="video/mp4">Your browser does not support the video tag.</video>`;
       })
       .replace(/Image: (http.*\n)/g, (match, p1) => {
         return `<img src="${p1.trim()}" class="h-[150px] w-[150px] max-w-full border border-newBgColorInner" />`;

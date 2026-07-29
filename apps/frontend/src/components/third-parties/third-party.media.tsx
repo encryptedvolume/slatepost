@@ -93,16 +93,16 @@ export const ThirdPartyPopup: FC<{
   }, []);
 
   return (
-    <div className={clsx('flex flex-wrap flex-col gap-[10px] pt-[20px]')}>
+    <div className={clsx('flex flex-wrap flex-col gap-[8px] pt-[20px]')}>
       {!thirdParty && (
-        <div className="grid grid-cols-4 gap-[10px] justify-items-center justify-center">
+        <div className="grid grid-cols-4 gap-[8px] justify-items-center justify-center">
           {thirdParties.map((p: any) => (
             <div
               onClick={() => {
                 setThirdParty(p);
               }}
               key={p.identifier}
-              className="w-full h-full p-[20px] min-h-[100px] text-[14px] bg-newTableHeader hover:bg-newTableBorder rounded-[8px] transition-all text-textColor relative flex flex-col gap-[15px] cursor-pointer"
+              className="w-full h-full p-[20px] min-h-[100px] t-control bg-newTableHeader hover:bg-newTableBorder rounded-control transition-all text-textColor relative flex flex-col gap-[16px] cursor-pointer"
             >
               <div>
                 <img
@@ -110,7 +110,7 @@ export const ThirdPartyPopup: FC<{
                   src={`/icons/third-party/${p.identifier}.png`}
                 />
               </div>
-              <div className="whitespace-pre-wrap text-left text-lg">
+              <div className="whitespace-pre-wrap text-left t-title-3">
                 {p.title}: {p.name}
               </div>
               <div className="whitespace-pre-wrap text-left">
@@ -184,7 +184,7 @@ export const ThirdPartyMedia: FC<{
       <div className="relative group">
         <div
           className={clsx(
-            'cursor-pointer h-[30px] rounded-[6px] justify-center items-center flex bg-newColColor px-[8px]'
+            'cursor-pointer h-compact rounded-thumb justify-center items-center flex bg-newColColor px-[8px]'
           )}
           onClick={() => {
             modals.openModal({
@@ -201,7 +201,7 @@ export const ThirdPartyMedia: FC<{
             });
           }}
         >
-          <div className={clsx('flex gap-[5px] items-center')}>
+          <div className={clsx('flex gap-[4px] items-center')}>
             <div>
               <svg
                 width="16"
@@ -216,7 +216,7 @@ export const ThirdPartyMedia: FC<{
                 />
               </svg>
             </div>
-            <div className="text-[10px] font-[600] iconBreak:hidden block">
+            <div className="t-caption-strong iconBreak:hidden block">
               {t('integrations', 'Integrations')}
             </div>
           </div>

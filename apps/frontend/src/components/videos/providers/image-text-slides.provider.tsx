@@ -100,40 +100,40 @@ const VoiceSelector: FC = () => {
 
   if (isLoading || !data?.voices?.length) {
     return (
-      <div className="flex items-center justify-center py-4">
-        <div className="text-sm text-gray-500">Loading voices...</div>
+      <div className="flex items-center justify-center py-[16px]">
+        <div className="t-secondary text-inkTertiary">Loading voices...</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
-      <div className="text-sm font-medium text-textColor mb-4">
+    <div className="space-y-[12px]">
+      <div className="t-secondary-emphasis text-textColor mb-[16px]">
         Select a Voice
       </div>
-      <div className="space-y-2">
+      <div className="space-y-[8px]">
         {data.voices.map((voice) => (
           <div
             key={voice.id}
             className={clsx(
-              'flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer',
+              'flex items-center justify-between p-[12px] rounded-control border transition-colors cursor-pointer',
               selectedVoice === voice.id
-                ? 'border-primary bg-primary/10'
-                : 'border-tableBorder bg-sixth hover:bg-seventh'
+                ? 'border-lineStrong bg-surfaceActive'
+                : 'border-line bg-surface hover:bg-surfaceHover'
             )}
             onClick={() => selectVoice(voice.id)}
           >
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-[12px]">
               <input
                 {...register('voice')}
                 type="radio"
                 value={voice.id}
-                className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+                className="w-[16px] h-[16px] text-primary border-line focus:ring-primary"
                 checked={selectedVoice === voice.id}
                 onChange={() => selectVoice(voice.id)}
               />
               <div>
-                <div className="text-sm font-medium text-textColor">
+                <div className="t-secondary-emphasis text-textColor">
                   {voice.name}
                 </div>
               </div>
@@ -142,9 +142,9 @@ const VoiceSelector: FC = () => {
             <Button
               type="button"
               className={clsx(
-                'px-3 py-1 text-xs',
+                'px-[12px] py-[4px] t-caption',
                 loadingVoice === voice.id && 'opacity-50 cursor-not-allowed',
-                currentlyPlaying === voice.id && 'bg-red-500 hover:bg-red-600'
+                currentlyPlaying === voice.id && 'bg-criticalTint text-critical hover:bg-criticalTint'
               )}
               onClick={(e) => {
                 e.stopPropagation();

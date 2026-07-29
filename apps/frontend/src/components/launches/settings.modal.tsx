@@ -14,9 +14,9 @@ export const Element: FC<{
   const { setting, onChange } = props;
   const [value, setValue] = useState(setting.value);
   return (
-    <div className="flex flex-col gap-[10px]">
+    <div className="flex flex-col gap-[8px]">
       <div>{setting.title}</div>
-      <div className="text-[14px]">{setting.description}</div>
+      <div className="t-control">{setting.description}</div>
       <Slider
         value={value === true ? 'on' : 'off'}
         onChange={() => {
@@ -74,7 +74,7 @@ export const SettingsModal: FC<{
         ))}
       </div>
 
-      <div className="my-[16px] flex gap-[10px]">
+      <div className="my-[16px] flex gap-[8px]">
         <Button onClick={save}>{t('save', 'Save')}</Button>
       </div>
     </div>

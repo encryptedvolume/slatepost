@@ -48,13 +48,13 @@ export const RenderComponents: FC<{
   }
   return (
     <>
-      <div className="mb-6 flex space-x-3">
-        <form className="flex-1 space-y-2" onSubmit={handleSubmit(submit)}>
+      <div className="mb-[24px] flex space-x-[12px]">
+        <form className="flex-1 space-y-[8px]" onSubmit={handleSubmit(submit)}>
           <textarea
             {...register('comment', {
               required: true,
             })}
-            className="flex w-full px-3 py-2 h-[98px] text-sm ring-offset-background placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px] resize-none text-white bg-third border border-tableBorder placeholder-gray-500 focus:ring-0"
+            className="flex w-full px-[12px] py-[8px] h-[98px] t-secondary ring-offset-background placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px] resize-none text-ink bg-third border border-tableBorder placeholder-inkTertiary focus:ring-0"
             placeholder="Add a comment..."
             defaultValue={''}
           />
@@ -70,7 +70,7 @@ export const RenderComponents: FC<{
                 strokeWidth={2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="lucide lucide-send me-2 h-4 w-4"
+                className="lucide lucide-send me-[8px] h-[16px] w-[16px]"
               >
                 <path d="m22 2-7 20-4-9-9-4Z" />
                 <path d="M22 2 11 13" />
@@ -80,23 +80,23 @@ export const RenderComponents: FC<{
           </div>
         </form>
       </div>
-      <div className="space-y-4">
+      <div className="space-y-[16px]">
         {!!data.comments.length && (
-          <h3 className="text-lg font-semibold">{t('comments', 'Comments')}</h3>
+          <h3 className="t-title-3">{t('comments', 'Comments')}</h3>
         )}
         {data.comments.map((comment: any) => (
           <div
             key={comment.id}
-            className="flex space-x-3 border-t border-tableBorder py-3"
+            className="flex space-x-[12px] border-t border-tableBorder py-[12px]"
           >
-            <div className="flex-1 space-y-1">
-              <div className="flex items-center space-x-2">
-                <h3 className="text-sm font-semibold">
+            <div className="flex-1 space-y-[4px]">
+              <div className="flex items-center space-x-[8px]">
+                <h3 className="t-secondary-strong">
                   {t('user', 'User')}
                   {mapUsers[comment.userId]}
                 </h3>
               </div>
-              <p className="text-sm text-gray-300">{comment.content}</p>
+              <p className="t-secondary text-inkSecondary">{comment.content}</p>
             </div>
           </div>
         ))}

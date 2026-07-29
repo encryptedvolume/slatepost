@@ -93,11 +93,11 @@ export const ChangeLanguageComponent = () => {
 
   return (
     <div className="relative">
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-[8px]">
         {availableLanguages.map((language) => (
           <div
             className={clsx(
-              'flex items-center flex-col bg-newTableHeader hover:bg-newTableBorder p-[20px] cursor-pointer gap-2',
+              'flex items-center flex-col bg-newTableHeader hover:bg-newTableBorder p-[20px] cursor-pointer gap-[8px]',
               language === currentLanguage ? 'border border-textColor' : ''
             )}
             key={language}
@@ -135,7 +135,7 @@ export const LanguageComponent = () => {
   return (
     <div
       onClick={openModal}
-      className="rounded-full overflow-hidden h-[22px] w-[22px] relative cursor-pointer"
+      className="rounded-pill overflow-hidden h-[22px] w-[22px] relative cursor-pointer"
     >
       <ReactCountryFlag
         countryCode={getCountryCodeForFlag(currentLanguage)}

@@ -21,6 +21,19 @@ type Inputs = {
   providerToken: '';
   provider: 'LOCAL';
 };
+
+/**
+ * Single-sign-on buttons are owned by the provider components. They are pulled
+ * onto the neutral ramp from here — surface fill, 1px hairline, 44px control,
+ * and every third-party mark forced to monochrome currentColor — so the login
+ * screen keeps a single palette without touching those files.
+ */
+export const ssoRowClassName =
+  'flex gap-[8px] [&>div]:!bg-surface [&>div]:!text-ink [&>div]:!border [&>div]:!border-line ' +
+  '[&>div]:!h-large [&>div]:!rounded-control [&>div]:!text-control ' +
+  '[&>div]:transition-colors [&>div]:duration-state [&>div]:ease-state [&>div:hover]:!bg-surfaceHover ' +
+  '[&_svg]:!w-[16px] [&_svg]:!h-[16px] [&_svg_path]:!fill-current [&_svg_path]:!stroke-current';
+
 export function Login() {
   const t = useT();
   const [loading, setLoading] = useState(false);
@@ -64,94 +77,94 @@ export function Login() {
     <FormProvider {...form}>
       <form className="flex-1 flex" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col flex-1">
-          <div>
-            <h1 className="text-[40px] font-[500] -tracking-[0.8px] text-start cursor-pointer">
-              {t('sign_in', 'Sign In')}
-            </h1>
-          </div>
-          <div className="text-[14px] mt-[32px] mb-[12px]">
+          <h1 className="t-title-1 text-ink">{t('sign_in', 'Sign In')}</h1>
+
+          <div className="t-secondary text-inkTertiary mt-[32px] mb-[12px]">
             {t('continue_with', 'Continue With')}
           </div>
-          <div className="flex flex-col">
+          <div className={ssoRowClassName}>
             {isGeneral && genericOauth ? (
               <OauthProvider />
             ) : !isGeneral ? (
               <GithubProvider />
             ) : (
-              <div className="gap-[8px] flex">
+              <>
                 <GoogleProvider />
                 {!!neynarClientId && <FarcasterProvider />}
                 {billingEnabled && <WalletProvider />}
-              </div>
+              </>
             )}
-            <div className="h-[20px] mb-[24px] mt-[24px] relative">
-              <div className="absolute w-full h-[1px] bg-fifth top-[50%] -translate-y-[50%]" />
-              <div
-                className={`absolute z-[1] justify-center items-center w-full start-0 -top-[4px] flex`}
+          </div>
+
+          {/* Hairline rule with the label sitting on the canvas. */}
+          <div className="relative my-[32px] h-[18px]">
+            <div className="absolute inset-x-0 top-1/2 h-[1px] bg-hairline" />
+            <div className="absolute inset-0 flex justify-center">
+              <span className="bg-canvas px-[12px] t-secondary text-inkTertiary">
+                {t('or', 'or')}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <Input
+              label="Email"
+              translationKey="label_email"
+              {...form.register('email')}
+              type="email"
+              placeholder={t('email_address', 'Email Address')}
+            />
+            <Input
+              label="Password"
+              translationKey="label_password"
+              {...form.register('password')}
+              autoComplete="off"
+              type="password"
+              placeholder={t('label_password', 'Password')}
+            />
+          </div>
+
+          {notActivated && (
+            <div className="mt-[8px] mb-[24px] rounded-control border border-line bg-surfaceSunken p-[16px] flex flex-col gap-[8px]">
+              <p className="t-secondary text-inkSecondary">
+                {t(
+                  'account_not_activated',
+                  'Your account is not activated yet. Please check your email for the activation link.'
+                )}
+              </p>
+              <Link
+                href="/auth/activate"
+                className="t-secondary text-ink underline underline-offset-2 w-fit"
               >
-                <div className="px-[16px]">{t('or', 'or')}</div>
-              </div>
+                {t('resend_activation_email', 'Resend Activation Email')}
+              </Link>
             </div>
-            <div className="flex flex-col gap-[12px]">
-              <div className="text-textColor">
-                <Input
-                  label="Email"
-                  translationKey="label_email"
-                  {...form.register('email')}
-                  type="email"
-                  placeholder={t('email_address', 'Email Address')}
-                />
-                <Input
-                  label="Password"
-                  translationKey="label_password"
-                  {...form.register('password')}
-                  autoComplete="off"
-                  type="password"
-                  placeholder={t('label_password', 'Password')}
-                />
-              </div>
-              {notActivated && (
-                <div className="bg-amber-500/10 border border-amber-500/30 rounded-[10px] p-4 mb-4">
-                  <p className="text-amber-400 text-sm mb-2">
-                    {t(
-                      'account_not_activated',
-                      'Your account is not activated yet. Please check your email for the activation link.'
-                    )}
-                  </p>
-                  <Link
-                    href="/auth/activate"
-                    className="text-amber-400 underline hover:font-bold text-sm"
-                  >
-                    {t('resend_activation_email', 'Resend Activation Email')}
-                  </Link>
-                </div>
-              )}
-              <div className="text-center mt-6">
-                <div className="w-full flex">
-                  <Button
-                    type="submit"
-                    className="flex-1 rounded-[10px] !h-[52px]"
-                    loading={loading}
-                  >
-                    {t('sign_in_1', 'Sign in')}
-                  </Button>
-                </div>
-                <p className="mt-4 text-sm">
-                  {t('don_t_have_an_account', "Don't Have An Account?")}&nbsp;
-                  <Link href="/auth" className="underline cursor-pointer">
-                    {t('sign_up', 'Sign Up')}
-                  </Link>
-                </p>
-                <p className="mt-4 text-sm">
-                  <Link
-                    href="/auth/forgot"
-                    className="underline hover:font-bold cursor-pointer"
-                  >
-                    {t('forgot_password', 'Forgot password')}
-                  </Link>
-                </p>
-              </div>
-            </div>
+          )}
+
+          <Button
+            type="submit"
+            className="w-full !h-large mt-[24px]"
+            loading={loading}
+          >
+            {t('sign_in_1', 'Sign in')}
+          </Button>
+
+          <div className="mt-[24px] flex flex-col gap-[8px]">
+            <p className="t-secondary text-inkSecondary">
+              {t('don_t_have_an_account', "Don't Have An Account?")}&nbsp;
+              <Link
+                href="/auth"
+                className="text-ink underline underline-offset-2"
+              >
+                {t('sign_up', 'Sign Up')}
+              </Link>
+            </p>
+            <Link
+              href="/auth/forgot"
+              className="t-secondary text-inkSecondary underline underline-offset-2 w-fit"
+            >
+              {t('forgot_password', 'Forgot password')}
+            </Link>
           </div>
         </div>
       </form>

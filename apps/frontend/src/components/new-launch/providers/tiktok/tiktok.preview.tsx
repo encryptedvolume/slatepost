@@ -10,10 +10,10 @@ import { VideoOrImage } from '@gitroom/react/helpers/video.or.image';
 const TikTokItem: FC<{ icon: ReactNode; num: string }> = ({ icon, num }) => {
   return (
     <div className="flex items-center flex-col">
-      <div className="w-[29px] h-[29px] rounded-full bg-bgTiktokItem flex justify-center items-center text-bgTiktokItemIcon">
+      <div className="w-[32px] h-[32px] rounded-pill bg-bgTiktokItem flex justify-center items-center text-bgTiktokItemIcon">
         {icon}
       </div>
-      <div className="text-[8px] font-[700] text-bgTiktokItemIcon">{num}</div>
+      <div className="t-caption text-bgTiktokItemIcon">{num}</div>
     </div>
   );
 };
@@ -46,18 +46,18 @@ export const TiktokPreview: FC<{
       newContent
         .slice(start, end)
         .replace(/\[\[\[([.\s\S]*?)]]]/, (match, match1) => {
-          return `<span class="font-bold font-[arial]" style="color: #ae8afc">${match1}</span>`;
+          return `<span class="t-secondary-emphasis" style="color: var(--slate-text-primary)">${match1}</span>`;
         }) +
-      `<mark class="bg-red-500" data-tooltip-id="tooltip" data-tooltip-content="This text will be cropped">` +
+      `<mark class="bg-criticalTint text-critical" data-tooltip-id="tooltip" data-tooltip-content="This text will be cropped">` +
       newContent.slice(end).replace(/\[\[\[([.\s\S]*?)]]]/, (match, match1) => {
-        return `<span class="font-bold font-[arial]" style="color: #ae8afc">${match1}</span>`;
+        return `<span class="t-secondary-emphasis" style="color: var(--slate-text-primary)">${match1}</span>`;
       }) +
       `</mark>`;
 
     return { text: finalValue, images: p.image };
   });
   return (
-    <div className="p-[15px] absolute left-0 top-0 w-full h-full flex justify-center bg-newBgColorInner">
+    <div className="p-[16px] absolute left-0 top-0 w-full h-full flex justify-center bg-newBgColorInner">
       <div className="relative">
         <SliderComponent
           list={renderContent?.[0]?.images.map((image, index) => (
@@ -70,21 +70,21 @@ export const TiktokPreview: FC<{
               <VideoOrImage autoplay={true} src={mediaDir.set(image.path)} />
             </a>
           ))}
-          className="h-full bg-black aspect-[calc(9/16)] rounded-[3px] overflow-hidden"
+          className="h-full bg-canvas aspect-[calc(9/16)] rounded-thumb overflow-hidden"
         />
-        <div className="absolute pointer-events-none w-full h-full start-0 top-0 px-[12px] py-[25px] justify-end items-start text-white flex flex-col">
-          <div className="text-[14px] font-[500]">@{integration?.name}</div>
-          <div className="text-[13px] font-[400] whitespace-pre-line line-clamp-6 w-full"
+        <div className="absolute pointer-events-none w-full h-full start-0 top-0 px-[12px] py-[24px] justify-end items-start text-ink flex flex-col">
+          <div className="t-control">@{integration?.name}</div>
+          <div className="t-secondary whitespace-pre-line line-clamp-6 w-full"
             dangerouslySetInnerHTML={{ __html: renderContent?.[0]?.text || '' }}
           />
         </div>
       </div>
-      <div className="flex flex-col justify-end gap-[10px] ml-[18px]">
+      <div className="flex flex-col justify-end gap-[8px] ml-[16px]">
         <div className="relative">
           <img
             src={integration?.picture || '/no-picture.jpg'}
             alt="social"
-            className="rounded-full z-[2] w-[29px] h-[29px]"
+            className="rounded-pill z-[2] w-[32px] h-[32px]"
           />
           <div className="absolute left-[50%] -translate-x-[50%] bottom-0 translate-y-[50%] z-[1]">
             <svg
@@ -174,7 +174,7 @@ export const TiktokPreview: FC<{
           <img
             src={integration?.picture || '/no-picture.jpg'}
             alt="social"
-            className="rounded-full relative z-[2] w-[29px] h-[29px]"
+            className="rounded-pill relative z-[2] w-[32px] h-[32px]"
           />
         </div>
       </div>

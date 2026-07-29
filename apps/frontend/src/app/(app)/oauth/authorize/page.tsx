@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import { Logo } from '@gitroom/frontend/components/new-layout/logo';
+import { Button } from '@gitroom/react/form/button';
 
 export default function OAuthAuthorizePage() {
   const searchParams = useSearchParams();
@@ -79,21 +80,12 @@ export default function OAuthAuthorizePage() {
 
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-[20%] left-[10%] w-[300px] h-[300px] bg-[#612BD3] rounded-full blur-[120px]" />
-          <div className="absolute bottom-[20%] right-[10%] w-[250px] h-[250px] bg-[#FC69FF] rounded-full blur-[120px]" />
-        </div>
-        <div className="relative z-10 text-center">
+      <div className="flex flex-1 items-center justify-center bg-canvas text-ink">
+        <div className="text-center">
           <div className="flex justify-center mb-[24px]">
             <Logo />
           </div>
-          <div className="text-[16px] text-gray-400">
-            Please wait...
-          </div>
-          <div className="mt-[32px] flex justify-center">
-            <div className="w-[48px] h-[48px] border-[3px] border-[#612BD3] border-t-transparent rounded-full animate-spin" />
-          </div>
+          <div className="t-body text-inkSecondary">Please wait...</div>
         </div>
       </div>
     );
@@ -101,34 +93,13 @@ export default function OAuthAuthorizePage() {
 
   if (error) {
     return (
-      <div className="flex flex-1 items-center justify-center text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-[20%] left-[10%] w-[300px] h-[300px] bg-[#612BD3] rounded-full blur-[120px]" />
-          <div className="absolute bottom-[20%] right-[10%] w-[250px] h-[250px] bg-[#FC69FF] rounded-full blur-[120px]" />
-        </div>
-        <div className="relative z-10 text-center">
+      <div className="flex flex-1 items-center justify-center bg-canvas text-ink">
+        <div className="text-center">
           <div className="flex justify-center mb-[24px]">
             <Logo />
           </div>
-          <div className="w-[80px] h-[80px] mx-auto mb-[24px] rounded-full bg-red-500/20 flex items-center justify-center">
-            <svg
-              className="w-[40px] h-[40px] text-red-500"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <div className="text-[28px] font-semibold mb-[12px]">
-            Authorization Error
-          </div>
-          <div className="text-[16px] text-gray-400 max-w-[400px]">
-            {error}
-          </div>
+          <div className="t-title-2 mb-[12px]">Authorization Error</div>
+          <div className="t-body text-inkSecondary max-w-[34rem]">{error}</div>
         </div>
       </div>
     );
@@ -139,46 +110,41 @@ export default function OAuthAuthorizePage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center text-white relative overflow-hidden">
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-[20%] left-[10%] w-[300px] h-[300px] bg-[#612BD3] rounded-full blur-[120px]" />
-        <div className="absolute bottom-[20%] right-[10%] w-[250px] h-[250px] bg-[#FC69FF] rounded-full blur-[120px]" />
-      </div>
-
-      <div className="relative z-10 w-full max-w-[500px] mx-auto px-[20px]">
+    <div className="flex flex-1 items-center justify-center bg-canvas text-ink">
+      <div className="w-full max-w-[480px] mx-auto px-[24px]">
         <div className="flex justify-center mb-[32px]">
           <Logo />
         </div>
 
-        <div className="bg-[#1A1919] rounded-[16px] p-[32px] flex flex-col gap-[24px]">
+        <div className="bg-surface border border-line rounded-card p-[24px] flex flex-col gap-[24px]">
           <div className="flex flex-col items-center gap-[16px]">
             {appInfo.app.picture?.path ? (
               <img
                 src={appInfo.app.picture.path}
                 alt={appInfo.app.name}
-                className="w-[64px] h-[64px] rounded-full object-cover"
+                className="w-[64px] h-[64px] rounded-pill object-cover"
               />
             ) : (
-              <div className="w-[64px] h-[64px] rounded-full bg-[#2A2929] flex items-center justify-center text-[24px] text-gray-400">
+              <div className="w-[64px] h-[64px] rounded-pill bg-surfaceActive flex items-center justify-center t-title-2 text-inkSecondary">
                 {appInfo.app.name?.[0]?.toUpperCase() || '?'}
               </div>
             )}
-            <h2 className="text-[24px] font-semibold text-center">
+            <h2 className="t-title-2 text-center">
               {appInfo.app.name}
             </h2>
             {appInfo.app.description && (
-              <div className="text-gray-400 text-center text-[14px]">
+              <div className="t-secondary text-inkSecondary text-center">
                 {appInfo.app.description}
               </div>
             )}
           </div>
 
-          <div className="border-t border-[#2A2929] pt-[16px]">
-            <div className="text-[14px] text-gray-400 mb-[12px]">
-              This application is requesting access to your Postiz account. It
+          <div className="border-t border-line pt-[16px]">
+            <div className="t-secondary text-inkSecondary mb-[12px]">
+              This application is requesting access to your Slate account. It
               will be able to:
             </div>
-            <ul className="text-[14px] list-disc list-inside space-y-[4px]">
+            <ul className="t-body list-disc list-inside space-y-[4px]">
               <li>Access your integrations and channels</li>
               <li>Create and schedule posts on your behalf</li>
               <li>Read your post analytics</li>
@@ -186,20 +152,21 @@ export default function OAuthAuthorizePage() {
           </div>
 
           <div className="flex gap-[12px]">
-            <button
+            <Button
               onClick={() => handleAction('approve')}
               disabled={submitting}
-              className="flex-1 bg-[#612BD3] hover:bg-[#7B3FF2] disabled:opacity-50 text-white rounded-[8px] py-[10px] px-[16px] text-[14px] font-semibold transition-colors"
+              className="flex-1"
             >
               Authorize
-            </button>
-            <button
+            </Button>
+            <Button
+              secondary={true}
               onClick={() => handleAction('deny')}
               disabled={submitting}
-              className="flex-1 bg-[#2A2929] hover:bg-[#3A3939] disabled:opacity-50 text-white rounded-[8px] py-[10px] px-[16px] text-[14px] font-semibold transition-colors"
+              className="flex-1"
             >
               Deny
-            </button>
+            </Button>
           </div>
         </div>
       </div>

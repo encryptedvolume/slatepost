@@ -289,11 +289,11 @@ export const Filters = () => {
   return (
     <div className="text-textColor flex flex-col md:flex-row gap-[8px] items-center select-none">
       {!isListView && (
-        <div className="flex flex-grow flex-row items-center gap-[10px]">
-          <div className="border h-[42px] border-newTableBorder bg-newTableBorder gap-[1px] flex items-center rounded-[8px] overflow-hidden">
+        <div className="flex flex-grow flex-row items-center gap-[8px]">
+          <div className="border h-large border-line bg-line gap-[1px] flex items-center rounded-control overflow-hidden">
             <div
               onClick={previous}
-              className="cursor-pointer text-textColor rtl:rotate-180 px-[9px] bg-newBgColorInner h-full flex items-center justify-center hover:text-textItemFocused hover:bg-boxFocused"
+              className="cursor-pointer text-textColor rtl:rotate-180 px-[8px] bg-newBgColorInner h-full flex items-center justify-center hover:text-ink hover:bg-surfaceActive"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -312,13 +312,13 @@ export const Filters = () => {
               </svg>
             </div>
             <div className="min-w-[200px] text-center bg-newBgColorInner h-full flex items-center justify-center">
-              <div className="py-[3px] px-[9px] rounded-[5px] transition-all text-[14px]">
+              <div className="py-[2px] px-[8px] rounded-thumb transition-all t-control">
                 {getDisplayText()}
               </div>
             </div>
             <div
               onClick={next}
-              className="cursor-pointer text-textColor rtl:rotate-180 px-[9px] bg-newBgColorInner h-full flex items-center justify-center hover:text-textItemFocused hover:bg-boxFocused"
+              className="cursor-pointer text-textColor rtl:rotate-180 px-[8px] bg-newBgColorInner h-full flex items-center justify-center hover:text-ink hover:bg-surfaceActive"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -337,11 +337,11 @@ export const Filters = () => {
               </svg>
             </div>
           </div>
-          <div className="flex-1 text-[14px] font-[500]">
-            <div className="text-center flex h-[42px]">
+          <div className="flex-1 t-control">
+            <div className="text-center flex h-large">
               <div
                 onClick={setToday}
-                className="hover:text-textItemFocused hover:bg-boxFocused py-[3px] px-[9px] flex justify-center items-center rounded-[8px] transition-all cursor-pointer text-[14px] bg-newBgColorInner border border-newTableBorder"
+                className="hover:text-ink hover:bg-surfaceActive py-[2px] px-[8px] flex justify-center items-center rounded-control transition-all cursor-pointer t-control bg-newBgColorInner border border-line"
               >
                 {t('today', 'Today')}
               </div>
@@ -350,14 +350,14 @@ export const Filters = () => {
         </div>
       )}
       {isListView && (
-        <div className="flex flex-grow flex-row items-center gap-[10px]">
-          <div className="border h-[42px] border-newTableBorder bg-newTableBorder gap-[1px] flex items-center rounded-[8px] overflow-hidden">
+        <div className="flex flex-grow flex-row items-center gap-[8px]">
+          <div className="border h-large border-line bg-line gap-[1px] flex items-center rounded-control overflow-hidden">
             <div
               onClick={previousPage}
               className={clsx(
-                'text-textColor rtl:rotate-180 px-[9px] bg-newBgColorInner h-full flex items-center justify-center',
+                'text-textColor rtl:rotate-180 px-[8px] bg-newBgColorInner h-full flex items-center justify-center',
                 calendar.listPage > 0
-                  ? 'cursor-pointer hover:text-textItemFocused hover:bg-boxFocused'
+                  ? 'cursor-pointer hover:text-ink hover:bg-surfaceActive'
                   : 'opacity-50 cursor-not-allowed'
               )}
             >
@@ -378,16 +378,16 @@ export const Filters = () => {
               </svg>
             </div>
             <div className="min-w-[200px] text-center bg-newBgColorInner h-full flex items-center justify-center">
-              <div className="py-[3px] px-[9px] rounded-[5px] transition-all text-[14px]">
+              <div className="py-[2px] px-[8px] rounded-thumb transition-all t-control">
                 {t('page', 'Page')} {calendar.listPage + 1} {t('of', 'of')} {Math.max(1, calendar.listTotalPages)}
               </div>
             </div>
             <div
               onClick={nextPage}
               className={clsx(
-                'text-textColor rtl:rotate-180 px-[9px] bg-newBgColorInner h-full flex items-center justify-center',
+                'text-textColor rtl:rotate-180 px-[8px] bg-newBgColorInner h-full flex items-center justify-center',
                 calendar.listPage < calendar.listTotalPages - 1
-                  ? 'cursor-pointer hover:text-textItemFocused hover:bg-boxFocused'
+                  ? 'cursor-pointer hover:text-ink hover:bg-surfaceActive'
                   : 'opacity-50 cursor-not-allowed'
               )}
             >
@@ -408,19 +408,34 @@ export const Filters = () => {
               </svg>
             </div>
           </div>
-          <div className="flex flex-row p-[4px] border border-newTableBorder rounded-[8px] text-[14px] font-[500]">
+          {/* Segmented control. 4 padding + a 28 compact segment + 4 padding
+              is exactly the 36 control step, the segment centres its label
+              with flex rather than with asymmetric padding, and each segment
+              is a real <button> so the global focus-visible ring can land on
+              it. Tokens are line / surfaceActive / ink — the legacy
+              newTableBorder / boxFocused / textItemFocused aliases resolve to
+              the same three and are on their way out. */}
+          <div
+            role="tablist"
+            aria-label={t('post_state', 'Post state')}
+            className="flex flex-row p-[4px] border border-line rounded-control t-control h-control"
+          >
             {listStateOptions.map((option) => (
-              <div
+              <button
                 key={option.value}
+                type="button"
+                role="tab"
+                aria-selected={calendar.listState === option.value}
                 onClick={setListStateFilter(option.value)}
                 className={clsx(
-                  'pt-[6px] pb-[5px] cursor-pointer min-w-[80px] px-[12px] text-center rounded-[6px]',
-                  calendar.listState === option.value &&
-                    'text-textItemFocused bg-boxFocused'
+                  'h-compact px-[12px] cursor-pointer flex items-center justify-center text-center rounded-thumb transition-colors duration-state ease-state',
+                  calendar.listState === option.value
+                    ? 'text-ink bg-surfaceActive'
+                    : 'hover:text-ink'
                 )}
               >
                 {option.label}
-              </div>
+              </button>
             ))}
           </div>
           <div className="flex-1" />
@@ -431,43 +446,74 @@ export const Filters = () => {
         onChange={(customer: string) => setCustomer(customer)}
         integrations={calendar.integrations}
       />
+      {/* 4 + 28 + 4 = the 36 control step. 74 was on no step of the
+          spacing scale; 64 is. */}
       {!isListView && (
-        <div className="flex flex-row p-[4px] border border-newTableBorder rounded-[8px] text-[14px] font-[500]">
-          <div
+        <div
+          role="tablist"
+          aria-label={t('calendar_range', 'Calendar range')}
+          className="flex flex-row p-[4px] border border-line rounded-control t-control h-control"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={calendar.display === 'day'}
             className={clsx(
-              'pt-[6px] pb-[5px] cursor-pointer w-[74px] text-center rounded-[6px]',
-              calendar.display === 'day' && 'text-textItemFocused bg-boxFocused'
+              'h-compact w-[64px] cursor-pointer flex items-center justify-center text-center rounded-thumb transition-colors duration-state ease-state',
+              calendar.display === 'day'
+                ? 'text-ink bg-surfaceActive'
+                : 'hover:text-ink'
             )}
             onClick={setDay}
           >
             {t('day', 'Day')}
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={calendar.display === 'week'}
             className={clsx(
-              'pt-[6px] pb-[5px] cursor-pointer w-[74px] text-center rounded-[6px]',
-              calendar.display === 'week' && 'text-textItemFocused bg-boxFocused'
+              'h-compact w-[64px] cursor-pointer flex items-center justify-center text-center rounded-thumb transition-colors duration-state ease-state',
+              calendar.display === 'week'
+                ? 'text-ink bg-surfaceActive'
+                : 'hover:text-ink'
             )}
             onClick={setWeek}
           >
             {t('week', 'Week')}
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={calendar.display === 'month'}
             className={clsx(
-              'pt-[6px] pb-[5px] cursor-pointer w-[74px] text-center rounded-[6px]',
-              calendar.display === 'month' && 'text-textItemFocused bg-boxFocused'
+              'h-compact w-[64px] cursor-pointer flex items-center justify-center text-center rounded-thumb transition-colors duration-state ease-state',
+              calendar.display === 'month'
+                ? 'text-ink bg-surfaceActive'
+                : 'hover:text-ink'
             )}
             onClick={setMonth}
           >
             {t('month', 'Month')}
-          </div>
+          </button>
         </div>
       )}
-      <div className="flex flex-row p-[4px] border border-newTableBorder rounded-[8px] text-[14px] font-[500]">
-        <div
+      {/* 4 + 28 + 4 = the 36 control step; 32 is the spacing-scale square
+          the 34 was approximating. */}
+      <div
+        role="tablist"
+        aria-label={t('calendar_layout', 'Calendar layout')}
+        className="flex flex-row p-[4px] border border-line rounded-control t-control h-control"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={!isListView}
+          aria-label={t('calendar_view', 'Calendar view')}
           onClick={setCalendarView}
           className={clsx(
-            'pt-[6px] pb-[5px] cursor-pointer flex justify-center items-center w-[34px] text-center rounded-[6px]',
-            !isListView && 'text-textItemFocused bg-boxFocused'
+            'h-compact w-[32px] cursor-pointer flex justify-center items-center text-center rounded-thumb transition-colors duration-state ease-state',
+            !isListView ? 'text-ink bg-surfaceActive' : 'hover:text-ink'
           )}
         >
           {/*calendar*/}
@@ -486,12 +532,16 @@ export const Filters = () => {
               strokeLinejoin="round"
             />
           </svg>
-        </div>
-        <div
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={isListView}
+          aria-label={t('list_view', 'List view')}
           onClick={setList}
           className={clsx(
-            'pt-[6px] pb-[5px] flex justify-center items-center cursor-pointer w-[34px] text-center rounded-[6px]',
-            isListView && 'text-textItemFocused bg-boxFocused'
+            'h-compact w-[32px] flex justify-center items-center cursor-pointer text-center rounded-thumb transition-colors duration-state ease-state',
+            isListView ? 'text-ink bg-surfaceActive' : 'hover:text-ink'
           )}
         >
           {/*list*/}
@@ -510,7 +560,7 @@ export const Filters = () => {
               strokeLinejoin="round"
             />
           </svg>
-        </div>
+        </button>
       </div>
     </div>
   );

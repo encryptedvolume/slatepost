@@ -117,14 +117,14 @@ export const PostSelector: FC<{
           <div
             className={
               !noModal
-                ? 'text-textColor fixed start-0 top-0 bg-primary/80 z-[300] w-full h-full p-[60px] animate-fade'
+                ? 'text-textColor fixed start-0 top-0 bg-scrim z-[300] w-full h-full p-[64px] animate-fade'
                 : ''
             }
           >
             <div
               className={
                 !noModal
-                  ? 'flex flex-col w-full max-w-[1200px] mx-auto h-full bg-sixth border-tableBorder border-2 rounded-xl pb-[20px] px-[20px] relative'
+                  ? 'flex flex-col w-full max-w-[1200px] mx-auto h-full bg-sixth border-tableBorder border-2 rounded-card pb-[20px] px-[20px] relative'
                   : ''
               }
             >
@@ -161,25 +161,25 @@ export const PostSelector: FC<{
                 </div>
               )}
               {!!data && data.length > 0 && (
-                <div className="mt-[10px]">
-                  <div className="flex flex-row flex-wrap gap-[10px]">
+                <div className="mt-[8px]">
+                  <div className="flex flex-row flex-wrap gap-[8px]">
                     {data.map((p: any) => (
                       <div
                         onClick={select(p.id)}
                         className={clsx(
-                          'cursor-pointer overflow-hidden flex gap-[20px] flex-col w-[200px] h-[200px] text-ellipsis p-3 border border-tableBorder rounded-[8px] hover:bg-primary',
-                          current === p.id ? 'bg-primary' : 'bg-secondary'
+                          'cursor-pointer overflow-hidden flex gap-[20px] flex-col w-[200px] h-[200px] text-ellipsis p-[12px] border border-tableBorder rounded-control hover:bg-primary',
+                          current === p.id ? 'bg-primary' : 'bg-surface'
                         )}
                         key={p.id}
                       >
-                        <div className="flex gap-[10px] items-center">
+                        <div className="flex gap-[8px] items-center">
                           <div className="relative">
                             <img
                               src={p.integration.picture}
-                              className="w-[32px] h-[32px] rounded-full"
+                              className="w-[32px] h-[32px] rounded-pill"
                             />
                             <img
-                              className="w-[20px] h-[20px] rounded-full absolute z-10 -bottom-[5px] -end-[5px] border border-fifth"
+                              className="w-[20px] h-[20px] rounded-pill absolute z-10 -bottom-[4px] -end-[4px] border border-fifth"
                               src={
                                 `/icons/platforms/` +
                                 p?.integration?.providerIdentifier +

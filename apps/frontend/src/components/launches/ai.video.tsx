@@ -72,7 +72,7 @@ export const Modal: FC<{
     <VideoContextWrapper.Provider value={{ value: '' }}>
       <form
         onSubmit={form.handleSubmit(generate)}
-        className="flex flex-col gap-[10px]"
+        className="flex flex-col gap-[8px]"
       >
         {createPortal(
           <>{data?.credits || 0} credits left</>,
@@ -83,7 +83,7 @@ export const Modal: FC<{
           <div>
             <div className="relative h-[400px]">
               <div className="absolute left-0 top-0 w-full h-full overflow-hidden overflow-y-auto">
-                <div className="mt-[10px] flex w-full justify-center items-center gap-[10px]">
+                <div className="mt-[8px] flex w-full justify-center items-center gap-[8px]">
                   <div className="flex-1 flex">
                     <Button
                       className="!flex-1"
@@ -93,7 +93,7 @@ export const Modal: FC<{
                       Vertical (Stories, Reels)
                     </Button>
                   </div>
-                  <div className="flex-1 flex mt-[10px]">
+                  <div className="flex-1 flex mt-[8px]">
                     <Button
                       className="!flex-1"
                       onClick={() => setPosition('horizontal')}
@@ -132,8 +132,8 @@ const AiVideoModal: FC<{
 
   if (!type) {
     return (
-      <div className="flex flex-col gap-[10px]">
-        <div className="text-[14px]">
+      <div className="flex flex-col gap-[8px]">
+        <div className="t-control">
           {t('choose_a_video_type', 'Choose a video type')}
         </div>
         {list.map((p) => (
@@ -206,16 +206,21 @@ export const AiVideo: FC<{
       <div
         onClick={openVideoModal}
         className={clsx(
-          'cursor-pointer h-[30px] rounded-[6px] justify-center items-center flex bg-newColColor px-[8px]'
+          'cursor-pointer h-compact rounded-thumb justify-center items-center flex bg-newColColor px-[8px]'
         )}
       >
         {loading && (
           <div className="absolute start-[50%] -translate-x-[50%]">
-            <Loading height={30} width={30} type="spin" color="#fff" />
+            <Loading
+              height={30}
+              width={30}
+              type="spin"
+              color="var(--slate-text-primary)"
+            />
           </div>
         )}
         <div
-          className={clsx('flex gap-[5px] items-center', loading && 'invisible')}
+          className={clsx('flex gap-[4px] items-center', loading && 'invisible')}
         >
           <div>
             <svg
@@ -241,7 +246,7 @@ export const AiVideo: FC<{
               </defs>
             </svg>
           </div>
-          <div className="text-[10px] font-[600] iconBreak:hidden block">
+          <div className="t-caption-strong iconBreak:hidden block">
             {t('ai', 'AI')} Video
           </div>
         </div>

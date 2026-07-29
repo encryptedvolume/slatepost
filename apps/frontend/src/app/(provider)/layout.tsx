@@ -6,26 +6,25 @@ import 'react-tooltip/dist/react-tooltip.css';
 import '@copilotkit/react-ui/styles.css';
 import LayoutContext from '@gitroom/frontend/components/layout/layout.context';
 import { ReactNode } from 'react';
-import { Plus_Jakarta_Sans } from 'next/font/google';
 import clsx from 'clsx';
 import { VariableContextComponent } from '@gitroom/react/helpers/variable.context';
 import UtmSaver from '@gitroom/helpers/utils/utm.saver';
 
-const jakartaSans = Plus_Jakarta_Sans({
-  weight: ['600', '500'],
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
-});
-
 export default async function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <html>
+    // `color-scheme` has to be on <html>, not on the themed <body>: it is what
+    // paints the UA's own chrome — the macOS rubber-band gutter, native
+    // scrollbars, date and select popups, form control defaults. This shell is
+    // dark-only (see <body> below), so it is pinned. `theme-color` matches
+    // --slate-canvas so the mobile browser bar is the same surface.
+    <html lang="en" style={{ colorScheme: 'dark' }}>
       <head>
+        <meta name="theme-color" content="#0f0f0f" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/app-icon-1024.png" />
       </head>
-      <body
-        className={clsx(jakartaSans.className, 'dark text-primary !bg-primary')}
-      >
+      <body className={clsx('dark text-ink !bg-canvas')}>
         <VariableContextComponent
           language="en"
           storageProvider={

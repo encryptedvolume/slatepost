@@ -30,7 +30,7 @@ export const SliderComponent: FC<{
       {canGoPrevious && (
         <button
           onClick={goToPrevious}
-          className="absolute top-[50%] start-[10px] -translate-y-[50%] flex items-center justify-center w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors backdrop-blur-sm cursor-pointer"
+          className="absolute top-[50%] start-[8px] -translate-y-[50%] flex items-center justify-center w-[28px] h-compact rounded-pill bg-surfaceOverlay border border-line text-ink shadow-overlay transition-colors duration-state ease-state cursor-pointer"
           aria-label="Previous slide"
         >
           <ChevronLeftIcon size={18} />
@@ -41,7 +41,7 @@ export const SliderComponent: FC<{
       {canGoNext && (
         <button
           onClick={goToNext}
-          className="absolute top-[50%] end-[10px] -translate-y-[50%] flex items-center justify-center w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors backdrop-blur-sm cursor-pointer"
+          className="absolute top-[50%] end-[8px] -translate-y-[50%] flex items-center justify-center w-[28px] h-compact rounded-pill bg-surfaceOverlay border border-line text-ink shadow-overlay transition-colors duration-state ease-state cursor-pointer"
           aria-label="Next slide"
         >
           <ChevronRightIcon size={18} />
@@ -50,16 +50,16 @@ export const SliderComponent: FC<{
 
       {/* Pagination Dots */}
       {list.length > 1 && (
-        <div className="absolute bottom-[10px] left-[50%] -translate-x-[50%] flex gap-2">
+        <div className="absolute bottom-[8px] left-[50%] -translate-x-[50%] flex gap-[8px]">
           {list.map((_, index) => (
             <button
               key={index}
               onClick={() => setShow(index)}
               className={clsx(
-                'w-2 h-2 rounded-full transition-colors cursor-pointer',
+                'w-[8px] h-[8px] rounded-pill transition-colors cursor-pointer',
                 index === show
-                  ? 'bg-white'
-                  : 'bg-transparent border border-white'
+                  ? 'bg-surface'
+                  : 'bg-transparent border border-line'
               )}
               aria-label={`Go to slide ${index + 1}`}
             />

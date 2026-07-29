@@ -32,7 +32,7 @@ const SaveSetModal: FC<{
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-[16px]">
       <div>
         <Input
           label="Set Name"
@@ -45,7 +45,7 @@ const SaveSetModal: FC<{
           autoFocus
         />
       </div>
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-[8px] justify-end">
         <Button type="button" secondary onClick={onCancel}>
           {t('cancel', 'Cancel')}
         </Button>
@@ -167,14 +167,14 @@ export const Sets: FC = () => {
 
   return (
     <div className="flex flex-col">
-      <h3 className="text-[20px]">Sets ({data?.length || 0})</h3>
-      <div className="text-customColor18 mt-[4px]">
+      <h3 className="t-title-3">Sets ({data?.length || 0})</h3>
+      <div className="text-inkSecondary mt-[4px]">
         Manage your content sets for easy reuse across posts.
       </div>
-      <div className="my-[16px] mt-[16px] bg-sixth border-fifth items-center border rounded-[4px] p-[24px] flex gap-[24px]">
+      <div className="my-[16px] mt-[16px] bg-surface items-center border border-line rounded-card p-[20px] flex gap-[24px]">
         <div className="flex flex-col w-full">
           {!!data?.length && (
-            <div className="grid grid-cols-[2fr,1fr,1fr] w-full gap-y-[10px]">
+            <div className="grid grid-cols-[2fr,1fr,1fr] w-full gap-y-[8px]">
               <div>{t('name', 'Name')}</div>
               <div>{t('edit', 'Edit')}</div>
               <div>{t('delete', 'Delete')}</div>

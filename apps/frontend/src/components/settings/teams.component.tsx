@@ -73,7 +73,7 @@ export const AddMember = () => {
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(submit)}>
-        <div className="relative flex gap-[10px] flex-col flex-1 p-[16px] pt-0">
+        <div className="relative flex gap-[8px] flex-col flex-1 p-[16px] pt-0">
           {sendEmail && (
             <Input
               label="Email"
@@ -89,7 +89,7 @@ export const AddMember = () => {
               </option>
             ))}
           </Select>
-          <div className="flex gap-[5px]">
+          <div className="flex gap-[4px]">
             <div>
               <Checkbox name="sendEmail" />
             </div>
@@ -97,7 +97,7 @@ export const AddMember = () => {
               {t('send_invitation_via_email', 'Send invitation via email?')}
             </div>
           </div>
-          <Button type="submit" className="mt-[18px]">
+          <Button type="submit" className="mt-[16px]">
             {sendEmail ? t('send_invitation_link', 'Send Invitation Link') : t('copy_link', 'Copy Link')}
           </Button>
         </div>
@@ -165,14 +165,14 @@ export const TeamsComponent = () => {
 
   return (
     <div className="flex flex-col">
-      <h3 className="text-[20px]">{t('team_members', 'Team Members')}</h3>
-      <div className="text-customColor18 mt-[4px]">
+      <h3 className="t-title-3">{t('team_members', 'Team Members')}</h3>
+      <div className="text-inkSecondary mt-[4px]">
         {t(
           'invite_your_assistant_or_team_member_to_manage_your_account',
           'Invite your assistant or team member to manage your account'
         )}
       </div>
-      <div className="my-[16px] mt-[16px] bg-sixth border-fifth border rounded-[4px] p-[24px] flex flex-col gap-[24px]">
+      <div className="my-[16px] mt-[16px] bg-surface border border-line rounded-card p-[20px] flex flex-col gap-[24px]">
         <div className="flex flex-col gap-[16px]">
           {(data || []).map((p) => (
             <div key={p.user.id} className="flex items-center">
@@ -189,7 +189,7 @@ export const TeamsComponent = () => {
               {+myLevel > +getLevel(p.role) ? (
                 <div className="flex-1 flex justify-end">
                   <Button
-                    className={`!bg-customColor3 !h-[24px] border border-customColor21 rounded-[4px] text-[12px]`}
+                    className={`!bg-customColor3 !h-[24px] border border-customColor21 rounded-thumb t-caption`}
                     onClick={remove(p)}
                     secondary={true}
                   >

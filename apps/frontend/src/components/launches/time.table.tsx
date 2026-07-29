@@ -130,9 +130,9 @@ export const TimeTable: FC<{
   return (
     <div className="relative w-full max-w-[400px] mx-auto">
       {/* Add Time Slot Section */}
-      <div className="bg-newBgColorInner rounded-[12px] p-[20px] border border-newTableBorder">
-        <div className="text-[15px] font-semibold mb-[16px] flex items-center gap-[8px]">
-          <DelayIcon size={18} className="text-[#612BD3]" />
+      <div className="bg-newBgColorInner rounded-card p-[20px] border border-newTableBorder">
+        <div className="t-body-strong mb-[16px] flex items-center gap-[8px]">
+          <DelayIcon size={18} className="text-inkSecondary" />
           {t('add_time_slot', 'Add Time Slot')}
         </div>
 
@@ -172,7 +172,7 @@ export const TimeTable: FC<{
           <button
             type="button"
             onClick={addHour}
-            className="h-[42px] px-[16px] bg-[#612BD3] hover:bg-[#7640e0] transition-colors rounded-[8px] flex items-center gap-[6px] text-white text-[14px] font-medium"
+            className="h-control px-[16px] bg-primaryBg hover:bg-primaryBgHover transition-colors rounded-control flex items-center gap-[8px] text-primaryText t-control"
           >
             <PlusIcon size={14} />
             {t('add', 'Add')}
@@ -182,12 +182,16 @@ export const TimeTable: FC<{
 
       {/* Time Slots List */}
       <div className="mt-[20px]">
-        <div className="text-[14px] text-newTextColor/60 mb-[12px]">
+        {/* Both of these were ad-hoc alpha steps on `newTextColor` with no
+            token behind them. /40 composited to #9f9f9f light (2.65:1) and
+            #717171 dark (3.71:1) — a hard SC 1.4.3 failure in both themes at
+            14px. /60 passed at 4.80:1 but was still a colour nobody named. */}
+        <div className="t-control text-inkSecondary mb-[12px]">
           {t('scheduled_times', 'Scheduled Times')} ({times.length})
         </div>
 
         {times.length === 0 ? (
-          <div className="text-center py-[32px] text-newTextColor/40 text-[14px] border border-dashed border-newTableBorder rounded-[12px]">
+          <div className="text-center py-[32px] text-inkTertiary t-control border border-dashed border-line rounded-card">
             {t('no_time_slots', 'No time slots added yet')}
           </div>
         ) : (
@@ -197,21 +201,21 @@ export const TimeTable: FC<{
                 key={`${timeSlot.value}-${index}`}
                 className={clsx(
                   'group flex items-center justify-between',
-                  'h-[48px] px-[16px] rounded-[8px]',
+                  'h-[48px] px-[16px] rounded-control',
                   'bg-newBgColorInner border border-newTableBorder',
-                  'hover:border-[#612BD3]/40 transition-colors'
+                  'hover:border-lineStrong transition-colors'
                 )}
               >
                 <div className="flex items-center gap-[12px]">
-                  <div className="w-[8px] h-[8px] rounded-full bg-[#612BD3]" />
-                  <span className="text-[15px] font-medium tabular-nums">
+                  <div className="w-[8px] h-[8px] rounded-pill bg-primaryBg" />
+                  <span className="t-body-emphasis tabular-nums">
                     {timeSlot.formatted}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={removeSlot(index)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-[8px] hover:bg-red-500/10 rounded-[6px] text-red-400 hover:text-red-500"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-[8px] hover:bg-criticalTint rounded-thumb text-critical hover:text-critical"
                 >
                   <TrashIcon size={16} />
                 </button>
@@ -223,7 +227,7 @@ export const TimeTable: FC<{
 
       {/* Save Button */}
       <div className="mt-[24px]">
-        <Button type="button" className="w-full rounded-[8px]" onClick={save}>
+        <Button type="button" className="w-full rounded-control" onClick={save}>
           {t('save_changes', 'Save Changes')}
         </Button>
       </div>

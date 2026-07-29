@@ -98,8 +98,8 @@ const EmailNotificationsComponent = () => {
 
   if (isLoading) {
     return (
-      <div className="my-[16px] mt-[16px] bg-sixth border-fifth border rounded-[4px] p-[24px]">
-        <div className="animate-pulse">
+      <div className="my-[16px] mt-[16px] bg-surface border border-line rounded-card p-[20px]">
+        <div className="t-body text-inkTertiary">
           {t('loading', 'Loading...')}
         </div>
       </div>
@@ -107,16 +107,16 @@ const EmailNotificationsComponent = () => {
   }
 
   return (
-    <div className="my-[16px] mt-[16px] bg-sixth border-fifth border rounded-[4px] p-[24px] flex flex-col gap-[24px]">
+    <div className="my-[16px] mt-[16px] bg-surface border border-line rounded-card p-[20px] flex flex-col gap-[24px]">
       <div className="mt-[4px]">
         {t('email_notifications', 'Email Notifications')}
       </div>
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
-          <div className="text-[14px]">
+          <div className="t-control">
             {t('success_emails', 'Success Emails')}
           </div>
-          <div className="text-[12px] text-customColor18">
+          <div className="t-caption text-inkSecondary">
             {t(
               'success_emails_description',
               'Receive email notifications when posts are published successfully'
@@ -131,10 +131,10 @@ const EmailNotificationsComponent = () => {
       </div>
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
-          <div className="text-[14px]">
+          <div className="t-control">
             {t('failure_emails', 'Failure Emails')}
           </div>
-          <div className="text-[12px] text-customColor18">
+          <div className="t-caption text-inkSecondary">
             {t(
               'failure_emails_description',
               'Receive email notifications when posts fail to publish'
@@ -149,10 +149,10 @@ const EmailNotificationsComponent = () => {
       </div>
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
-          <div className="text-[14px]">
+          <div className="t-control">
             {t('streak_emails', 'Streak Reminder Emails')}
           </div>
-          <div className="text-[12px] text-customColor18">
+          <div className="t-caption text-inkSecondary">
             {t(
               'streak_emails_description',
               'Receive email reminders when your posting streak is about to end'

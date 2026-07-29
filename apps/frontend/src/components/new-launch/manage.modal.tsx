@@ -100,9 +100,9 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
   const currentIntegrationText = useMemo(() => {
     if (current === 'global') {
       return (
-        <div className="flex items-center gap-[10px]">
+        <div className="flex items-center gap-[8px]">
           <div className="relative">
-            <SettingsIcon size={15} className="text-white" />
+            <SettingsIcon size={15} className="text-ink" />
           </div>
           <div>Settings</div>
         </div>
@@ -112,16 +112,16 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
     const currentIntegration = integrations.find((p) => p.id === current)!;
 
     return (
-      <div className="flex items-center gap-[10px]">
+      <div className="flex items-center gap-[8px]">
         <div className="relative">
           <img
             src={`/icons/platforms/${currentIntegration.identifier}.png`}
-            className="w-[20px] h-[20px] rounded-[4px]"
+            className="w-[20px] h-[20px] rounded-thumb"
             alt={currentIntegration.identifier}
           />
           <SettingsIcon
             size={15}
-            className="text-white absolute -end-[5px] -bottom-[5px]"
+            className="text-ink absolute -end-[4px] -bottom-[4px]"
           />
         </div>
         <div>
@@ -203,10 +203,10 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
             title: 'What do you want to do?',
             children: (
               <div className="flex flex-col">
-                <div className="text-[20px] mb-[20px]">
+                <div className="t-title-2 mb-[20px]">
                   This post was already published, what do you want to do?
                 </div>
-                <div className="flex w-full gap-[10px]">
+                <div className="flex w-full gap-[8px]">
                   <div className="flex-1 flex">
                     <Button
                       type="button"
@@ -439,11 +439,11 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
   );
 
   return (
-    <div className="w-full h-full flex-1 p-[40px] flex relative">
-      <div className="flex flex-1 bg-newBgColorInner rounded-[20px] flex-col">
+    <div className="w-full h-full flex-1 p-[32px] flex relative">
+      <div className="flex flex-1 bg-newBgColorInner rounded-pill flex-col">
         <div className="flex-1 flex">
           <div className="flex flex-col flex-1 border-e border-newBorder">
-            <div className="bg-newBgColor h-[65px] rounded-s-[20px] !rounded-b-[0] flex items-center gap-[12px] px-[20px] text-[20px] font-[600]">
+            <div className="bg-newBgColor h-[65px] rounded-s-pill !rounded-b-none flex items-center gap-[12px] px-[20px] t-title-2">
               {t('create_post_title', 'Create Post')}
               <CreationMethodBadge
                 creationMethod={existingData?.posts?.[0]?.creationMethod}
@@ -456,7 +456,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
               >
                 <div
                   id="social-content"
-                  className="gap-[32px] flex flex-col pe-[8px] pt-[20px] ps-[20px] absolute top-0 left-0 w-full h-full overflow-x-hidden overflow-y-scroll scrollbar scrollbar-thumb-newColColor scrollbar-track-newBgColorInner"
+                  className="gap-[32px] flex flex-col pe-[8px] pt-[20px] ps-[20px] absolute top-0 left-0 w-full h-full overflow-x-hidden overflow-y-scroll scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent"
                 >
                   <div className="flex w-full">
                     <div className="flex flex-1">
@@ -471,7 +471,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-1 gap-[6px] flex-col">
+                  <div className="flex flex-1 gap-[8px] flex-col">
                     <div>{!existingData.integration && <SelectCurrent />}</div>
                     <div className="flex-1 flex">
                       {!hide && <EditorWrapper totalPosts={1} value="" />}
@@ -494,31 +494,31 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                   current === 'global' && 'hidden'
                 )}
               >
-                <div className="flex-1 flex flex-col rounded-[12px] gap-[12px] overflow-hidden bg-newSettings">
+                <div className="flex-1 flex flex-col rounded-card gap-[12px] overflow-hidden bg-newSettings">
                   <div
                     onClick={() => setShowSettings(!showSettings)}
                     className={clsx(
-                      'bg-[#612BD3] rounded-[12px] flex items-center gap-[8px] cursor-pointer p-[12px]',
+                      'bg-primaryBg rounded-card flex items-center gap-[8px] cursor-pointer p-[12px]',
                       showSettings ? '!rounded-b-none' : ''
                     )}
                   >
-                    <div className="flex-1 text-[14px] font-[600] text-white">
+                    <div className="flex-1 t-control text-primaryText">
                       {currentIntegrationText}
                     </div>
                     <div>
                       <ChevronDownIcon
                         rotated={showSettings}
-                        className="text-white"
+                        className="text-ink"
                       />
                     </div>
                   </div>
                   <div
                     className={clsx(
                       !showSettings ? 'hidden' : 'flex-1',
-                      'text-[14px] text-textColor font-[500] relative'
+'t-control text-textColor relative'
                     )}
                   >
-                    <div className="absolute left-0 top-0 w-full h-full flex flex-col overflow-x-hidden overflow-y-auto scrollbar scrollbar-thumb-newBgColorInner scrollbar-track-newColColor">
+                    <div className="absolute left-0 top-0 w-full h-full flex flex-col overflow-x-hidden overflow-y-auto scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent">
                       <div
                         id="social-settings"
                         className="flex flex-col gap-[20px] bg-newBgColor"
@@ -533,16 +533,16 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
             </div>
           </div>
           <div className="w-[580px] flex flex-col">
-            <div className="bg-newBgColor h-[65px] rounded-e-[20px] !rounded-b-[0] flex items-center px-[20px] text-[20px] font-[600]">
+            <div className="bg-newBgColor h-[65px] rounded-e-pill !rounded-b-none flex items-center px-[20px] t-title-2">
               <div className="flex-1">{t('post_preview', 'Post Preview')}</div>
               <div className="cursor-pointer">
-                <CloseIcon onClick={askClose} className="text-[#A3A3A3]" />
+                <CloseIcon onClick={askClose} className="text-inkSecondary" />
               </div>
             </div>
             <div className="flex-1 relative">
               <Scrollable
                 scrollClasses="!pe-[20px]"
-                className="absolute top-0 p-[20px] pe-[8px] left-0 w-full h-full overflow-x-hidden overflow-y-scroll scrollbar scrollbar-thumb-newColColor scrollbar-track-newBgColorInner"
+                className="absolute top-0 p-[20px] pe-[8px] left-0 w-full h-full overflow-x-hidden overflow-y-scroll scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent"
               >
                 <ShowAllProviders ref={ref} />
               </Scrollable>
@@ -570,7 +570,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
             {existingData?.integration && (
               <button
                 onClick={deletePost}
-                className="cursor-pointer flex text-[#FF3F3F] gap-[8px] items-center text-[15px] font-[600]"
+                className="cursor-pointer flex text-critical gap-[8px] items-center t-body-strong"
               >
                 <div>
                   <TrashIcon />
@@ -585,11 +585,11 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                   selectedIntegrations.length === 0 || loading || locked
                 }
                 onClick={schedule('draft')}
-                className="relative cursor-pointer disabled:cursor-not-allowed px-[20px] h-[44px] bg-btnSimple justify-center items-center flex rounded-[8px] text-[15px] font-[600]"
+                className="relative cursor-pointer disabled:cursor-not-allowed px-[20px] h-large bg-btnSimple justify-center items-center flex rounded-control t-body-strong"
               >
                 {loading && (
                   <div className="absolute left-[50%] top-[50%] -translate-y-[50%] -translate-x-[50%]">
-                    <div className="animate-spin h-[20px] w-[20px] border-4 border-textColor border-t-transparent rounded-full" />
+                    <div className="animate-spin h-[20px] w-[20px] border-4 border-textColor border-t-transparent rounded-pill" />
                   </div>
                 )}
                 <div className={clsx(loading && 'invisible')}>
@@ -599,7 +599,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
             )}
             {addEditSets && (
               <button
-                className="text-white text-[15px] font-[600] min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-[#612BD3] ps-[20px] pe-[16px]"
+                className="text-primaryText t-body-strong min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-large rounded-control bg-primaryBg ps-[20px] pe-[16px]"
                 disabled={
                   selectedIntegrations.length === 0 || loading || locked
                 }
@@ -615,16 +615,16 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                     selectedIntegrations.length === 0 || loading || locked
                   }
                   onClick={schedule('schedule')}
-                  className="text-white relative min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-[#612BD3] ps-[20px] pe-[16px]"
+                  className="text-primaryText relative min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-large rounded-control bg-primaryBg ps-[20px] pe-[16px]"
                 >
                   {loading && (
                     <div className="absolute left-[50%] top-[50%] -translate-y-[50%] -translate-x-[50%]">
-                      <div className="animate-spin h-[20px] w-[20px] border-4 border-white border-t-transparent rounded-full" />
+                      <div className="animate-spin h-[20px] w-[20px] border-4 border-line border-t-transparent rounded-pill" />
                     </div>
                   )}
                   <div
                     className={clsx(
-                      'text-[15px] font-[600]',
+                      't-body-strong',
                       loading && 'invisible'
                     )}
                   >
@@ -640,7 +640,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                   </div>
                   {!dummy && (
                     <div className="flex justify-center items-center h-[20px] w-[20px] pt-[4px] arrow-change">
-                      <DropdownArrowSmallIcon className="group-hover:rotate-180 text-white" />
+                      <DropdownArrowSmallIcon className="group-hover:rotate-180 text-ink" />
                     </div>
                   )}
                 </button>
@@ -651,9 +651,9 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                     disabled={
                       selectedIntegrations.length === 0 || loading || locked
                     }
-                    className="rounded-[8px] z-[300] disabled:cursor-not-allowed disabled:opacity-80 hidden group-hover:flex absolute bottom-[100%] -left-[12px] p-[12px] w-[206px] bg-newBgColorInner"
+                    className="rounded-control z-[300] disabled:cursor-not-allowed disabled:opacity-80 hidden group-hover:flex absolute bottom-[100%] -left-[12px] p-[12px] w-[206px] bg-newBgColorInner"
                   >
-                    <div className="text-white rounded-[8px] bg-[#D82D7E] h-[44px] w-full flex justify-center items-center post-now">
+                    <div className="text-primaryText rounded-control bg-primaryBg h-large w-full flex justify-center items-center post-now">
                       {t('post_now', 'Post Now')}
                     </div>
                   </button>

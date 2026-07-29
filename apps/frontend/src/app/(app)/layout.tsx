@@ -6,7 +6,6 @@ import 'react-tooltip/dist/react-tooltip.css';
 import '@copilotkit/react-ui/styles.css';
 import LayoutContext from '@gitroom/frontend/components/layout/layout.context';
 import { ReactNode } from 'react';
-import { Plus_Jakarta_Sans } from 'next/font/google';
 import PlausibleProvider from 'next-plausible';
 import clsx from 'clsx';
 import { VariableContextComponent } from '@gitroom/react/helpers/variable.context';
@@ -25,35 +24,46 @@ import { HtmlComponent } from '@gitroom/frontend/components/layout/html.componen
 import Script from 'next/script';
 import { ChangeDirClient } from '@gitroom/frontend/components/new-layout/change.dir.client';
 
-const jakartaSans = Plus_Jakarta_Sans({
-  weight: ['600', '500'],
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
-});
-
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const cookieStore = await cookies();
   const language = cookieStore.get(cookieName)?.value || fallbackLng;
+  // Theme is resolved server-side from the same `mode` cookie the toggle
+  // writes, so light-mode users never get a dark first paint.
+  const mode = cookieStore.get('mode')?.value === 'light' ? 'light' : 'dark';
   const Plausible = !!process.env.STRIPE_PUBLISHABLE_KEY
     ? PlausibleProvider
     : Fragment;
   return (
-    <html>
+    // `color-scheme` has to be on <html>, not on the themed <body>: it is what
+    // paints the UA's own chrome — the macOS rubber-band gutter, native
+    // scrollbars, date and select popups, form control defaults. Without it a
+    // dark page sat in a light gutter with light native popups. `theme-color`
+    // matches --slate-canvas so the mobile browser bar is the same surface.
+    <html
+      lang={language}
+      style={{ colorScheme: mode === 'light' ? 'light' : 'dark' }}
+    >
       <head>
+        <meta
+          name="theme-color"
+          content={mode === 'light' ? '#fafafa' : '#0f0f0f'}
+        />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/app-icon-1024.png" />
         {!!process.env.DATAFAST_WEBSITE_ID && (
           <Script
             data-website-id={process.env.DATAFAST_WEBSITE_ID}
-            data-domain="postiz.com"
+            data-domain="slatepost.lol"
             src="https://datafa.st/js/script.js"
             strategy="afterInteractive"
           />
         )}
       </head>
       <ChangeDirClient />
-      <body
-        className={clsx(jakartaSans.className, 'dark text-primary !bg-primary')}
-      >
+      {/* Slate ships the system UI stack at three weights (400/500/600) and
+          never italic — no webfont, no extra network round-trip. */}
+      <body className={clsx(mode, 'text-ink !bg-canvas')}>
         <VariableContextComponent
           storageProvider={
             process.env.STORAGE_PROVIDER! as 'local' | 'cloudflare'
@@ -102,7 +112,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
             <FacebookComponent />
             <GoogleTagManagerComponent gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
             <Plausible
-              domain={!!process.env.IS_GENERAL ? 'postiz.com' : 'gitroom.com'}
+              domain={!!process.env.IS_GENERAL ? 'slatepost.lol' : 'gitroom.com'}
             >
               <PHProvider
                 phkey={process.env.NEXT_PUBLIC_POSTHOG_KEY}

@@ -77,8 +77,8 @@ ${style}
 
   return (
     <div className="flex flex-col gap-[16px]">
-      <div className="flex flex-col gap-[6px]">
-        <div className="text-[14px]">{t('prompt', 'Prompt')}</div>
+      <div className="flex flex-col gap-[8px]">
+        <div className="t-control">{t('prompt', 'Prompt')}</div>
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -86,20 +86,20 @@ ${style}
             'describe_the_image_you_want_to_generate',
             'Describe the image you want to generate'
           )}
-          className="bg-input min-h-[150px] p-[16px] outline-none border-fifth border rounded-[4px] text-inputText placeholder-inputText"
+          className="bg-input min-h-[150px] p-[16px] outline-none border-fifth border rounded-thumb text-ink placeholder:text-inkTertiary"
         />
       </div>
-      <div className="flex flex-col gap-[6px]">
-        <div className="text-[14px]">{t('style', 'Style')}</div>
+      <div className="flex flex-col gap-[8px]">
+        <div className="t-control">{t('style', 'Style')}</div>
         <div className="flex flex-wrap gap-[8px]">
           {list.map((p) => (
             <div
               key={p}
               onClick={() => setStyle(p)}
               className={clsx(
-                'cursor-pointer rounded-[4px] px-[10px] h-[30px] flex items-center text-[12px] border',
+                'cursor-pointer rounded-thumb px-[8px] h-compact flex items-center t-caption border',
                 style === p
-                  ? 'bg-[#612BD3] border-[#612BD3] text-white'
+                  ? 'bg-primaryBg border-lineStrong text-primaryText'
                   : 'bg-newColColor border-newBgLineColor'
               )}
             >
@@ -147,17 +147,22 @@ export const AiImage: FC<{
       <div
         onClick={openImageModal}
         className={clsx(
-          'cursor-pointer h-[30px] rounded-[6px] justify-center items-center flex bg-newColColor px-[8px]'
+          'cursor-pointer h-compact rounded-thumb justify-center items-center flex bg-newColColor px-[8px]'
         )}
       >
         {loading && (
           <div className="absolute start-[50%] -translate-x-[50%]">
-            <Loading height={15} width={15} type="spin" color="#fff" />
+            <Loading
+              height={15}
+              width={15}
+              type="spin"
+              color="var(--slate-text-primary)"
+            />
           </div>
         )}
         <div
           className={clsx(
-            'flex gap-[5px] items-center',
+            'flex gap-[4px] items-center',
             loading && 'invisible'
           )}
         >
@@ -185,7 +190,7 @@ export const AiImage: FC<{
               </defs>
             </svg>
           </div>
-          <div className="text-[10px] font-[600] iconBreak:hidden block">
+          <div className="t-caption-strong iconBreak:hidden block">
             {t('ai', 'AI')} Image
           </div>
         </div>

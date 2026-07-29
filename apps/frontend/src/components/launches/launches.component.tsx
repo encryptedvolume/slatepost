@@ -27,51 +27,6 @@ import { useIntegrationList } from '@gitroom/frontend/components/launches/helper
 import useCookie from 'react-use-cookie';
 import { Onboarding } from '@gitroom/frontend/components/onboarding/onboarding';
 
-export const SVGLine = () => {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="5"
-      height="52"
-      viewBox="0 0 5 52"
-      fill="none"
-      className="rtl:rotate-180"
-    >
-      <path
-        d="M0.5 4C0.5 1.79086 2.29086 0 4.5 0V52C2.29086 52 0.5 50.2091 0.5 48V4Z"
-        fill="url(#paint0_linear_1930_1119)"
-      />
-      <path
-        d="M0.5 4C0.5 1.79086 2.29086 0 4.5 0V52C2.29086 52 0.5 50.2091 0.5 48V4Z"
-        fill="url(#paint1_radial_1930_1119)"
-      />
-      <defs>
-        <linearGradient
-          id="paint0_linear_1930_1119"
-          x1="-7"
-          y1="-27.7727"
-          x2="-2.58929"
-          y2="-28.6843"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#662FDA" />
-          <stop offset="1" stopColor="#5720CB" />
-        </linearGradient>
-        <radialGradient
-          id="paint1_radial_1930_1119"
-          cx="0"
-          cy="0"
-          r="1"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="translate(1.19333 7.45342) rotate(21.2064) scale(16.1503 188.627)"
-        >
-          <stop stopColor="#8C66FF" />
-          <stop offset="1" stopColor="#8C66FF" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-    </svg>
-  );
-};
 interface MenuComponentInterface {
   refreshChannel: (
     integration: Integration & {
@@ -167,13 +122,13 @@ export const MenuGroupComponent: FC<
       {collectedProps.isOver && (
         <div className="absolute start-0 top-0 w-full h-full pointer-events-none">
           <div className="w-full h-full start-0 top-0 relative">
-            <div className="bg-white/30 w-full h-full p-[8px] box-content rounded-md" />
+            <div className="bg-surfaceActive w-full h-full p-[8px] box-content rounded-thumb" />
           </div>
         </div>
       )}
       {!!group.name && (
         <div
-          className="flex items-center gap-[5px] cursor-pointer"
+          className="flex items-center gap-[4px] cursor-pointer"
           onClick={changeOpenClose}
         >
           <div>
@@ -260,38 +215,35 @@ export const MenuComponent: FC<
           }
         : {})}
       className={clsx(
-        'flex gap-[12px] items-center bg-newBgColorInner hover:bg-boxHover group/profile transition-all rounded-e-[8px]',
+        'flex gap-[12px] items-center bg-newBgColorInner hover:bg-boxHover group/profile transition-all rounded-e-control',
         integration.refreshNeeded && 'cursor-pointer'
       )}
     >
       <div
         className={clsx(
-          'relative gap-[6px] flex justify-center items-center',
+          'relative gap-[8px] flex justify-center items-center',
           integration.disabled && 'opacity-50'
         )}
       >
-        <div className="h-full w-[4px] -ms-[12px] rounded-s-[3px] opacity-0 group-hover/profile:opacity-100 transition-opacity">
-          <SVGLine />
-        </div>
         {(integration.inBetweenSteps || integration.refreshNeeded) && (
           <div
-            className="absolute start-0 top-0 w-[39px] h-[46px] cursor-pointer"
+            className="absolute start-0 top-0 w-[40px] h-[48px] cursor-pointer"
             onClick={
               integration.refreshNeeded
                 ? refreshChannel(integration)
                 : continueIntegration(integration)
             }
           >
-            <div className="bg-red-500 w-[15px] h-[15px] rounded-full start-[5px] top-[5px] absolute z-[200] text-[10px] flex justify-center items-center">
+            <div className="bg-criticalTint text-critical border border-criticalBorder w-[16px] h-[16px] rounded-pill start-[4px] top-[4px] absolute z-[200] t-caption flex justify-center items-center">
               !
             </div>
-            <div className="bg-primary/60 w-[39px] h-[46px] start-0 top-0 absolute rounded-full z-[199]" />
+            <div className="bg-scrim w-[40px] h-[48px] start-0 top-0 absolute rounded-pill z-[199]" />
           </div>
         )}
         <ImageWithFallback
           fallbackSrc={'/no-picture.jpg'}
           src={integration.picture || '/no-picture.jpg'}
-          className="rounded-[8px] min-w-[36px] min-h-[36px]"
+          className="rounded-control min-w-[36px] min-h-control"
           alt={integration.identifier}
           width={36}
           height={36}
@@ -299,16 +251,16 @@ export const MenuComponent: FC<
         {integration.identifier === 'youtube' ? (
           <img
             src="/icons/platforms/youtube.svg"
-            className="absolute z-10 bottom-[5px] -end-[5px]"
-            width={20}
+            className="absolute z-10 bottom-[4px] -end-[4px]"
+            width={16}
           />
         ) : (
           <SafeImage
             src={`/icons/platforms/${integration.identifier}.png`}
-            className="rounded-[8px] absolute z-10 bottom-[5px] -end-[5px] border border-fifth"
+            className="rounded-thumb absolute z-10 bottom-[4px] -end-[4px] border border-line"
             alt={integration.identifier}
-            width={18.41}
-            height={18.41}
+            width={16}
+            height={16}
           />
         )}
       </div>
@@ -360,7 +312,6 @@ export const LaunchesComponent = () => {
   const t = useT();
   const [reload, setReload] = useState(false);
   const [collapseMenu, setCollapseMenu] = useCookie('collapseMenu', '0');
-  const [mode] = useCookie('mode', 'dark');
   const { isLoading, data: integrations, mutate } = useIntegrationList();
 
   const totalNonDisabledChannels = useMemo(() => {
@@ -486,7 +437,7 @@ export const LaunchesComponent = () => {
   }, []);
   if (isLoading || reload) {
     return (
-      <div className="bg-newBgColorInner p-[20px] flex flex-1 flex-col gap-[15px] transition-all items-center justify-center">
+      <div className="bg-canvas p-[24px] flex flex-1 flex-col gap-[16px] items-center justify-center">
         <LoadingComponent />
       </div>
     );
@@ -500,23 +451,23 @@ export const LaunchesComponent = () => {
         <div
           className={clsx(
             'flex relative flex-col',
-            collapseMenu === '1' ? 'group sidebar w-[100px]' : 'w-[260px]'
+            collapseMenu === '1' ? 'group sidebar w-[64px]' : 'w-[240px]'
           )}
         >
           <div
             className={clsx(
-              'bg-newBgColorInner p-[20px] flex flex-col gap-[15px] transition-all absolute start-0 top-0 w-full h-full overflow-x-hidden overflow-y-auto scrollbar scrollbar-thumb-fifth scrollbar-track-newBgColor'
+              'bg-canvas border-e border-hairline p-[16px] flex flex-col gap-[24px] absolute start-0 top-0 w-full h-full overflow-x-hidden overflow-y-auto scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent'
             )}
           >
             <div className="flex items-center">
-              <h2 className="group-[.sidebar]:hidden flex-1 text-[20px] font-[500]">
+              <h2 className="group-[.sidebar]:hidden flex-1 t-title-3 text-ink">
                 {t('channels')}
               </h2>
               <div
                 onClick={() =>
                   setCollapseMenu(collapseMenu === '1' ? '0' : '1')
                 }
-                className="group-[.sidebar]:rotate-[180deg] group-[.sidebar]:mx-auto text-btnText bg-btnSimple rounded-[6px] w-[24px] h-[24px] flex items-center justify-center cursor-pointer select-none"
+                className="group-[.sidebar]:rotate-[180deg] group-[.sidebar]:mx-auto text-inkTertiary hover:text-ink hover:bg-surfaceHover rounded-control w-[28px] h-compact flex items-center justify-center cursor-pointer select-none transition-colors duration-state ease-state"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -547,20 +498,11 @@ export const LaunchesComponent = () => {
             <div className="gap-[32px] flex flex-col select-none flex-1">
               {sortedIntegrations.length === 0 && collapseMenu === '0' && (
                 <div className="flex-1 max-h-[500px] justify-center items-center flex">
-                  <div className="flex flex-col gap-[12px] text-center">
-                    <img
-                      src={
-                        mode === 'dark'
-                          ? '/no-channels.svg'
-                          : '/no-channels-colors.svg'
-                      }
-                      alt="No channels"
-                      className="mx-auto min-w-[100%]"
-                    />
-                    <div className="font-[600] text-[20px]">
+                  <div className="flex flex-col gap-[8px] text-center">
+                    <div className="t-title-2 text-ink">
                       {t('no_channels', 'No channels yet')}
                     </div>
-                    <div className="text-[14px]">
+                    <div className="t-secondary text-inkSecondary">
                       {t('connect_your_accounts')}
                     </div>
                   </div>
@@ -580,11 +522,11 @@ export const LaunchesComponent = () => {
                 />
               ))}
             </div>
-            <div className="mt-[5px] text-center flex flex-col">
+            <div className="text-center flex flex-col gap-[4px] t-secondary text-inkTertiary">
               {billingEnabled && user?.isLifetime && (
                 <div>{capitalize(user?.tier?.current || '')} tier</div>
               )}
-              <div>
+              <div className="tabular">
                 {process.env.NEXT_PUBLIC_VERSION
                   ? process.env.NEXT_PUBLIC_VERSION
                   : ''}
@@ -592,7 +534,7 @@ export const LaunchesComponent = () => {
             </div>
           </div>
         </div>
-        <div className="bg-newBgColorInner flex-1 flex-col flex p-[20px] gap-[12px]">
+        <div className="bg-canvas flex-1 flex-col flex p-[24px] gap-[24px] min-w-0">
           <Filters />
           <div className="flex-1 flex">
             <Calendar />

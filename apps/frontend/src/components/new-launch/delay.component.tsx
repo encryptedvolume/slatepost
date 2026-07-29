@@ -89,28 +89,28 @@ export const DelayComponent: FC<{
         }
         className={clsx(
           'cursor-pointer flex items-center gap-[4px]',
-          currentDelay > 0 && 'bg-[#D82D7E] text-white rounded-full'
+          currentDelay > 0 && 'bg-primaryBg text-primaryText rounded-pill'
         )}
       >
         <DelayIcon />
       </div>
       {isOpen && (
-        <div className="z-[300] absolute end-0 top-[100%] w-[200px] bg-newBgColorInner p-[8px] menu-shadow translate-y-[10px] flex flex-col rounded-[8px]">
+        <div className="z-[300] absolute end-0 top-[100%] w-[200px] bg-newBgColorInner p-[8px] menu-shadow translate-y-[8px] flex flex-col rounded-control">
           <div className="grid grid-cols-4 gap-[4px]">
             {delayOptions.map((option) => (
               <div
                 onClick={() => handleSelectDelay(option.value)}
                 key={option.value}
                 className={clsx(
-                  'h-[32px] flex items-center justify-center rounded-[4px] cursor-pointer hover:bg-newBgColor text-[13px]',
-                  currentDelay === option.value && 'bg-[#612BD3] text-white hover:bg-[#612BD3]'
+                  'h-[32px] flex items-center justify-center rounded-thumb cursor-pointer hover:bg-newBgColor t-secondary',
+                  currentDelay === option.value && 'bg-primaryBg text-primaryText hover:bg-primaryBgHover'
                 )}
               >
                 {option.label}
               </div>
             ))}
           </div>
-          <div className="border-t border-newTextColor/10 mt-[8px] pt-[8px]">
+          <div className="border-t border-hairline mt-[8px] pt-[8px]">
             <div className="flex gap-[4px]">
               <input
                 type="number"
@@ -120,8 +120,8 @@ export const DelayComponent: FC<{
                 onClick={(e) => e.stopPropagation()}
                 placeholder="Custom min"
                 className={clsx(
-                  'flex-1 w-full h-[32px] px-[8px] rounded-[4px] bg-newBgColor border text-[13px] outline-none focus:border-[#612BD3]',
-                  isCustomDelay ? 'border-[#612BD3]' : 'border-newTextColor/10'
+                  'flex-1 w-full h-[32px] px-[8px] rounded-thumb bg-newBgColor border t-secondary outline-none focus:border-lineStrong',
+                  isCustomDelay ? 'border-lineStrong' : 'border-line'
                 )}
               />
               <button
@@ -133,7 +133,7 @@ export const DelayComponent: FC<{
                     setCustomValue('');
                   }
                 }}
-                className="h-[32px] px-[10px] rounded-[4px] bg-[#612BD3] text-white text-[12px] font-[600] hover:bg-[#612BD3]/80"
+                className="h-[32px] px-[8px] rounded-thumb bg-primaryBg text-primaryText t-caption-strong hover:bg-primaryBgHover"
               >
                 Set
               </button>
@@ -142,7 +142,7 @@ export const DelayComponent: FC<{
           {currentDelay > 0 && (
             <button
               onClick={() => handleSelectDelay(0)}
-              className="mt-[8px] h-[32px] w-full rounded-[4px] text-[13px] text-red-400 hover:bg-red-400/10"
+              className="mt-[8px] h-[32px] w-full rounded-thumb t-secondary text-critical hover:bg-criticalTint"
             >
               Remove delay
             </button>

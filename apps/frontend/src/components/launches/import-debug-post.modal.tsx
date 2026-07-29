@@ -128,7 +128,7 @@ export const ImportDebugPostModal: FC<{ close: () => void }> = ({ close }) => {
   return (
     <div className="flex flex-col gap-[16px] min-w-[500px]">
       <textarea
-        className="w-full h-[200px] p-[12px] rounded-[8px] bg-input border border-tableBorder text-textColor font-mono text-[13px] resize-y"
+        className="w-full h-[200px] p-[12px] rounded-control bg-input border border-tableBorder text-textColor font-mono t-secondary resize-y"
         placeholder={t(
           'paste_debug_json',
           'Paste the debug JSON copied from a failed post...'
@@ -138,44 +138,44 @@ export const ImportDebugPostModal: FC<{ close: () => void }> = ({ close }) => {
       />
 
       {parseError && (
-        <div className="text-red-500 text-[13px]">{parseError}</div>
+        <div className="text-critical t-secondary">{parseError}</div>
       )}
 
       {parsed && (
         <div className="flex flex-col gap-[12px]">
-          <div className="flex flex-col gap-[8px] p-[12px] rounded-[8px] bg-input border border-tableBorder">
-            <div className="text-[13px] font-[600] text-textColor">
+          <div className="flex flex-col gap-[8px] p-[12px] rounded-control bg-input border border-tableBorder">
+            <div className="t-secondary-strong text-textColor">
               {t('debug_info', 'Debug Info')}
             </div>
-            <div className="text-[12px] text-textColor/70 flex flex-col gap-[4px] min-w-0 break-all">
+            <div className="t-caption text-inkSecondary flex flex-col gap-[4px] min-w-0 break-all">
               <div>
-                <span className="font-[500]">
+                <span className="t-caption-strong">
                   {t('provider', 'Provider')}:
                 </span>{' '}
                 {parsed._debug.providerIdentifier} ({parsed._debug.providerName})
               </div>
               <div>
-                <span className="font-[500]">
+                <span className="t-caption-strong">
                   {t('state', 'State')}:
                 </span>{' '}
-                <span className={parsed._debug.state === 'ERROR' ? 'text-red-500' : ''}>
+                <span className={parsed._debug.state === 'ERROR' ? 'text-critical' : ''}>
                   {parsed._debug.state}
                 </span>
               </div>
               {parsed._debug.error && (
                 <div>
-                  <span className="font-[500]">
+                  <span className="t-caption-strong">
                     {t('error', 'Error')}:
                   </span>{' '}
-                  <span className="text-red-400">{parsed._debug.error}</span>
+                  <span className="text-critical">{parsed._debug.error}</span>
                 </div>
               )}
               {parsed._debug.errors?.length > 0 && (
                 <div className="mt-[4px]">
-                  <span className="font-[500]">
+                  <span className="t-caption-strong">
                     {t('error_details', 'Error Details')}:
                   </span>
-                  <div className="mt-[4px] max-h-[100px] overflow-y-auto bg-newBgColor p-[8px] rounded-[4px] text-[11px] font-mono break-all whitespace-pre-wrap">
+                  <div className="mt-[4px] max-h-[96px] overflow-y-auto bg-newBgColor p-[8px] rounded-thumb t-numeric break-all whitespace-pre-wrap">
                     {parsed._debug.errors.map((err, i) => (
                       <div key={i} className="mb-[4px]">
                         [{err.platform}] {err.message}
@@ -185,7 +185,7 @@ export const ImportDebugPostModal: FC<{ close: () => void }> = ({ close }) => {
                 </div>
               )}
               <div>
-                <span className="font-[500]">
+                <span className="t-caption-strong">
                   {t('original_date', 'Original Date')}:
                 </span>{' '}
                 {new Date(parsed._debug.originalPublishDate).toLocaleString()}
@@ -194,44 +194,44 @@ export const ImportDebugPostModal: FC<{ close: () => void }> = ({ close }) => {
           </div>
 
           <div className="flex flex-col gap-[8px]">
-            <div className="text-[13px] font-[600] text-textColor">
+            <div className="t-secondary-strong text-textColor">
               {t('select_local_integration', 'Select Local Integration')}
-              <span className="text-[12px] font-[400] text-textColor/60 ml-[8px]">
+              <span className="t-caption text-inkSecondary ml-[8px]">
                 ({parsed._debug.providerIdentifier})
               </span>
             </div>
 
             {matchingIntegrations.length === 0 ? (
-              <div className="text-[13px] text-red-400">
+              <div className="t-secondary text-critical">
                 {t(
                   'no_matching_integrations',
                   `No ${parsed._debug.providerIdentifier} integrations found. Add one first.`
                 )}
               </div>
             ) : (
-              <div className="flex flex-col gap-[6px]">
+              <div className="flex flex-col gap-[8px]">
                 {matchingIntegrations.map((integration) => (
                   <div
                     key={integration.id}
                     className={clsx(
-                      'flex items-center gap-[10px] p-[10px] rounded-[8px] border cursor-pointer transition-all',
+                      'flex items-center gap-[8px] p-[8px] rounded-control border cursor-pointer transition-all',
                       selectedIntegrationId === integration.id
-                        ? 'border-forth bg-forth/10'
-                        : 'border-tableBorder hover:border-textColor/30'
+                        ? 'border-lineStrong bg-surfaceActive'
+                        : 'border-line hover:border-lineStrong'
                     )}
                     onClick={() => setSelectedIntegrationId(integration.id)}
                   >
                     <img
                       src={integration.picture || '/no-picture.jpg'}
-                      className="w-[24px] h-[24px] rounded-[6px]"
+                      className="w-[24px] h-[24px] rounded-thumb"
                       alt={integration.name}
                     />
-                    <div className="text-[13px] text-textColor">
+                    <div className="t-secondary text-textColor">
                       {integration.name}
                     </div>
                     <img
                       src={`/icons/platforms/${integration.identifier}.png`}
-                      className="w-[14px] h-[14px] rounded-[4px] ml-auto"
+                      className="w-[14px] h-[14px] rounded-thumb ml-auto"
                       alt={integration.identifier}
                     />
                   </div>
@@ -244,7 +244,7 @@ export const ImportDebugPostModal: FC<{ close: () => void }> = ({ close }) => {
             onClick={handleImport}
             loading={importing}
             disabled={!selectedIntegrationId}
-            className="rounded-[4px]"
+            className="rounded-thumb"
           >
             {t('import_as_draft', 'Import as Draft')}
           </Button>

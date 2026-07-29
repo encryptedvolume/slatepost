@@ -184,7 +184,7 @@ export const PickPlatforms: FC<{
   }
   return (
     <div
-      className={clsx('flex select-none', props.singleSelect && 'gap-[10px]')}
+      className={clsx('flex select-none', props.singleSelect && 'gap-[8px]')}
     >
       {props.singleSelect && isLeft && (
         <div className="flex items-center">
@@ -208,19 +208,19 @@ export const PickPlatforms: FC<{
       <div
         className={clsx(
           'flex-1 flex',
-          props.singleSelect && 'relative h-[40px]'
+          props.singleSelect && 'relative h-control'
         )}
       >
         <div
           className={clsx(
             props.singleSelect
-              ? 'absolute w-full h-[40px] flex flex-nowrap overflow-hidden transition-all'
+              ? 'absolute w-full h-control flex flex-nowrap overflow-hidden transition-all'
               : 'flex-1 flex'
           )}
           ref={ref}
         >
           <div className="innerComponent">
-            <div className="flex gap-[10px] flex-wrap">
+            <div className="flex gap-[8px] flex-wrap">
               {integrations
                 .filter((f) => !f.inBetweenSteps)
                 .map((integration) =>
@@ -236,7 +236,7 @@ export const PickPlatforms: FC<{
                       <div
                         onClick={addPlatform(integration)}
                         className={clsx(
-                          'cursor-pointer relative w-[34px] h-[34px] rounded-full flex justify-center items-center bg-fifth filter transition-all duration-500',
+                          'cursor-pointer relative w-[34px] h-[34px] rounded-pill flex justify-center items-center bg-fifth filter transition-all duration-state ease-state',
                           selectedAccounts.findIndex(
                             (p) => p.id === integration.id
                           ) === -1
@@ -246,7 +246,7 @@ export const PickPlatforms: FC<{
                       >
                         <SafeImage
                           src={integration.picture || '/no-picture.jpg'}
-                          className="rounded-full"
+                          className="rounded-pill"
                           alt={integration.identifier}
                           width={32}
                           height={32}
@@ -254,13 +254,13 @@ export const PickPlatforms: FC<{
                         {integration.identifier === 'youtube' ? (
                           <img
                             src="/icons/platforms/youtube.svg"
-                            className="absolute z-10 bottom-0 -end-[5px]"
+                            className="absolute z-10 bottom-0 -end-[4px]"
                             width={20}
                           />
                         ) : (
                           <SafeImage
                             src={`/icons/platforms/${integration.identifier}.png`}
-                            className="rounded-full absolute z-10 -bottom-[5px] -end-[5px] border border-fifth"
+                            className="rounded-pill absolute z-10 -bottom-[4px] -end-[4px] border border-fifth"
                             alt={integration.identifier}
                             width={20}
                             height={20}
@@ -273,7 +273,7 @@ export const PickPlatforms: FC<{
                       <div
                         onClick={addPlatform(integration)}
                         className={clsx(
-                          'cursor-pointer rounded-[50px] w-[200px] relative h-[40px] flex justify-center items-center bg-fifth filter transition-all duration-500',
+                          'cursor-pointer rounded-pill w-[200px] relative h-control flex justify-center items-center bg-fifth filter transition-all duration-state ease-state',
                           selectedAccounts.findIndex(
                             (p) => p.id === integration.id
                           ) === -1
@@ -281,18 +281,18 @@ export const PickPlatforms: FC<{
                             : 'bg-customColor29 border border-customColor30'
                         )}
                       >
-                        <div className="flex items-center justify-center gap-[10px]">
+                        <div className="flex items-center justify-center gap-[8px]">
                           <div className="relative">
                             <img
                               src={integration.picture || '/no-picture.jpg'}
-                              className="rounded-full"
+                              className="rounded-pill"
                               alt={integration.identifier}
                               width={24}
                               height={24}
                             />
                             <SafeImage
                               src={`/icons/platforms/${integration.identifier}.png`}
-                              className="rounded-full absolute z-10 -bottom-[5px] -end-[5px] border border-fifth"
+                              className="rounded-pill absolute z-10 -bottom-[4px] -end-[4px] border border-fifth"
                               alt={integration.identifier}
                               width={15}
                               height={15}

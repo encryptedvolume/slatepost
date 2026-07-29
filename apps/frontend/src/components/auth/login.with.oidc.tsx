@@ -15,7 +15,7 @@ export const LoginWithOidc = () => {
   return (
     <>
       <div>
-        <h1 className="text-center text-3xl font-bold text-start mb-4 cursor-pointer">
+        <h1 className="text-center t-title-1 text-start mb-[16px] cursor-pointer">
           {t('sign_up', 'Sign Up')}
         </h1>
       </div>

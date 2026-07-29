@@ -56,8 +56,8 @@ export const MultiSelect: FC<{
   };
 
   return (
-    <div className="flex flex-col gap-[6px]">
-      <div className="text-[14px]">
+    <div className="flex flex-col gap-[8px]">
+      <div className="t-control text-inkSecondary">
         <TranslatedLabel
           label={label}
           translationKey={translationKey}
@@ -66,14 +66,14 @@ export const MultiSelect: FC<{
       </div>
       <div
         className={clsx(
-          'bg-newBgColorInner border border-newTableBorder rounded-[8px] max-h-[160px] overflow-auto p-[12px] flex flex-col gap-[8px]',
+          'bg-newBgColorInner border border-newTableBorder rounded-control max-h-[160px] overflow-auto p-[12px] flex flex-col gap-[8px]',
           className
         )}
       >
         {options.map((option) => (
           <label
             key={option.value}
-            className="flex items-center gap-[8px] cursor-pointer text-[14px]"
+            className="flex items-center gap-[8px] cursor-pointer t-control"
           >
             <input
               type="checkbox"
@@ -85,7 +85,7 @@ export const MultiSelect: FC<{
         ))}
       </div>
       {!hideErrors && (
-        <div className="text-red-400 text-[12px]">{err || <>&nbsp;</>}</div>
+        <div className="text-critical t-secondary">{err || <>&nbsp;</>}</div>
       )}
     </div>
   );

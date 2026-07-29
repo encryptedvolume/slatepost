@@ -7,6 +7,7 @@ import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import { hasExtension } from '@gitroom/helpers/utils/has.extension';
 import { useLaunchStore } from '@gitroom/frontend/components/new-launch/store';
 import { useVariables } from '@gitroom/react/helpers/variable.context';
+import { Button } from '@gitroom/react/form/button';
 const postUrlEmitter = new EventEmitter();
 
 export const MediaSettingsLayout = () => {
@@ -210,8 +211,8 @@ export const CreateThumbnail: FC<{
   if (!media) return null;
 
   return (
-    <div className="flex flex-col space-y-4">
-      <div className="relative bg-black rounded-lg overflow-hidden">
+    <div className="flex flex-col space-y-[16px]">
+      <div className="relative bg-canvas rounded-control overflow-hidden">
         <video
           ref={videoRef}
           src={
@@ -229,7 +230,7 @@ export const CreateThumbnail: FC<{
 
       {isLoaded && (
         <>
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-[8px]">
             <input
               type="range"
               min="0"
@@ -237,27 +238,27 @@ export const CreateThumbnail: FC<{
               step="0.1"
               value={currentTime}
               onChange={handleSeek}
-              className="w-full h-2 bg-fifth rounded-lg appearance-none cursor-pointer slider"
+              className="w-full h-[8px] bg-fifth rounded-control appearance-none cursor-pointer slider"
               style={{
-                background: `linear-gradient(to right, #4f46e5 0%, #4f46e5 ${
+                // Hard stop, not a blend: the played portion is ink, the rest
+                // is the track. Two tokens, no third colour.
+                background: `linear-gradient(to right, var(--slate-primary-bg) 0%, var(--slate-primary-bg) ${
                   (currentTime / duration) * 100
-                }%, #374151 ${(currentTime / duration) * 100}%, #374151 100%)`,
+                }%, var(--slate-surface-active) ${
+                  (currentTime / duration) * 100
+                }%, var(--slate-surface-active) 100%)`,
               }}
             />
-            <div className="flex justify-between text-sm text-textColor">
+            <div className="flex justify-between t-secondary text-textColor">
               <span>{formatTime(currentTime)}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
 
           <div className="flex justify-center">
-            <button
-              onClick={captureFrame}
-              disabled={isCapturing}
-              className="bg-forth text-white px-6 py-2 rounded-lg hover:bg-opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <Button onClick={captureFrame} disabled={isCapturing}>
               {isCapturing ? 'Capturing...' : 'Select This Frame'}
-            </button>
+            </Button>
           </div>
         </>
       )}
@@ -268,20 +269,20 @@ export const CreateThumbnail: FC<{
           width: 20px;
           height: 20px;
           border-radius: 50%;
-          background: #4f46e5;
+          background: var(--slate-primary-bg);
           cursor: pointer;
-          border: 2px solid #ffffff;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          border: 2px solid var(--slate-surface);
+          box-shadow: none;
         }
 
         .slider::-moz-range-thumb {
           width: 20px;
           height: 20px;
           border-radius: 50%;
-          background: #4f46e5;
+          background: var(--slate-primary-bg);
           cursor: pointer;
-          border: 2px solid #ffffff;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          border: 2px solid var(--slate-surface);
+          box-shadow: none;
         }
       `}</style>
     </div>
@@ -363,9 +364,9 @@ export const MediaComponentInner: FC<{
   }, [altText, newThumbnail, thumbnail, thumbnailTimestamp]);
 
   return (
-    <div className="mt-[10px] flex flex-col gap-[20px]">
-      <div className="flex flex-col space-y-2">
-        <label className="text-sm text-textColor font-medium">
+    <div className="mt-[8px] flex flex-col gap-[20px]">
+      <div className="flex flex-col space-y-[8px]">
+        <label className="t-secondary-emphasis text-textColor">
           Alt Text (for accessibility)
         </label>
         <input
@@ -373,7 +374,7 @@ export const MediaComponentInner: FC<{
           value={altText}
           onChange={(e) => setAltText(e.target.value)}
           placeholder="Describe the image/video content..."
-          className="w-full px-3 py-2 bg-fifth border border-tableBorder rounded-lg text-textColor placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-forth focus:border-transparent"
+          className="w-full px-[12px] py-[8px] bg-fifth border border-tableBorder rounded-control text-textColor placeholder-inkTertiary focus:outline-none focus:ring-2 focus:ring-forth focus:border-transparent"
         />
       </div>
       {hasExtension(media?.path, 'mp4') && (
@@ -384,40 +385,42 @@ export const MediaComponentInner: FC<{
               <div className="flex flex-col">
                 {/* Show existing thumbnail if it exists */}
                 {(newThumbnail || thumbnail) && (
-                  <div className="flex flex-col space-y-2">
-                    <span className="text-sm text-textColor">
+                  <div className="flex flex-col space-y-[8px]">
+                    <span className="t-secondary text-textColor">
                       Current Thumbnail:
                     </span>
                     <img
                       src={newThumbnail || thumbnail}
                       alt="Current thumbnail"
-                      className="max-w-full max-h-[500px] object-contain rounded-lg border border-tableBorder"
+                      className="max-w-full max-h-[500px] object-contain rounded-control border border-tableBorder"
                     />
                   </div>
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex space-x-2">
-                  <button
+                <div className="flex space-x-[8px]">
+                  <Button
+                    secondary
                     disabled={loading}
                     onClick={() => setIsEditingThumbnail(true)}
-                    className="bg-third text-textColor px-6 py-2 rounded-lg hover:bg-opacity-80 transition-all flex-1 border border-tableBorder"
+                    className="flex-1"
                   >
                     {media.thumbnail || newThumbnail
                       ? 'Edit Thumbnail'
                       : 'Create Thumbnail'}
-                  </button>
+                  </Button>
                   {(thumbnail || newThumbnail) && (
-                    <button
+                    <Button
+                      secondary
                       disabled={loading}
                       onClick={() => {
                         setNewThumbnail(null);
                         setThumbnail(null);
                       }}
-                      className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-opacity-80 transition-all flex-1 border border-red-700"
+                      className="flex-1 !text-critical"
                     >
                       Clear Thumbnail
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -427,7 +430,7 @@ export const MediaComponentInner: FC<{
                 <div className="flex justify-start">
                   <button
                     onClick={() => setIsEditingThumbnail(false)}
-                    className="text-textColor hover:text-white transition-colors flex items-center space-x-2"
+                    className="text-textColor hover:text-ink transition-colors flex items-center space-x-[8px]"
                   >
                     <svg
                       width="16"
@@ -473,20 +476,18 @@ export const MediaComponentInner: FC<{
       )}
 
       {!isEditingThumbnail && (
-        <div className="flex space-x-2 !mt-[20px]">
-          <button
+        <div className="flex space-x-[8px] !mt-[20px]">
+          <Button
+            secondary
             disabled={loading}
             onClick={onClose}
-            className="flex-1 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-opacity-80 transition-all"
+            className="flex-1"
           >
             Cancel
-          </button>
-          <button
-            onClick={save}
-            className="flex-1 bg-forth text-white px-6 py-2 rounded-lg hover:bg-opacity-80 transition-all"
-          >
+          </Button>
+          <Button onClick={save} className="flex-1">
             Save Changes
-          </button>
+          </Button>
         </div>
       )}
     </div>

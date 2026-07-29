@@ -34,7 +34,7 @@ const VEO3Settings: FC = () => {
         })}
         error={formState?.errors?.prompt?.message}
       />
-      <div className="mb-[6px]">Images (max 3)</div>
+      <div className="mb-[8px]">Images (max 3)</div>
       <MultiMediaComponent
         allData={[]}
         dummy={true}

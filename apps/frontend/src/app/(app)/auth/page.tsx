@@ -2,12 +2,11 @@ import { internalFetch } from '@gitroom/helpers/utils/internal.fetch';
 export const dynamic = 'force-dynamic';
 import { Register } from '@gitroom/frontend/components/auth/register';
 import { Metadata } from 'next';
-import { isGeneralServerSide } from '@gitroom/helpers/utils/is.general.server.side';
 import Link from 'next/link';
 import { getT } from '@gitroom/react/translation/get.translation.service.backend';
 import { LoginWithOidc } from '@gitroom/frontend/components/auth/login.with.oidc';
 export const metadata: Metadata = {
-  title: `${isGeneralServerSide() ? 'Postiz' : 'Gitroom'} Register`,
+  title: 'Slate Register',
   description: '',
 };
 export default async function Auth(params: {searchParams: Promise<{provider: string}>}) {
@@ -23,7 +22,7 @@ export default async function Auth(params: {searchParams: Promise<{provider: str
           <div className="text-center">
             {t('registration_is_disabled', 'Registration is disabled')}
             <br />
-            <Link className="underline hover:font-bold" href="/auth/login">
+            <Link className="underline hover:text-inkSecondary transition-colors duration-state ease-state" href="/auth/login">
               {t('login_instead', 'Login instead')}
             </Link>
           </div>

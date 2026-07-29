@@ -57,24 +57,24 @@ export const PicksSocialsComponent: FC<{ toolTip?: boolean }> = ({
                       addOrRemoveSelectedIntegration(integration, {});
                     }}
                     className={clsx(
-                      'cursor-pointer border-[2px] relative rounded-full flex justify-center items-center bg-fifth filter transition-all duration-500',
+                      'cursor-pointer border-[2px] relative rounded-pill flex justify-center items-center bg-fifth filter transition-all duration-state ease-state',
                       selectedIntegrations.findIndex(
                         (p) => p.integration.id === integration.id
                       ) === -1
                         ? 'grayscale border-transparent'
-                        : 'border-[#622FF6]'
+                        : 'border-primaryBg'
                     )}
                   >
                     <ImageWithFallback
                       fallbackSrc="/no-picture.jpg"
                       src={integration.picture || '/no-picture.jpg'}
                       className={clsx(
-                        'rounded-full transition-all min-w-[42px] border-[1.5px] min-h-[42px]',
+                        'rounded-pill transition-all min-w-[42px] border-[1.5px] min-h-[42px]',
                         selectedIntegrations.findIndex(
                           (p) => p.integration.id === integration.id
                         ) === -1
                           ? 'border-transparent'
-                          : 'border-[#000]'
+                          : 'border-primaryText'
                       )}
                       alt={integration.identifier}
                       width={42}
@@ -83,13 +83,13 @@ export const PicksSocialsComponent: FC<{ toolTip?: boolean }> = ({
                     {integration.identifier === 'youtube' ? (
                       <img
                         src="/icons/platforms/youtube.svg"
-                        className="absolute z-10 bottom-0 -end-[5px] min-w-[16px]"
+                        className="absolute z-10 bottom-0 -end-[4px] min-w-[16px]"
                         width={16}
                       />
                     ) : (
                       <SafeImage
                         src={`/icons/platforms/${integration.identifier}.png`}
-                        className="rounded-[4px] absolute z-10 bottom-0 -end-[5px] min-w-[16px] min-h-[16px]"
+                        className="rounded-thumb absolute z-10 bottom-0 -end-[4px] min-w-[16px] min-h-[16px]"
                         alt={integration.identifier}
                         width={16}
                         height={16}

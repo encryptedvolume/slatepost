@@ -211,7 +211,7 @@ export const ProviderPreviewComponent: FC<ProviderPreviewProps> = ({
   const { SettingsComponent } = meta;
   if (!SettingsComponent) {
     return (
-      <div className="p-4 text-sm">
+      <div className="p-[16px] t-secondary">
         This provider has no configurable settings.
       </div>
     );
@@ -220,10 +220,10 @@ export const ProviderPreviewComponent: FC<ProviderPreviewProps> = ({
   return (
     <IntegrationContext.Provider value={contextValue}>
       <FormProvider {...form}>
-        <div className="flex flex-col text-white p-[10px]">
+        <div className="flex flex-col text-ink p-[8px]">
           {errors && errors.length > 0 && (
-            <div className="rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-300">
-              <ul className="list-disc ps-5">
+            <div className="rounded-thumb border border-criticalBorder bg-criticalTint p-[12px] t-secondary text-critical">
+              <ul className="list-disc ps-[20px]">
                 {errors.map((e, i) => (
                   <li key={i}>{e}</li>
                 ))}

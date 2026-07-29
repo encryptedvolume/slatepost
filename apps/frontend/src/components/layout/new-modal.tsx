@@ -135,7 +135,7 @@ export const Component: FC<{
         style={{ zIndex }}
         className={clsx(
           !modal.fullScreen
-            ? 'pb-[50px] min-w-full min-h-full'
+            ? 'pb-[48px] min-w-full min-h-full'
             : 'w-full h-full',
           'fixed flex left-0 top-0 bg-popup transition-all animate-fadeIn overflow-y-auto text-newTextColor',
           !isLast && '!overflow-hidden'
@@ -172,7 +172,7 @@ export const Component: FC<{
         style={{ zIndex }}
         className={clsx(
           'fixed flex left-0 top-0 min-w-full min-h-full bg-popup transition-all animate-fadeIn overflow-y-auto text-newTextColor',
-          !modal.fullScreen && 'pb-[50px]'
+          !modal.fullScreen && 'pb-[48px]'
         )}
       >
         <div className="relative flex-1">
@@ -187,17 +187,19 @@ export const Component: FC<{
               !modal.fullScreen
                 ? modal.top
                   ? ''
-                  : 'min-h-full pt-[100px] pb-[100px]'
+                  : 'min-h-full pt-[96px] pb-[96px]'
                 : 'h-screen',
               modal.size && modal.height
                 ? 'flex justify-center items-center'
                 : 'top-0 left-0'
             )}
           >
+            {/* Modals are cards: 14 radius, 1px hairline, 24px padding, and
+                the single overlay shadow the product allows. */}
             <div
               className={clsx(
-                !modal.removeLayout && 'gap-[40px] p-[32px]',
-                'bg-newBgColorInner mx-auto flex flex-col w-fit rounded-[24px] relative',
+                !modal.removeLayout && 'gap-[24px] p-[24px]',
+                'bg-surfaceOverlay border border-line shadow-overlay mx-auto flex flex-col w-fit rounded-card relative',
                 modal.size ? '' : 'min-w-[600px]',
                 modal.fullScreen && 'h-full'
               )}
@@ -210,15 +212,19 @@ export const Component: FC<{
               })}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center">
-                <div className="text-[24px] font-[600] flex-1">
-                  {modal.title}
-                </div>
+              <div className="flex items-center gap-[16px]">
+                <div className="t-title-2 flex-1 min-w-0">{modal.title}</div>
                 {typeof modal.withCloseButton === 'undefined' ||
                 modal.withCloseButton ? (
-                  <div className="cursor-pointer">
-                    <button
-                      className="outline-none absolute end-[20px] top-[20px] mantine-UnstyledButton-root mantine-ActionIcon-root hover:bg-tableBorder cursor-pointer mantine-Modal-close mantine-1dcetaa"
+                  /* The close button is the second flex child of the header
+                     row, not an absolutely-positioned overlay: the row now
+                     reserves space for it, so a long title truncates beside
+                     it instead of running underneath it, and its optical
+                     centre sits on the title's baseline box. The 28px visual
+                     control carries a 44px touch target via the ::before
+                     inset, as the density rule requires. */
+                  <button
+                      className="relative shrink-0 w-[28px] h-compact flex items-center justify-center rounded-control text-inkTertiary hover:text-ink hover:bg-surfaceHover transition-colors duration-state ease-state cursor-pointer before:absolute before:-inset-[8px] before:content-['']"
                       type="button"
                       onClick={closeModalFunction}
                     >
@@ -236,8 +242,7 @@ export const Component: FC<{
                           clipRule="evenodd"
                         ></path>
                       </svg>
-                    </button>
-                  </div>
+                  </button>
                 ) : null}
               </div>
               <div

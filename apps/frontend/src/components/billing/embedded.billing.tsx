@@ -16,6 +16,21 @@ import dayjs from 'dayjs';
 import { useToaster } from '@gitroom/react/toaster/toaster';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 
+// Stripe renders its Elements inside a cross-origin iframe, so `var(--slate-*)`
+// does not resolve there and the appearance API has to be handed literals.
+// These are the token values, not new colours — if a token in colors.scss
+// moves, this table moves with it.
+const stripeTheme = {
+  dark: {
+    text: '#fafafa', // --slate-text-primary
+    background: '#161616', // --slate-surface
+  },
+  light: {
+    text: '#0f0f0f', // --slate-text-primary
+    background: '#ffffff', // --slate-surface
+  },
+} as const;
+
 export const EmbeddedBilling: FC<{
   stripe: Promise<Stripe>;
   secret: string;
@@ -62,19 +77,26 @@ export const EmbeddedBilling: FC<{
           elementsOptions: {
             appearance: {
               variables: {
-                colorText: mode === 'dark' ? '#ffffff' : '#0e0e0e',
-                borderRadius: '8px',
-                colorBackground: mode === 'dark' ? '#1E1E1E' : '#FFFFFF',
+                colorText: stripeTheme[mode === 'dark' ? 'dark' : 'light'].text,
+                // Control radius.
+                borderRadius: '10px',
+                colorBackground:
+                  stripeTheme[mode === 'dark' ? 'dark' : 'light'].background,
               },
               rules: {
+                // The control token: 14/20, weight 500.
                 '.Label': {
                   fontSize: '14px',
-                  fontWeight: '600',
+                  lineHeight: '20px',
+                  letterSpacing: '-0.004em',
+                  fontWeight: '500',
                   marginBottom: '8px',
                 },
+                // The same 36px control height the product's own Input ships.
                 '.Input': {
-                  height: '44px',
-                  backgroundColor: mode === 'dark' ? '#1E1E1E' : '#FFFFFF',
+                  height: '36px',
+                  backgroundColor:
+                    stripeTheme[mode === 'dark' ? 'dark' : 'light'].background,
                 },
               },
             },
@@ -139,7 +161,7 @@ const StripeInputs: FC<{
   return (
     <>
       {/*<div>*/}
-      {/*  <h4 className="mb-[32px] text-[24px] font-[700]">*/}
+      {/*  <h4 className="mb-[32px] t-title-2">*/}
       {/*    {checkout.type === 'loading'*/}
       {/*      ? ''*/}
       {/*      : t('billing_billing_address', 'Billing Address')}*/}
@@ -147,7 +169,7 @@ const StripeInputs: FC<{
       {/*  <BillingAddressElement />*/}
       {/*</div>*/}
       <div>
-        <h4 className="mb-[32px] text-[24px] font-[700]">
+        <h4 className="mb-[32px] t-title-2">
           {checkout.type === 'loading' ? '' : t('billing_payment', 'Payment')}
         </h4>
         <PaymentElement
@@ -164,7 +186,7 @@ const StripeInputs: FC<{
         )}
         {ready && <SubmitBar loading={loading} />}
         {checkout.type === 'loading' ? null : (
-          <div className="mt-[24px] text-[16px] font-[600] flex gap-[4px] items-center">
+          <div className="mt-[24px] t-title-3 flex gap-[4px] items-center">
             <div>
               {t('billing_powered_by_stripe', 'Secure payments processed by')}
             </div>
@@ -219,26 +241,26 @@ const PriceBreakdown: FC = () => {
       : t('billing_yearly', 'Yearly');
 
   return (
-    <div className="mt-[40px]">
-      <h4 className="mb-[16px] text-[24px] font-[700]">
+    <div className="mt-[32px]">
+      <h4 className="mb-[16px] t-title-2">
         {t('billing_order_summary', 'Order Summary')}
       </h4>
-      <div className="rounded-[12px] border border-newColColor p-[20px] flex flex-col gap-[12px]">
+      <div className="rounded-card border border-newColColor p-[20px] flex flex-col gap-[12px]">
         {/* Plan */}
         <div className="flex justify-between items-center">
           <div className="flex flex-col">
-            <span className="font-[600] text-textColor">{planName}</span>
-            <span className="text-[13px] text-textColor/60">
+            <span className="t-body-strong text-textColor">{planName}</span>
+            <span className="t-secondary text-inkSecondary">
               {billingInterval}
             </span>
           </div>
-          <span className="font-[500] text-textColor">{unitAmount}</span>
+          <span className="t-body-emphasis text-textColor">{unitAmount}</span>
         </div>
 
         {/* Discount */}
         {discountDisplay && (
-          <div className="flex justify-between items-center font-[600]">
-            <div className="flex items-center gap-[6px]">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-[8px]">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -253,13 +275,13 @@ const PriceBreakdown: FC = () => {
                 <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
                 <line x1="7" y1="7" x2="7.01" y2="7" />
               </svg>
-              <span className="font-[500]">
+              <span className="t-body-emphasis">
                 {discountDisplay.displayName || discountDisplay.promotionCode}
                 {discountDisplay.percentOff &&
                   ` (${discountDisplay.percentOff}% off)`}
               </span>
             </div>
-            <span className="font-[500]">
+            <span className="t-body-emphasis">
               {discountDisplay.amount !== '$0.00'
                 ? `-${discountDisplay.amount}`
                 : t('billing_applied', 'Applied')}
@@ -272,17 +294,15 @@ const PriceBreakdown: FC = () => {
 
         {/* Due today */}
         <div className="flex justify-between items-center">
-          <span className="font-[600] text-textColor">
+          <span className="t-body-strong text-textColor">
             {t('billing_due_today', 'Due today')}
           </span>
-          <span className="font-[700] text-[18px] text-textColor">
-            {dueToday}
-          </span>
+          <span className="t-title-3 text-textColor">{dueToday}</span>
         </div>
 
         {/* Next billing info */}
         {nextBillingTotal && nextBillingDate && (
-          <div className="flex justify-between items-center text-[13px] text-textColor/60">
+          <div className="flex justify-between items-center t-secondary text-inkSecondary">
             <span>
               {t('billing_then', 'Then')} {nextBillingTotal}{' '}
               {t('billing_on', 'on')} {nextBillingDate}
@@ -290,7 +310,7 @@ const PriceBreakdown: FC = () => {
           </div>
         )}
 
-        <div className="text-[12px]">
+        <div className="t-caption">
           <strong>
             {t(
               'billing_cancel_notice',
@@ -375,7 +395,10 @@ const AppliedCouponDisplay: FC<{
 
   return (
     <div className="flex flex-col gap-[8px]">
-      <div className="flex items-center gap-[12px] p-[16px] rounded-[12px] border border-[#AA0FA4]/30 bg-[#AA0FA4]/10">
+      {/* The check mark carries the confirmation; the banner itself is a
+          hairline on a sunken surface. Success is reserved for post lifecycle
+          state, so it is not spent here. */}
+      <div className="flex items-center gap-[12px] p-[16px] rounded-card border border-line bg-surfaceSunken">
         <div className="flex-1">
           <div className="flex items-center gap-[8px] flex-wrap">
             <svg
@@ -384,7 +407,7 @@ const AppliedCouponDisplay: FC<{
               height="20"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#FC69FF"
+              stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -392,8 +415,8 @@ const AppliedCouponDisplay: FC<{
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
-            <span className="font-[600] text-[#FC69FF]">{appliedCode}</span>
-            <span className="text-[14px] text-textColor/70">
+            <span className="t-control-strong text-ink">{appliedCode}</span>
+            <span className="t-control text-inkSecondary">
               {t('billing_discount_applied', 'applied')}
               {discountDisplay && ` (${discountDisplay})`}
             </span>
@@ -403,13 +426,13 @@ const AppliedCouponDisplay: FC<{
           type="button"
           onClick={onRemove}
           disabled={isApplying}
-          className="text-[14px] text-textColor/50 hover:text-textColor font-[500] disabled:opacity-50"
+          className="t-control text-inkTertiary hover:text-ink disabled:opacity-50"
         >
           {t('billing_remove', 'Remove')}
         </button>
       </div>
       {expirationDate && (
-        <p className="text-[13px] text-textColor/50 flex items-center gap-[6px]">
+        <p className="t-secondary text-inkTertiary flex items-center gap-[8px]">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="14"
@@ -507,7 +530,7 @@ export const CouponInput: FC<{ autoApplyCoupon?: string }> = ({
   // Show applied coupon (either manually applied or pre-applied from backend)
   if (effectiveAppliedCode) {
     return (
-      <div className="mt-[40px]">
+      <div className="mt-[32px]">
         <AppliedCouponDisplay
           appliedCode={effectiveAppliedCode}
           checkout={checkout}
@@ -521,11 +544,11 @@ export const CouponInput: FC<{ autoApplyCoupon?: string }> = ({
   // Show "Have a promo code?" link
   if (!showInput) {
     return (
-      <div className="mt-[40px]">
+      <div className="mt-[32px]">
         <button
           type="button"
           onClick={() => setShowInput(true)}
-          className="text-[16px] text-textColor/60 hover:text-textColor font-[500] flex items-center gap-[8px] transition-colors"
+          className="t-control text-inkSecondary hover:text-ink flex items-center gap-[8px] transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -548,9 +571,9 @@ export const CouponInput: FC<{ autoApplyCoupon?: string }> = ({
 
   // Show input field
   return (
-    <div className="mt-[40px]">
+    <div className="mt-[32px]">
       <div className="flex items-center gap-[12px] mb-[12px]">
-        <h4 className="text-[18px] font-[600] text-textColor">
+        <h4 className="t-title-3 text-textColor">
           {t('billing_discount_coupon', 'Discount Coupon')}
         </h4>
         <button
@@ -559,7 +582,7 @@ export const CouponInput: FC<{ autoApplyCoupon?: string }> = ({
             setShowInput(false);
             setCouponCode('');
           }}
-          className="text-[14px] text-textColor/50 hover:text-textColor transition-colors"
+          className="t-control text-inkTertiary hover:text-ink transition-colors"
         >
           {t('billing_cancel', 'Cancel')}
         </button>
@@ -572,7 +595,7 @@ export const CouponInput: FC<{ autoApplyCoupon?: string }> = ({
           placeholder={t('billing_enter_coupon_code', 'Enter coupon code')}
           disabled={isApplying}
           autoFocus
-          className="flex-1 h-[44px] px-[16px] rounded-[8px] border border-newColColor bg-newBgColor text-textColor placeholder:text-textColor/50 focus:outline-none focus:border-boxFocused disabled:opacity-50"
+          className="flex-1 h-large px-[16px] rounded-control border border-newColColor bg-newBgColor text-textColor placeholder:text-inkTertiary focus:outline-none focus:border-boxFocused disabled:opacity-50"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
@@ -588,7 +611,7 @@ export const CouponInput: FC<{ autoApplyCoupon?: string }> = ({
           type="button"
           onClick={() => handleApplyCoupon()}
           disabled={isApplying || !couponCode.trim()}
-          className="h-[44px] px-[24px] rounded-[8px] bg-boxFocused text-textItemFocused font-[600] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="h-large px-[24px] rounded-control bg-boxFocused text-textItemFocused t-control-strong hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           {isApplying
             ? t('billing_applying', 'Applying...')
@@ -608,22 +631,22 @@ const SubmitBar: FC<{ loading: boolean }> = ({ loading }) => {
 
   return (
     <div className="animate-fadeIn h-[92px] mobile:h-auto fixed bottom-0 w-full px-[12px] pb-[12px] left-0 bg-newBgColor z-[100]">
-      <div className="w-full h-full border-t border-newColColor bg-newBgColorInner px-[80px] tablet:px-[33px] mobile:!px-[16px] flex mobile:flex-col gap-[32px] mobile:gap-[16px] justify-end items-center font-[400] text-[14px] text-[#A3A3A3] mobile:py-[16px]">
+      <div className="w-full h-full border-t border-newColColor bg-newBgColorInner px-[64px] tablet:px-[32px] mobile:!px-[16px] flex mobile:flex-col gap-[32px] mobile:gap-[16px] justify-end items-center t-control text-inkSecondary mobile:py-[16px]">
         {checkout.checkout.recurring?.trial?.trialEnd ? (
           <div>
             {t('billing_your_7_day_trial_is', 'Your 7-day trial is')}{' '}
-            <span className="text-textColor font-[600]">
+            <span className="text-textColor t-control-strong">
               {t('billing_100_percent_free', '100% free')}
             </span>{' '}
             {t('billing_ending', 'ending')}{' '}
             <br className="hidden mobile:block" />
-            <span className="text-textColor font-[600]">
+            <span className="text-textColor t-control-strong">
               {dayjs(
                 checkout.checkout.recurring?.trial?.trialEnd * 1000
               ).format('MMMM D, YYYY')}{' '}
               —{' '}
             </span>
-            <span className="text-textColor font-[600]">
+            <span className="text-textColor t-control-strong">
               {t(
                 'billing_cancel_anytime_short',
                 'Cancel anytime from settings'
@@ -633,7 +656,7 @@ const SubmitBar: FC<{ loading: boolean }> = ({ loading }) => {
         ) : null}
         <div>
           <Button
-            className="h-[42px] rounded-[10px] mobile:w-full"
+            className="rounded-control mobile:w-full"
             type="submit"
             loading={loading}
           >

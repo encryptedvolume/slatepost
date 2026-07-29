@@ -107,7 +107,7 @@ export function withContinueProvider<TItem, TSelection>(
 
     if (!isLoading && !resolvedData?.length) {
       return (
-        <div className="text-center flex flex-col justify-center items-center text-[18px] leading-[26px] h-[300px]">
+        <div className="text-center flex flex-col justify-center items-center t-body h-[300px]">
           {emptyStateMessages.map((msg, index) => (
             <span key={msg.key}>
               {t(msg.key, msg.text)}
@@ -126,12 +126,12 @@ export function withContinueProvider<TItem, TSelection>(
     return (
       <div className="flex flex-col gap-[20px]">
         <div>{t(titleKey, titleDefault)}</div>
-        <div className="grid grid-cols-3 justify-items-center select-none cursor-pointer gap-[10px]">
+        <div className="grid grid-cols-3 justify-items-center select-none cursor-pointer gap-[8px]">
           {filteredData.map((item) => (
             <div
               key={getItemId(item)}
               className={clsx(
-                'flex flex-col w-full text-center gap-[10px] border border-input p-[10px] hover:bg-seventh rounded-[8px]',
+                'flex flex-col w-full text-center gap-[8px] border border-input p-[8px] hover:bg-seventh rounded-control',
                 isSelected(item, selection) && 'bg-seventh border-primary'
               )}
               onClick={handleSelect(item)}

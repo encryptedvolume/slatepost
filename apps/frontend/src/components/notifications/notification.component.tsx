@@ -13,7 +13,7 @@ function replaceLinks(text: string) {
     /(\bhttps?:\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/gi;
   return text.replace(
     urlRegex,
-    '<a class="cursor-pointer underline font-bold" target="_blank" href="$1">$1</a>'
+    '<a class="cursor-pointer underline t-body-emphasis" target="_blank" href="$1">$1</a>'
   );
 }
 export const ShowNotification: FC<{
@@ -33,8 +33,8 @@ export const ShowNotification: FC<{
   return (
     <div
       className={clsx(
-        `text-textColor px-[16px] py-[10px] border-b border-tableBorder last:border-b-0 transition-colors`,
-        newNotification && 'font-bold bg-seventh animate-newMessages'
+        `text-textColor px-[16px] py-[8px] border-b border-tableBorder last:border-b-0 transition-colors`,
+        newNotification && 't-body-emphasis bg-seventh animate-newMessages'
       )}
     >
       <div
@@ -44,7 +44,7 @@ export const ShowNotification: FC<{
         }}
       />
       <div
-        className="text-[11px] mt-[4px] opacity-60 font-normal"
+        className="t-caption mt-[4px] opacity-60"
         title={isWithin24h ? fullDate : undefined}
       >
         {isWithin24h ? createdAt.fromNow() : fullDate}
@@ -63,18 +63,18 @@ export const NotificationOpenComponent = () => {
   return (
     <div
       id="notification-popup"
-      className="opacity-0 animate-normalFadeDown mt-[10px] absolute w-[420px] min-h-[200px] top-[100%] end-0 bg-third text-textColor rounded-[16px] flex flex-col border border-tableBorder z-[600]"
+      className="opacity-0 animate-normalFadeDown mt-[8px] absolute w-[420px] min-h-[200px] top-[100%] end-0 bg-third text-textColor rounded-card flex flex-col border border-tableBorder z-[600]"
     >
       <div
-        className={`p-[16px] border-b border-tableBorder font-bold`}
+        className={`p-[16px] border-b border-line t-title-3`}
       >
         {t('notifications', 'Notifications')}
       </div>
 
-      <div className="flex flex-col max-h-[400px] overflow-y-auto scrollbar scrollbar-thumb-fifth scrollbar-track-newBgColor">
+      <div className="flex flex-col max-h-[400px] overflow-y-auto scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent">
         {isLoading && (
-          <div className="flex-1 flex justify-center pt-12">
-            <ReactLoading type="spin" color="#fff" width={36} height={36} />
+          <div className="flex-1 flex justify-center pt-[48px]">
+            <ReactLoading type="spin" color="currentColor" width={36} height={36} />
           </div>
         )}
         {!isLoading && !data.notifications.length && (
@@ -145,8 +145,7 @@ const NotificationComponent = () => {
               cx="17.0625"
               cy="5"
               r="4"
-              fill="#FF3EA2"
-              stroke="#1A1919"
+              className="fill-current stroke-canvas"
               strokeWidth="2"
             />
           )}

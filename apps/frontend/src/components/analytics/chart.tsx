@@ -8,6 +8,13 @@ import {
 } from '@gitroom/frontend/components/analytics/stars.and.forks.interface';
 import dayjs from 'dayjs';
 import { newDayjs } from '@gitroom/frontend/components/layout/set.timezone';
+
+// Chart.js paints to a canvas, so it cannot resolve `var(--slate-*)` itself.
+// The token is read off the canvas element instead — custom properties
+// inherit, so this picks up whichever theme the element is sitting in.
+const token = (el: HTMLElement, name: string) =>
+  getComputedStyle(el).getPropertyValue(name).trim();
+
 export const Chart: FC<{
   list: StarsList[] | ForksList[];
 }> = (props) => {
@@ -15,11 +22,14 @@ export const Chart: FC<{
   const ref = useRef<any>(null);
   const chart = useRef<null | DrawChart>(null);
   useEffect(() => {
+    const line = token(ref.current, '--slate-text-primary');
     const gradient = ref.current
       .getContext('2d')
       .createLinearGradient(0, 0, 0, ref.current.height);
-    gradient.addColorStop(0, 'rgba(114, 118, 137, 1)'); // Start color with some transparency
-    gradient.addColorStop(1, 'rgb(9, 11, 19, 1)');
+    // The area fill is the line colour fading out — a tint of one token, not
+    // a second hue.
+    gradient.addColorStop(0, token(ref.current, '--slate-surface-active'));
+    gradient.addColorStop(1, token(ref.current, '--slate-canvas'));
     chart.current = new DrawChart(ref.current!, {
       type: 'line',
       options: {
@@ -52,7 +62,7 @@ export const Chart: FC<{
         labels: list.map((row) => newDayjs(row.date).format('DD/MM/YYYY')),
         datasets: [
           {
-            borderColor: '#fff',
+            borderColor: line,
             // @ts-ignore
             label: list?.[0]?.totalForks ? 'Forks by date' : 'Stars by date',
             backgroundColor: gradient,

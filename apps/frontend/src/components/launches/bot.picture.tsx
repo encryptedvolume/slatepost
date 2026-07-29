@@ -46,7 +46,7 @@ export const BotPicture: FC<{
     });
   }, []);
   return (
-    <div className="rounded-[4px] border border-customColor6 bg-sixth px-[16px] pb-[16px] relative w-full">
+    <div className="rounded-thumb border border-hairline bg-sixth px-[16px] pb-[16px] relative w-full">
       <TopTitle title={t('change_bot_picture_title', 'Change Bot Picture')} />
       <button
         className="outline-none absolute end-[20px] top-[20px] mantine-UnstyledButton-root mantine-ActionIcon-root hover:bg-tableBorder cursor-pointer mantine-Modal-close mantine-1dcetaa"
@@ -70,13 +70,13 @@ export const BotPicture: FC<{
       </button>
 
       <div className="mt-[16px]">
-        <form onSubmit={submitForm} className="gap-[50px] flex flex-col">
+        <form onSubmit={submitForm} className="gap-[48px] flex flex-col">
           {props.canChangeProfilePicture && (
             <div className="flex items-center gap-[20px]">
               <img
                 src={picture}
                 alt="Bot Picture"
-                className="w-[100px] h-[100px] rounded-full"
+                className="w-[100px] h-[100px] rounded-pill"
               />
               <Button type="button" onClick={openMedia}>
                 {t('upload', 'Upload')}
@@ -94,7 +94,7 @@ export const BotPicture: FC<{
             />
           )}
 
-          <div className="mt-[50px]">
+          <div className="mt-[48px]">
             <Button type="submit">{t('save', 'Save')}</Button>
           </div>
         </form>

@@ -36,7 +36,7 @@ export const startMcp = async (app: INestApplication) => {
   const tools = await agent.listTools();
 
   const serverConfig = {
-    name: 'Postiz MCP',
+    name: 'Slate MCP',
     version: '1.0.0',
     tools,
     agents: { postiz: agent },

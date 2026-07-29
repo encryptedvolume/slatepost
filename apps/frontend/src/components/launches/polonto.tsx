@@ -45,7 +45,7 @@ const ActionControls = ({ store }: any) => {
       <Button
         loading={load}
         className="outline-none"
-        innerClassName="invert outline-none text-black"
+        innerClassName="invert outline-none text-ink"
         onClick={async () => {
           setLoad(true);
           const blob = await store.toBlob();
@@ -105,7 +105,7 @@ const Polonto: FC<{
     };
   }, []);
   return (
-    <div className="bg-white text-black relative z-[400] polonto">
+    <div className="bg-surface text-ink relative z-[400] polonto">
       <CloseContext.Provider
         value={{
           close: () => closeModal(),

@@ -1055,10 +1055,19 @@ export class PostsService {
                   id: integration.id,
                 },
                 settings: {
-                  __type: integration.providerIdentifier as any,
+                  // TikTok-only fork: UPLOAD keeps auto-generated posts as
+                  // drafts in the user's TikTok inbox instead of publishing.
+                  __type: 'tiktok' as const,
                   title: '',
-                  tags: [],
-                  subreddit: [],
+                  privacy_level: 'SELF_ONLY' as const,
+                  duet: false,
+                  stitch: false,
+                  comment: false,
+                  autoAddMusic: 'yes' as const,
+                  brand_content_toggle: false,
+                  brand_organic_toggle: false,
+                  video_made_with_ai: false,
+                  content_posting_method: 'UPLOAD' as const,
                 },
                 value: [
                   ...toPost.list.map((l) => ({

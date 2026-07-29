@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="slate-mark" role="img" aria-labelledby="slate-favicon-title">
+  <title id="slate-favicon-title">Slate</title>
+  <!--
+    SLATE — favicon.
+
+    The mark redrawn on a 16-unit grid rather than scaled onto one.
+    Proportions are identical to logo.svg (tread 1/2, thickness 1/4,
+    riser 1/8), so every edge falls on a whole pixel at 16px:
+      treads 8 x 4 at y 0 / 6 / 12, stepping +4 in x
+      risers 4 x 2
+    Nothing is simplified away because nothing needed to be — the mark
+    was proportioned to survive here. Result is zero antialiasing at 16px.
+
+    Full-bleed rather than tiled: a container would cost 2px of the 16
+    and the brand does not decorate. The fill follows the browser theme
+    so the mark holds on light and dark tab bars alike.
+  -->
+  <style>
+    .slate-mark { color: #0F0F0F }
+    @media (prefers-color-scheme: dark) { .slate-mark { color: #FAFAFA } }
+  </style>
+  <path fill="currentColor" d="M0,0H8V6H12V12H16V16H8V10H4V4H0Z"/>
+</svg>

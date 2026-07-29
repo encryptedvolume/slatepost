@@ -81,12 +81,12 @@ export const FirstBillingComponent = () => {
 
   const showYouTube = () => {
     modals.openModal({
-      title: 'Grow Fast With Postiz (Play the video)',
+      title: 'Grow Fast With Slate (Play the video)',
       children: (
         <iframe
           className="h-full aspect-video min-w-[800px]"
           src="https://www.youtube.com/embed/BdsCVvEYgHU?si=vvhaZJ8I5oXXvVJS?autoplay=1"
-          title="Postiz Tutorial"
+          title="Slate Tutorial"
           allow="autoplay"
           allowFullScreen
         />
@@ -114,35 +114,33 @@ export const FirstBillingComponent = () => {
   const JoinOver = () => {
     return (
       <>
-        <div className="text-[46px] font-[600] leading-[110%] tablet:text-[36px] mobile:!text-[30px] whitespace-pre-line text-balance">
+        <div className="t-display whitespace-pre-line text-balance">
           {t('billing_join_over', 'Join Over')}{' '}
-          <span className="text-[#FC69FF]">
-            {t('billing_entrepreneurs_count', '20,000+ Entrepreneurs')}
-          </span>{' '}
+          {t('billing_entrepreneurs_count', '20,000+ Entrepreneurs')}{' '}
           {t('billing_who_use', 'who use')}{' '}
           {t(
             'billing_postiz_grow_social',
-            'Postiz To Grow Their Social Presence'
+            'Slate To Grow Their Social Presence'
           )}
         </div>
 
         <div className="flex" onClick={showYouTube}>
-          <div className="tablet:mb-[32px] cursor-pointer mt-[32px] flex gap-[10px] items-center underline hover:font-[700]">
+          <div className="tablet:mb-[32px] cursor-pointer mt-[32px] flex gap-[8px] items-center underline">
             <div>
               <SafeImage
-                className="text-[12px]"
+                className="t-caption"
                 src="/icons/platforms/youtube.svg"
                 width={22.5}
                 height={16}
                 alt="YouTube"
               />
             </div>
-            <div>See the power of Postiz (click here)</div>
+            <div>See the power of Slate (click here)</div>
           </div>
         </div>
 
         {!!user?.allowTrial && (
-          <div className="flex mt-[32px] mb-[10px] gap-[15px] tablet:mt-[32px] tablet:mb-[32px] text-[16px] font-[500] mobile:flex-col">
+          <div className="flex mt-[32px] mb-[8px] gap-[16px] tablet:mt-[32px] tablet:mb-[32px] t-body-emphasis mobile:flex-col">
             <div className="flex gap-[8px]">
               <div>
                 <CheckIconComponent />
@@ -175,8 +173,8 @@ export const FirstBillingComponent = () => {
   };
 
   return (
-    <div className="blurMe flex flex-1 flex-col bg-newBgColorInner pb-[60px] mobile:pb-[100px]">
-      <div className="h-[92px] px-[80px] tablet:px-[32px] mobile:!px-[16px] py-[20px] flex border-b border-newColColor">
+    <div className="blurMe flex flex-1 flex-col bg-newBgColorInner pb-[64px] mobile:pb-[96px]">
+      <div className="h-[92px] px-[64px] tablet:px-[32px] mobile:!px-[16px] py-[20px] flex border-b border-newColColor">
         <div className="flex-1 flex items-center text-textColor">
           <LogoTextComponent />
         </div>
@@ -200,13 +198,13 @@ export const FirstBillingComponent = () => {
           </div>
         </div>
       </div>
-      <div className="flex px-[80px] tablet:px-[32px] mobile:!px-[16px] flex-1 flex-row tablet:flex-none tablet:flex-col-reverse">
-        <div className="flex-1 py-[40px] tablet:pt-[80px] flex flex-col pe-[40px] tablet:pe-0">
+      <div className="flex px-[64px] tablet:px-[32px] mobile:!px-[16px] flex-1 flex-row tablet:flex-none tablet:flex-col-reverse">
+        <div className="flex-1 py-[32px] tablet:pt-[64px] flex flex-col pe-[32px] tablet:pe-0">
           <div className="block tablet:hidden">
             <JoinOver />
           </div>
           {data?.blocked ? (
-            <div className="mt-[24px] p-[24px] rounded-[20px] border-[1.5px] border-newColColor text-[16px] font-[500]">
+            <div className="mt-[24px] p-[20px] rounded-card border border-line t-body-emphasis">
               {t(
                 'billing_other_account_subscribed',
                 'Another account with this email already has an active subscription. Please log off and sign in to that account to manage your subscription.'
@@ -223,19 +221,19 @@ export const FirstBillingComponent = () => {
             <LoadingComponent />
           )}
         </div>
-        <div className="flex flex-col ps-[40px] tablet:!ps-[0] border-l border-newColColor py-[40px] mobile:!pt-[24px] tablet:border-none tablet:pb-0">
+        <div className="flex flex-col ps-[32px] tablet:!ps-[0] border-l border-newColColor py-[32px] mobile:!pt-[24px] tablet:border-none tablet:pb-0">
           <div className="top-[20px] sticky">
             <div className="hidden tablet:block">
               <JoinOver />
             </div>
             <div className="flex mb-[24px] mobile:flex-col">
-              <div className="flex-1 text-[24px] font-[700]">
+              <div className="flex-1 t-title-2">
                 {t('billing_choose_plan', 'Choose a Plan')}
               </div>
-              <div className="h-[44px] px-[6px] mobile:px-0 flex items-center justify-center mobile:justify-start gap-[12px] border border-newColColor rounded-[12px] select-none">
+              <div className="h-large px-[8px] mobile:px-0 flex items-center justify-center mobile:justify-start gap-[12px] border border-line rounded-control select-none">
                 <div
                   className={clsx(
-                    'h-[32px] mobile:flex-1 rounded-[6px] text-[16px] px-[12px] flex justify-center items-center',
+                    'h-compact mobile:flex-1 rounded-thumb t-control px-[12px] flex justify-center items-center',
                     period === 'MONTHLY'
                       ? 'bg-boxFocused text-textItemFocused'
                       : 'cursor-pointer'
@@ -246,7 +244,7 @@ export const FirstBillingComponent = () => {
                 </div>
                 <div
                   className={clsx(
-                    'gap-[10px] h-[32px] mobile:flex-1 rounded-[6px] text-[16px] px-[12px] flex justify-center items-center',
+                    'gap-[8px] h-compact mobile:flex-1 rounded-thumb t-control px-[12px] flex justify-center items-center',
                     period === 'YEARLY'
                       ? 'bg-boxFocused text-textItemFocused'
                       : 'cursor-pointer'
@@ -254,7 +252,7 @@ export const FirstBillingComponent = () => {
                   onClick={() => setPeriod('YEARLY')}
                 >
                   <div>{t('billing_yearly', 'Yearly')}</div>
-                  <div className="bg-[#AA0FA4] text-[white] px-[8px] rounded-[4px] mobile:hidden">
+                  <div className="bg-surfaceActive text-ink t-caption rounded-pill px-[8px] mobile:hidden">
                     {t('billing_20_percent_off', '20% Off')}
                   </div>
                 </div>
@@ -267,17 +265,17 @@ export const FirstBillingComponent = () => {
                     onClick={() => setTier(key)}
                     key={key}
                     className={clsx(
-                      'cursor-pointer select-none w-[266px] h-[138px] tablet:w-full tablet:h-[124px] p-[24px] tablet:p-[15px] rounded-[20px] flex flex-col',
+                      'cursor-pointer select-none w-[266px] h-[138px] tablet:w-full tablet:h-[124px] p-[20px] tablet:p-[16px] rounded-card flex flex-col border',
                       key === tier
-                        ? 'border-[1.5px] border-[#618DFF]'
-                        : 'border-[1.5px] border-newColColor'
+                        ? 'border-lineStrong bg-surfaceActive'
+                        : 'border-line'
                     )}
                   >
-                    <div className="text-[20px] mobile:text-[18px] font-[500]">
+                    <div className="t-title-3">
                       {capitalize(key)}
                     </div>
-                    <div className="text-[24px] mobile:text-[18px] font-[400]">
-                      <span className="text-[44px] mobile:text-[30px] font-[600]">
+                    <div className="t-body">
+                      <span className="t-display tabular">
                         $
                         {
                           value[
@@ -294,8 +292,8 @@ export const FirstBillingComponent = () => {
                 []
               )}
             </div>
-            <div className="flex flex-col mt-[54px] gap-[24px] tablet:mt-[40px]">
-              <div className="text-[24px] font-[700]">
+            <div className="flex flex-col mt-[48px] gap-[24px] tablet:mt-[32px]">
+              <div className="t-title-2">
                 {t('billing_features', 'Features')}
               </div>
               <BillingFeatures tier={tier} />

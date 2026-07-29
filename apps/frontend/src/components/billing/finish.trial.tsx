@@ -31,16 +31,16 @@ export const FinishTrial: FC<{ close: () => void }> = (props) => {
   }, []);
 
   return (
-    <div className="text-textColor fixed start-0 top-0 bg-primary/80 z-[300] w-full h-full p-[60px] animate-fade justify-center flex bg-black/50">
+    <div className="text-textColor fixed start-0 top-0 z-[300] w-full h-full p-[64px] animate-fade justify-center flex bg-scrim">
       <div>
-        <div className="flex gap-[10px] flex-col w-[500px] h-auto bg-sixth border-tableBorder border-2 rounded-xl pb-[20px] px-[20px] relative">
+        <div className="flex gap-[8px] flex-col w-[500px] h-auto bg-sixth border-tableBorder border-2 rounded-card pb-[20px] px-[20px] relative">
           <div className="flex">
             <div className="flex-1">
               <TopTitle title={'Finishing Trial'} />
             </div>
             <button
               onClick={props.close}
-              className="outline-none absolute end-[10px] top-[10px] mantine-UnstyledButton-root mantine-ActionIcon-root bg-primary hover:bg-tableBorder cursor-pointer mantine-Modal-close mantine-1dcetaa"
+              className="outline-none absolute end-[8px] top-[8px] mantine-UnstyledButton-root mantine-ActionIcon-root bg-primary hover:bg-tableBorder cursor-pointer mantine-Modal-close mantine-1dcetaa"
               type="button"
             >
               <svg
@@ -61,14 +61,14 @@ export const FinishTrial: FC<{ close: () => void }> = (props) => {
           </div>
           <div className="relative h-[400px]">
             <div className="absolute left-0 top-0 w-full h-full overflow-hidden overflow-y-auto">
-              <div className="mt-[10px] flex w-full justify-center items-center gap-[10px]">
+              <div className="mt-[8px] flex w-full justify-center items-center gap-[8px]">
                 {!finished && <LoadingComponent height={150} width={150} />}
                 {finished && (
                   <div className="flex flex-col">
                     <div>
                       You trial has been successfully finished and you have been charged.
                     </div>
-                    <div className="flex gap-[10px] mt-[20px]">
+                    <div className="flex gap-[8px] mt-[20px]">
                       <Button className="flex-1" onClick={() => window.close()}>Close window</Button>
                       <Button className="flex-1" onClick={() => props.close()}>Close dialog</Button>
                     </div>

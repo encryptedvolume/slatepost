@@ -70,17 +70,17 @@ export const Autopost: FC = () => {
   );
   return (
     <div className="flex flex-col">
-      <h3 className="text-[20px]">{t('autopost', 'Autopost')}</h3>
-      <div className="text-customColor18 mt-[4px]">
+      <h3 className="t-title-3">{t('autopost', 'Autopost')}</h3>
+      <div className="text-inkSecondary mt-[4px]">
         {t(
           'autopost_can_automatically_posts_your_rss_new_items_to_social_media',
           'Autopost can automatically posts your RSS new items to social media'
         )}
       </div>
-      <div className="my-[16px] mt-[16px] bg-sixth border-fifth items-center border rounded-[4px] p-[24px] flex gap-[24px]">
+      <div className="my-[16px] mt-[16px] bg-surface items-center border border-line rounded-card p-[20px] flex gap-[24px]">
         <div className="flex flex-col w-full">
           {!!data?.length && (
-            <div className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr] w-full gap-y-[10px]">
+            <div className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr] w-full gap-y-[8px]">
               <div>{t('title', 'Title')}</div>
               <div>{t('url', 'URL')}</div>
               <div>{t('edit', 'Edit')}</div>
@@ -296,7 +296,7 @@ export const AddOrEditWebhook: FC<{
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(callBack)}>
-        <div className="relative flex gap-[20px] flex-col flex-1 rounded-[4px] border border-customColor6 pt-0">
+        <div className="relative flex gap-[20px] flex-col flex-1 rounded-thumb border border-hairline pt-0">
           <div>
             <Input
               label="Title"
@@ -351,13 +351,13 @@ export const AddOrEditWebhook: FC<{
             </Select>
             {!generateContent && (
               <>
-                <div className={`text-[14px] mb-[6px]`}>
+                <div className={`t-control mb-[8px]`}>
                   {t('post_content', 'Post content')}
                 </div>
                 <CopilotTextarea
                   disableBranding={true}
                   className={clsx(
-                    '!min-h-40 !max-h-80 p-2 overflow-x-hidden scrollbar scrollbar-thumb-[#612AD5] bg-customColor2 outline-none mb-[16px] border-fifth border rounded-[4px]'
+                    '!min-h-[160px] !max-h-[320px] p-[8px] overflow-x-hidden scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent bg-customColor2 outline-none mb-[16px] border-fifth border rounded-thumb'
                   )}
                   value={content}
                   onChange={(e) => {
@@ -408,7 +408,7 @@ export const AddOrEditWebhook: FC<{
                 isMain={true}
               />
             )}
-            <div className="flex gap-[10px]">
+            <div className="flex gap-[8px]">
               {valid === url && (syncLast || !!lastUrl) && (
                 <Button
                   type="submit"

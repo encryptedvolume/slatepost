@@ -9,6 +9,7 @@ import SafeImage from '@gitroom/react/helpers/safe.image';
 import { AddProviderComponent } from '@gitroom/frontend/components/launches/add.provider.component';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import { useModals } from '@gitroom/frontend/components/layout/new-modal';
+import { Button } from '@gitroom/react/form/button';
 
 interface OnboardingModalProps {
   onClose: () => void;
@@ -20,13 +21,13 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({ onClose }) => {
   const t = useT();
 
   return (
-    <div className="w-full min-h-full flex-1 p-[40px] flex relative">
+    <div className="w-full min-h-full flex-1 p-[32px] flex relative">
       <style>
         {`#support-discord {display: none}`}
       </style>
-      <div className="flex flex-1 bg-newBgColorInner rounded-[20px] flex-col relative">
+      <div className="flex flex-1 bg-surface border border-line rounded-card flex-col relative">
         <button
-          className="outline-none absolute end-[20px] top-[20px] mantine-UnstyledButton-root mantine-ActionIcon-root hover:bg-tableBorder cursor-pointer mantine-Modal-close mantine-1dcetaa"
+          className="outline-none absolute end-[16px] top-[16px] w-[28px] h-compact rounded-control flex items-center justify-center text-inkSecondary hover:bg-surfaceHover hover:text-ink cursor-pointer transition-colors duration-state ease-state before:absolute before:-inset-[8px] before:content-['']"
           type="button"
           onClick={modals.closeAll}
         >
@@ -45,14 +46,14 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({ onClose }) => {
             ></path>
           </svg>
         </button>
-        <div className="flex-1 flex p-[40px]">
+        <div className="flex-1 flex p-[32px]">
           <div className="flex flex-col gap-[24px] flex-1">
             {/* Step indicators */}
             <div className="flex items-center justify-center gap-[16px]">
               <div className="flex items-center gap-[8px]">
                 <div
                   className={clsx(
-                    'w-[32px] h-[32px] rounded-full flex items-center justify-center text-[14px] font-semibold transition-colors',
+                    'w-[32px] h-[32px] rounded-pill flex items-center justify-center t-control transition-colors duration-state ease-state',
                     step === 1
                       ? 'bg-boxFocused text-textItemFocused'
                       : 'bg-newTableHeader'
@@ -62,18 +63,18 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({ onClose }) => {
                 </div>
                 <span
                   className={clsx(
-                    'text-[14px]',
-                    step === 1 ? 'font-medium' : 'text-textColor'
+                    't-control',
+                    step === 1 ? 'text-ink' : 'text-inkSecondary'
                   )}
                 >
                   {t('connect_channels', 'Connect Channels')}
                 </span>
               </div>
-              <div className="w-[40px] h-[2px] bg-boxFocused" />
+              <div className="w-[48px] h-[1px] bg-line" />
               <div className="flex items-center gap-[8px]">
                 <div
                   className={clsx(
-                    'w-[32px] h-[32px] rounded-full flex items-center justify-center text-[14px] font-semibold transition-colors',
+                    'w-[32px] h-[32px] rounded-pill flex items-center justify-center t-control transition-colors duration-state ease-state',
                     step === 2
                       ? 'bg-boxFocused text-textItemFocused'
                       : 'bg-newTableHeader'
@@ -83,8 +84,8 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({ onClose }) => {
                 </div>
                 <span
                   className={clsx(
-                    'text-[14px]',
-                    step === 2 ? 'font-medium' : 'text-textColor'
+                    't-control',
+                    step === 2 ? 'text-ink' : 'text-inkSecondary'
                   )}
                 >
                   {t('watch_tutorial', 'Watch Tutorial')}
@@ -148,10 +149,10 @@ const OnboardingStep1: FC<{ onNext: () => void; onSkip: () => void }> = ({
   return (
     <div className="flex flex-col gap-[24px]">
       <div className="flex gap-[4px] flex-col text-center">
-        <div className="text-[24px] font-semibold">
+        <div className="t-title-2">
           {t('connect_your_channels', 'Connect Your Channels')}
         </div>
-        <div className="text-[14px] text-customColor18">
+        <div className="t-body text-inkSecondary">
           {t(
             'connect_social_media_to_start',
             'Connect your social media accounts to start scheduling posts'
@@ -161,8 +162,8 @@ const OnboardingStep1: FC<{ onNext: () => void; onSkip: () => void }> = ({
 
       {/* Connected channels */}
       {sortedIntegrations.length > 0 && (
-        <div className="bg-newTableHeader rounded-[8px] p-[16px]">
-          <div className="text-[14px] font-medium mb-[12px]">
+        <div className="bg-surfaceSunken border border-line rounded-card p-[16px]">
+          <div className="t-body-emphasis mb-[12px]">
             {t('connected_channels', 'Connected Channels')} (
             {sortedIntegrations.length})
           </div>
@@ -170,25 +171,25 @@ const OnboardingStep1: FC<{ onNext: () => void; onSkip: () => void }> = ({
             {sortedIntegrations.map((integration: any) => (
               <div
                 key={integration.id}
-                className="flex items-center gap-[8px] bg-customColor47/30 rounded-[8px] px-[12px] py-[8px]"
+                className="flex items-center gap-[8px] bg-surfaceActive rounded-thumb px-[12px] py-[8px]"
               >
-                <div className="relative w-[28px] h-[28px]">
+                <div className="relative w-[28px] h-compact">
                   <SafeImage
                     src={integration.picture}
-                    className="rounded-full"
+                    className="rounded-pill"
                     alt={integration.identifier}
                     width={28}
                     height={28}
                   />
                   <SafeImage
                     src={`/icons/platforms/${integration.identifier}.png`}
-                    className="rounded-full absolute -bottom-[3px] -end-[3px] border border-fifth"
+                    className="rounded-pill absolute -bottom-[4px] -end-[4px] border border-line"
                     alt={integration.identifier}
                     width={14}
                     height={14}
                   />
                 </div>
-                <span className="text-[13px]">{integration.name}</span>
+                <span className="t-secondary">{integration.name}</span>
               </div>
             ))}
           </div>
@@ -197,7 +198,7 @@ const OnboardingStep1: FC<{ onNext: () => void; onSkip: () => void }> = ({
 
       {/* Available platforms - using AddProviderComponent */}
       <div className="flex flex-col gap-[12px]">
-        <div className="text-[14px] font-medium">
+        <div className="t-body-emphasis">
           {t('click_channel_to_add', 'Click a channel to add it')}
         </div>
         {data && (
@@ -212,29 +213,26 @@ const OnboardingStep1: FC<{ onNext: () => void; onSkip: () => void }> = ({
 
       {/* Action buttons */}
       <div className="flex justify-end pt-[24px] mt-[8px]">
-        <button
-          onClick={onNext}
-          className="group flex items-center gap-[12px] bg-gradient-to-r from-[#622aff] to-[#8b5cf6] hover:from-[#7c3aff] hover:to-[#9d6eff] text-white font-semibold px-[32px] py-[14px] rounded-[12px] text-[16px] transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
-        >
+        <Button onClick={onNext} className="px-[24px]">
           {sortedIntegrations.length > 0
             ? t('continue', 'Continue')
             : t('continue_without_channels', 'Continue without channels')}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            viewBox="0 0 20 20"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="group-hover:translate-x-1 transition-transform"
+            aria-hidden="true"
           >
-            <path d="M5 12h14" />
-            <path d="m12 5 7 7-7 7" />
+            <path d="M4 10h12" />
+            <path d="m10 4 6 6-6 6" />
           </svg>
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -249,24 +247,24 @@ const OnboardingStep2: FC<{ onBack: () => void; onFinish: () => void }> = ({
   return (
     <div className="flex flex-col gap-[24px] flex-1">
       <div className="flex gap-[4px] flex-col text-center">
-        <div className="text-[24px] font-semibold">
-          {t('watch_tutorial_title', 'Learn How to Use Postiz')}
+        <div className="t-title-2">
+          {t('watch_tutorial_title', 'Learn How to Use Slate')}
         </div>
-        <div className="text-[14px] text-customColor18">
+        <div className="t-body text-inkSecondary">
           {t(
             'watch_tutorial_description',
-            'Watch this short video to learn how to get the most out of Postiz'
+            'Watch this short video to learn how to get the most out of Slate'
           )}
         </div>
       </div>
 
       {/* YouTube Video Embed */}
-      <div className="relative flex-1 rounded-[12px] overflow-hidden">
+      <div className="relative flex-1 rounded-card overflow-hidden">
         <div className="absolute left-0 top-0 w-full h-full flex justify-center">
           <iframe
             className="h-full aspect-video"
             src="https://www.youtube.com/embed/BdsCVvEYgHU?si=vvhaZJ8I5oXXvVJS?autoplay=1"
-            title="Postiz Tutorial"
+            title="Slate Tutorial"
             allow="autoplay"
             allowFullScreen
           />
@@ -275,48 +273,42 @@ const OnboardingStep2: FC<{ onBack: () => void; onFinish: () => void }> = ({
 
       {/* Action buttons */}
       <div className="flex justify-between pt-[24px] mt-[8px]">
-        <button
-          onClick={onBack}
-          className="group flex items-center gap-[8px] bg-transparent border-2 border-boxFocused font-medium px-[24px] py-[12px] rounded-[12px] text-[15px] transition-all"
-        >
+        <Button secondary={true} onClick={onBack} className="px-[24px]">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            viewBox="0 0 20 20"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="group-hover:-translate-x-1 transition-transform"
+            aria-hidden="true"
           >
-            <path d="m12 19-7-7 7-7" />
-            <path d="M19 12H5" />
+            <path d="m10 16-6-6 6-6" />
+            <path d="M16 10H4" />
           </svg>
           {t('back', 'Back')}
-        </button>
-        <button
-          onClick={onFinish}
-          className="group flex items-center gap-[12px] bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white font-semibold px-[32px] py-[14px] rounded-[12px] text-[16px] transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
-        >
+        </Button>
+        <Button onClick={onFinish} className="px-[24px]">
           {t('get_started', 'Get Started')}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            viewBox="0 0 20 20"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="group-hover:scale-110 transition-transform"
+            aria-hidden="true"
           >
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
+            <path d="M4 10h12" />
+            <path d="m10 4 6 6-6 6" />
           </svg>
-        </button>
+        </Button>
       </div>
     </div>
   );

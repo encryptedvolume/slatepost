@@ -32,7 +32,7 @@ const ConnectedComponent: FC<{
   const t = useT();
 
   return (
-    <div className="my-[16px] mt-[16px] h-[90px] bg-sixth border-fifth border rounded-[4px] p-[24px]">
+    <div className="my-[16px] mt-[16px] h-[90px] bg-surface border border-line rounded-card p-[20px]">
       <div className={`flex items-center gap-[8px]`}>
         <div>
           <SafeImage src="/icons/github.svg" alt="GitHub" width={40} height={40} />
@@ -87,7 +87,7 @@ const ConnectComponent: FC<{
   const t = useT();
 
   return (
-    <div className="my-[16px] mt-[16px] h-[100px] bg-sixth border-fifth border rounded-[4px] px-[24px] flex">
+    <div className="my-[16px] mt-[16px] h-[100px] bg-surface border border-line rounded-card p-[20px] flex">
       <div className={`flex items-center gap-[8px] flex-1`}>
         <div>
           <SafeImage src="/icons/github.svg" alt="GitHub" width={40} height={40} />
@@ -96,7 +96,7 @@ const ConnectComponent: FC<{
           {t('connect_your_repository', 'Connect your repository')}
         </div>
         <Button
-          className="bg-transparent border-0 text-gray mt-[7px]"
+          className="bg-transparent border-0 text-inkSecondary mt-[8px]"
           onClick={cancelConnection}
         >
           {t('cancel', 'Cancel')}
@@ -111,7 +111,7 @@ const ConnectComponent: FC<{
           placeholder="Full GitHub URL"
         />
         <Button
-          className="h-[44px] mt-[7px]"
+          className="h-large mt-[8px]"
           disabled={
             !url.match(
               /https:\/\/github\.com\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)/
@@ -194,7 +194,7 @@ export const GithubComponent: FC<{
         </Fragment>
       ))}
       {githubState.filter((f) => !f.login).length === 0 && (
-        <div className="my-[16px] mt-[16px] h-[90px] bg-sixth border-fifth border rounded-[4px] p-[24px]">
+        <div className="my-[16px] mt-[16px] h-[90px] bg-surface border border-line rounded-card p-[20px]">
           <div className={`flex items-center gap-[8px]`}>
             <div>
               <SafeImage

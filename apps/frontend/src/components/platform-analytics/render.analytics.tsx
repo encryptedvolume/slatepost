@@ -24,8 +24,8 @@ const TrendIndicator: FC<{ value: number; average?: boolean }> = ({
 
   return (
     <div
-      className={`flex items-center gap-[4px] text-[13px] font-medium ${
-        isPositive ? 'text-[#32d583]' : 'text-[#f97066]'
+      className={`flex items-center gap-[4px] t-secondary-emphasis ${
+        isPositive ? 'text-success' : 'text-critical'
       }`}
     >
       <svg
@@ -53,7 +53,7 @@ const AnalyticsCard: FC<{
   total: string | number;
   index: number;
 }> = ({ item, total, index }) => {
-  const colorVariants = ['purple', 'green', 'blue'] as const;
+  const colorVariants = ['primary', 'secondary', 'tertiary'] as const;
   const color = colorVariants[index % colorVariants.length];
 
   const hasDataPoints = item.data.length >= 1;
@@ -65,24 +65,24 @@ const AnalyticsCard: FC<{
           flex flex-col h-full
           bg-newTableHeader
           border border-newTableBorder
-          rounded-[12px]
+          rounded-card
           overflow-hidden
-          transition-all duration-200
-          hover:border-[#612bd3]/50
+          transition-colors duration-state ease-state
+          hover:border-lineStrong
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-[16px] pt-[14px] pb-[8px]">
-          <div className="flex items-center gap-[10px]">
+        <div className="flex items-center justify-between px-[16px] pt-[16px] pb-[8px]">
+          <div className="flex items-center gap-[8px]">
             <div
               className={`
-                w-[8px] h-[8px] rounded-full
-                ${color === 'purple' ? 'bg-[#612bd3]' : ''}
-                ${color === 'green' ? 'bg-[#32d583]' : ''}
-                ${color === 'blue' ? 'bg-[#1d9bf0]' : ''}
+                w-[8px] h-[8px] rounded-pill
+                ${color === 'primary' ? 'bg-primaryBg' : ''}
+                ${color === 'secondary' ? 'bg-inkSecondary' : ''}
+                ${color === 'tertiary' ? 'bg-inkTertiary' : ''}
               `}
             />
-            <span className="text-[15px] font-medium text-newTableText">
+            <span className="t-body-emphasis text-newTableText">
               {item.label}
             </span>
           </div>
@@ -102,8 +102,8 @@ const AnalyticsCard: FC<{
             </div>
 
             {/* Value */}
-            <div className="px-[16px] pb-[14px]">
-              <div className="text-[36px] leading-[42px] font-semibold tracking-tight">
+            <div className="px-[16px] pb-[16px]">
+              <div className="t-display tabular">
                 {total}
               </div>
             </div>
@@ -111,7 +111,7 @@ const AnalyticsCard: FC<{
         ) : (
           /* Single value display */
           <div className="flex-1 flex flex-col items-center justify-center py-[32px] px-[16px]">
-            <div className="text-[48px] leading-[56px] font-semibold tracking-tight">
+            <div className="t-display tabular">
               {total}
             </div>
           </div>
@@ -125,8 +125,8 @@ const EmptyState: FC<{ onRefresh: () => void }> = ({ onRefresh }) => {
   const t = useT();
 
   return (
-    <div className="col-span-full flex flex-col items-center justify-center py-[48px] px-[24px] bg-newTableHeader border border-newTableBorder rounded-[12px]">
-      <div className="w-[48px] h-[48px] mb-[16px] rounded-full bg-[#612bd3]/10 flex items-center justify-center">
+    <div className="col-span-full flex flex-col items-center justify-center py-[48px] px-[24px] bg-newTableHeader border border-newTableBorder rounded-card">
+      <div className="w-[48px] h-[48px] mb-[16px] rounded-pill bg-surfaceActive flex items-center justify-center">
         <svg
           width="24"
           height="24"
@@ -134,13 +134,13 @@ const EmptyState: FC<{ onRefresh: () => void }> = ({ onRefresh }) => {
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
-          className="text-[#612bd3]"
+          className="text-inkSecondary"
         >
           <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           <path d="M12 8v4l2 2" />
         </svg>
       </div>
-      <p className="text-[15px] text-newTableText text-center mb-[12px]">
+      <p className="t-body text-newTableText text-center mb-[12px]">
         {t(
           'this_channel_needs_to_be_refreshed',
           'This channel needs to be refreshed to display analytics'
@@ -148,7 +148,7 @@ const EmptyState: FC<{ onRefresh: () => void }> = ({ onRefresh }) => {
       </p>
       <button
         onClick={onRefresh}
-        className="inline-flex items-center gap-[6px] px-[16px] py-[8px] text-[14px] font-medium text-white bg-[#612bd3] hover:bg-[#5023b8] rounded-[8px] transition-colors"
+        className="inline-flex items-center gap-[8px] px-[16px] py-[8px] t-control text-primaryText bg-primaryBg hover:bg-primaryBgHover rounded-control transition-colors"
       >
         <svg
           width="16"

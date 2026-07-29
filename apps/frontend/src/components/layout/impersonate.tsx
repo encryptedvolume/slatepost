@@ -119,7 +119,7 @@ const ChargesModal: FC<{ close: () => void }> = ({ close }) => {
     <div className="flex flex-col gap-[16px] min-w-[500px]">
       <div className="max-h-[400px] overflow-y-auto">
         {!charges?.length ? (
-          <div className="text-center py-[20px] text-newTextColor/60">
+          <div className="text-center py-[20px] text-inkSecondary">
             {t('no_charges', 'No charges found')}
           </div>
         ) : (
@@ -142,12 +142,12 @@ const ChargesModal: FC<{ close: () => void }> = ({ close }) => {
                 >
                   <td className="p-[8px]">
                     <div
-                      className={`w-[20px] h-[20px] rounded-[4px] border-2 flex items-center justify-center ${
+                      className={`w-[20px] h-[20px] rounded-thumb border-2 flex items-center justify-center ${
                         charge.refunded
-                          ? 'border-newTextColor/20 opacity-40'
+                          ? 'border-line opacity-40'
                           : selected.has(charge.id)
                           ? 'bg-forth border-forth'
-                          : 'border-newTextColor/40'
+                          : 'border-lineStrong'
                       }`}
                     >
                       {(selected.has(charge.id) || charge.refunded) && (
@@ -176,11 +176,11 @@ const ChargesModal: FC<{ close: () => void }> = ({ close }) => {
                   </td>
                   <td className="p-[8px]">
                     {charge.refunded ? (
-                      <span className="text-red-400">
+                      <span className="text-critical">
                         {t('refunded', 'Refunded')}
                       </span>
                     ) : (
-                      <span className="text-green-400">
+                      <span className="text-success">
                         {t('paid', 'Paid')}
                       </span>
                     )}
@@ -192,7 +192,7 @@ const ChargesModal: FC<{ close: () => void }> = ({ close }) => {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center justify-center w-[28px] h-[28px] rounded-[4px] hover:bg-tableBorder transition-colors"
+                        className="inline-flex items-center justify-center w-[28px] h-compact rounded-thumb hover:bg-tableBorder transition-colors"
                         title={charge.invoice_pdf ? t('download_invoice', 'Download Invoice') : t('view_receipt', 'View Receipt')}
                       >
                         <svg
@@ -224,7 +224,7 @@ const ChargesModal: FC<{ close: () => void }> = ({ close }) => {
           onClick={handleRefund}
           loading={refunding}
           disabled={!selected.size}
-          className="rounded-[4px]"
+          className="rounded-thumb"
         >
           {t('refund_selected', 'Refund Selected')}
           {selected.size > 0 && ` (${selected.size})`}
@@ -232,7 +232,7 @@ const ChargesModal: FC<{ close: () => void }> = ({ close }) => {
         <Button
           onClick={handleCancel}
           loading={cancelling}
-          className="!bg-red-700 rounded-[4px]"
+          className="!bg-criticalTint text-critical rounded-thumb"
         >
           {t('cancel_subscription', 'Cancel Subscription')}
         </Button>
@@ -254,7 +254,7 @@ const ManageBilling = () => {
 
   return (
     <div
-      className="px-[10px] rounded-[4px] bg-red-700 text-white cursor-pointer whitespace-nowrap"
+      className="px-[8px] rounded-thumb bg-criticalTint text-critical cursor-pointer whitespace-nowrap"
       onClick={handleClick}
     >
       {t('manage_billing', 'Manage Billing')}
@@ -309,9 +309,9 @@ export const Subscription = () => {
   );
 };
 const colorOptions = [
-  { value: 'INFO', label: 'Info (Blue)', className: 'bg-blue-600' },
-  { value: 'WARNING', label: 'Warning (Amber)', className: 'bg-amber-600' },
-  { value: 'ERROR', label: 'Error (Red)', className: 'bg-red-600' },
+  { value: 'INFO', label: 'Info (Blue)', className: 'bg-surfaceActive' },
+  { value: 'WARNING', label: 'Warning (Amber)', className: 'bg-surfaceActive' },
+  { value: 'ERROR', label: 'Error (Red)', className: 'bg-criticalTint text-critical' },
 ];
 
 const AddAnnouncementModal: FC<{ close: () => void }> = ({ close }) => {
@@ -348,12 +348,12 @@ const AddAnnouncementModal: FC<{ close: () => void }> = ({ close }) => {
         onChange={(e) => setTitle(e.target.value)}
         placeholder={t('announcement_title_placeholder', 'Announcement title')}
       />
-      <div className="flex flex-col gap-[6px]">
-        <label className="text-[14px]">
+      <div className="flex flex-col gap-[8px]">
+        <label className="t-control">
           {t('announcement_description', 'Description')}
         </label>
         <textarea
-          className="bg-input border border-tableBorder rounded-[8px] p-[10px] text-newTextColor min-h-[120px] outline-none resize-y"
+          className="bg-input border border-tableBorder rounded-control p-[8px] text-newTextColor min-h-[120px] outline-none resize-y"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder={t(
@@ -362,8 +362,8 @@ const AddAnnouncementModal: FC<{ close: () => void }> = ({ close }) => {
           )}
         />
       </div>
-      <div className="flex flex-col gap-[6px]">
-        <label className="text-[14px]">
+      <div className="flex flex-col gap-[8px]">
+        <label className="t-control">
           {t('announcement_color', 'Color')}
         </label>
         <div className="flex gap-[8px]">
@@ -371,8 +371,8 @@ const AddAnnouncementModal: FC<{ close: () => void }> = ({ close }) => {
             <div
               key={opt.value}
               onClick={() => setColor(opt.value)}
-              className={`flex-1 text-center py-[8px] rounded-[8px] text-white text-[13px] cursor-pointer transition-opacity ${opt.className} ${
-                color === opt.value ? 'opacity-100 ring-2 ring-white' : 'opacity-40'
+              className={`flex-1 text-center py-[8px] rounded-control text-ink t-secondary cursor-pointer transition-opacity ${opt.className} ${
+                color === opt.value ? 'opacity-100 ring-2 ring-line' : 'opacity-40'
               }`}
             >
               {opt.label}
@@ -385,7 +385,7 @@ const AddAnnouncementModal: FC<{ close: () => void }> = ({ close }) => {
           onClick={handleSubmit}
           loading={saving}
           disabled={!title.trim() || !description.trim()}
-          className="rounded-[4px]"
+          className="rounded-thumb"
         >
           {t('create_announcement', 'Create Announcement')}
         </Button>
@@ -407,7 +407,7 @@ const AddAnnouncement = () => {
 
   return (
     <div
-      className="px-[10px] rounded-[4px] bg-green-700 text-white cursor-pointer whitespace-nowrap"
+      className="px-[8px] rounded-thumb bg-successTint text-success cursor-pointer whitespace-nowrap"
       onClick={handleClick}
     >
       {t('add_announcement', 'Add Announcement')}
@@ -460,7 +460,7 @@ const AddTeamMemberModal: FC<{ close: () => void }> = ({ close }) => {
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(submit)}>
-        <div className="flex flex-col gap-[10px] min-w-[400px]">
+        <div className="flex flex-col gap-[8px] min-w-[400px]">
           <Input
             label="Email"
             placeholder={t('enter_email', 'Enter email')}
@@ -471,7 +471,7 @@ const AddTeamMemberModal: FC<{ close: () => void }> = ({ close }) => {
             <option value="USER">{t('user', 'User')}</option>
             <option value="ADMIN">{t('admin', 'Admin')}</option>
           </Select>
-          <Button type="submit" loading={saving} className="rounded-[4px]">
+          <Button type="submit" loading={saving} className="rounded-thumb">
             {t('add_team_member', 'Add Team Member')}
           </Button>
         </div>
@@ -493,7 +493,7 @@ const AddTeamMember = () => {
 
   return (
     <div
-      className="px-[10px] rounded-[4px] bg-teal-700 text-white cursor-pointer whitespace-nowrap"
+      className="px-[8px] rounded-thumb bg-surfaceActive text-ink cursor-pointer whitespace-nowrap"
       onClick={handleClick}
     >
       {t('add_team_member', 'Add Team Member')}
@@ -508,7 +508,7 @@ const ViewErrors = () => {
   }, []);
   return (
     <div
-      className="px-[10px] rounded-[4px] bg-blue-700 text-white cursor-pointer whitespace-nowrap"
+      className="px-[8px] rounded-thumb bg-surfaceActive text-ink cursor-pointer whitespace-nowrap"
       onClick={handleClick}
     >
       {t('view_errors', 'View Errors')}
@@ -523,7 +523,7 @@ const ViewStats = () => {
   }, []);
   return (
     <div
-      className="px-[10px] rounded-[4px] bg-purple-700 text-white cursor-pointer whitespace-nowrap"
+      className="px-[8px] rounded-thumb bg-surfaceActive text-ink cursor-pointer whitespace-nowrap"
       onClick={handleClick}
     >
       {t('view_stats', 'View Stats')}
@@ -545,7 +545,7 @@ const ImportDebugPost = () => {
 
   return (
     <div
-      className="px-[10px] rounded-[4px] bg-yellow-600 text-white cursor-pointer whitespace-nowrap"
+      className="px-[8px] rounded-thumb bg-surfaceActive text-ink cursor-pointer whitespace-nowrap"
       onClick={handleClick}
     >
       {t('import_debug_post', 'Import Debug Post')}
@@ -648,7 +648,7 @@ const SwitchUser = () => {
   }, [selected]);
 
   return (
-    <div className="relative flex items-center gap-[10px]">
+    <div className="relative flex items-center gap-[8px]">
       <div className="flex-1 min-w-[220px]">
         <Input
           autoComplete="off"
@@ -672,22 +672,22 @@ const SwitchUser = () => {
         onClick={doSwitch}
         loading={switching}
         disabled={!selected}
-        className="rounded-[4px] whitespace-nowrap"
+        className="rounded-thumb whitespace-nowrap"
       >
         {t('switch_user', 'Switch User')}
       </Button>
       {!!mapData?.length && !selected && (
         <>
           <div
-            className="bg-primary/80 fixed start-0 top-0 w-full h-full z-[998]"
+            className="bg-scrim fixed start-0 top-0 w-full h-full z-[998]"
             onClick={() => setName('')}
           />
-          <div className="absolute top-[100%] start-0 w-full bg-sixth border border-customColor6 text-textColor z-[999]">
+          <div className="absolute top-[100%] start-0 w-full bg-sixth border border-hairline text-textColor z-[999]">
             {mapData.map((item: any) => (
               <div
                 onClick={pick(item)}
                 key={item.id}
-                className="p-[10px] border-b border-customColor6 hover:bg-tableBorder cursor-pointer"
+                className="p-[8px] border-b border-hairline hover:bg-tableBorder cursor-pointer"
               >
                 {t('user_1', 'user:')}
                 {item.id.split('-').at(-1)} -{' '}
@@ -762,7 +762,9 @@ export const Impersonate = () => {
   }, [data]);
   return (
     <div>
-      <div className="bg-forth h-[52px] flex justify-center items-center border-input border rounded-[8px] text-white">
+      {/* 48px is a token height, and the fixed nav rail clears exactly that
+          much (layout.component.tsx) — the two must not drift apart. */}
+      <div className="bg-surfaceActive h-[48px] flex justify-center items-center border-b border-line text-ink">
         <div
           className={`relative flex flex-col ${
             user?.impersonate ? 'w-full px-[20px]' : 'w-[600px]'
@@ -770,13 +772,13 @@ export const Impersonate = () => {
         >
           <div className="relative z-[1]">
             {user?.impersonate ? (
-              <div className="text-center flex justify-center items-center gap-[10px]">
+              <div className="text-center flex justify-center items-center gap-[8px]">
                 <div className="whitespace-nowrap">
                   {t('currently_impersonating', 'Currently Impersonating')}
                 </div>
                 <div>
                   <div
-                    className="px-[10px] rounded-[4px] bg-red-500 text-white cursor-pointer"
+                    className="px-[8px] rounded-thumb bg-criticalTint text-critical cursor-pointer"
                     onClick={stopImpersonating}
                   >
                     X
@@ -788,7 +790,7 @@ export const Impersonate = () => {
                 <SwitchUser />
               </div>
             ) : (
-              <div className="flex items-center gap-[10px]">
+              <div className="flex items-center gap-[8px]">
                 <div className="flex-1">
                   <Input
                     autoComplete="off"
@@ -811,15 +813,15 @@ export const Impersonate = () => {
           {!!data?.length && (
             <>
               <div
-                className="bg-primary/80 fixed start-0 top-0 w-full h-full z-[998]"
+                className="bg-scrim fixed start-0 top-0 w-full h-full z-[998]"
                 onClick={() => setName('')}
               />
-              <div className="absolute top-[100%] w-full start-0 bg-sixth border border-customColor6 text-textColor z-[999]">
+              <div className="absolute top-[100%] w-full start-0 bg-sixth border border-hairline text-textColor z-[999]">
                 {mapData?.map((user: any) => (
                   <div
                     onClick={setUser(user.id)}
                     key={user.id}
-                    className="p-[10px] border-b border-customColor6 hover:bg-tableBorder cursor-pointer"
+                    className="p-[8px] border-b border-hairline hover:bg-tableBorder cursor-pointer"
                   >
                     {t('user_1', 'user:')}
                     {user.id.split('-').at(-1)} - {user.name} - {user.email}

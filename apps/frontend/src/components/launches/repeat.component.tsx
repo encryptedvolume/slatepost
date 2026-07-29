@@ -76,8 +76,8 @@ export const RepeatComponent: FC<{
     <div
       ref={ref}
       className={clsx(
-        'border rounded-[8px] justify-center flex items-center relative h-[44px] text-[15px] font-[600] select-none',
-        isOpen ? 'border-[#612BD3]' : 'border-newTextColor/10',
+        'border rounded-control justify-center flex items-center relative h-large t-body-strong select-none',
+        isOpen ? 'border-lineStrong' : 'border-line',
       )}
     >
       <div
@@ -97,7 +97,7 @@ export const RepeatComponent: FC<{
         </div>
       </div>
       {isOpen && (
-        <div className="z-[300] absolute start-0 bottom-[100%] w-[240px] bg-newBgColorInner p-[12px] menu-shadow -translate-y-[10px] flex flex-col">
+        <div className="z-[300] absolute start-0 bottom-[100%] w-[240px] bg-newBgColorInner p-[12px] menu-shadow -translate-y-[8px] flex flex-col">
           {list.map((p) => (
             <div
               onClick={() => {
@@ -105,7 +105,7 @@ export const RepeatComponent: FC<{
                 setIsOpen(false);
               }}
               key={p.label}
-              className="h-[40px] py-[8px] px-[20px] -mx-[12px] hover:bg-newBgColor"
+              className="h-control py-[8px] px-[20px] -mx-[12px] hover:bg-newBgColor"
             >
               {p.label}
             </div>

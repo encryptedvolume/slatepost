@@ -11,66 +11,205 @@
   to { transform: rotate(360deg); }
 }
 
+/* ---------------------------------------------------------------------------
+   Slate base
+   --------------------------------------------------------------------------- */
+
+html {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
 body {
-  background: var(--new-bgColor) !important;
-  color: var(--new-btn-text);
+  background: var(--slate-canvas) !important;
+  color: var(--slate-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* The document default is the body token — size, leading, tracking and
+     weight all come from the scale, never from loose numbers. */
+  @apply text-body;
+  font-feature-settings: 'cv01' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-wrap: pretty;
 }
 
-body * {
-  outline: none !important;
+/* Three weights ship: 400 body, 500 UI labels, 600 headings. Never italic. */
+body b,
+body strong {
+  font-weight: 500;
 }
 
-.box {
-  position: relative;
+body i,
+body em {
+  font-style: normal;
 }
-.box span {
-  position: relative;
-  z-index: 2;
+
+/* The selection wash is an amber *tint* — a separate token from
+   `--slate-accent`, but it spends the same brand attention, so the accent
+   budget in colors.scss counts it. */
+::selection {
+  background: var(--slate-selection);
 }
+
+/* The 2px focus ring is the first of the four permitted uses of Signal
+   Amber (see the accent budget in colors.scss). Mouse clicks stay quiet;
+   keyboard focus is always visible. */
+body *:focus:not(:focus-visible) {
+  outline: none;
+}
+
+body *:focus-visible {
+  outline: 2px solid var(--slate-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Type scale ----
+   The scale itself lives in ONE place: `theme.fontSize` in
+   tailwind.config.cjs, which is a hard override of Tailwind's stock ramp, so
+   text-lg / text-xs / text-2xl no longer compile. Size, line-height,
+   letter-spacing and weight are all baked into each token — never set ad hoc.
+   The `.t-*` classes below are aliases of those tokens for use in plain
+   class strings; they add nothing the token does not already carry, except
+   the two properties Tailwind has no utility for (text-wrap, and the
+   uppercase transform that is part of the overline token).
+
+   They live in the components layer, not after `@tailwind utilities`, so a
+   utility on the same element still out-ranks them. That is a cascade
+   requirement (a `text-critical` on the same node has to win), not a licence
+   to set weight ad hoc: `t-control font-semibold` was how six unnamed
+   size/weight pairs got into the product. Every pair that is real now has a
+   token — `t-body-strong`, `t-control-strong`, `t-secondary-emphasis`,
+   `t-secondary-strong`, `t-caption-strong` — and a bare `font-*` next to a
+   `t-*` is a review failure. */
+@layer components {
+  .t-display {
+    @apply text-display;
+  }
+  .t-title-1 {
+    @apply text-title-1;
+  }
+  .t-title-2 {
+    @apply text-title-2;
+    text-wrap: balance;
+  }
+  /* Balance is specified on headings <= title-2 — the short ones, where a
+     one-word last line is most visible. The two largest sizes are left
+     alone. */
+  .t-title-3 {
+    @apply text-title-3;
+    text-wrap: balance;
+  }
+  .t-body {
+    @apply text-body;
+  }
+  .t-body-emphasis {
+    @apply text-body-emphasis;
+  }
+  .t-body-strong {
+    @apply text-body-strong;
+  }
+  .t-control {
+    @apply text-control;
+  }
+  .t-control-strong {
+    @apply text-control-strong;
+  }
+  .t-secondary {
+    @apply text-secondary;
+  }
+  .t-secondary-emphasis {
+    @apply text-secondary-emphasis;
+  }
+  .t-secondary-strong {
+    @apply text-secondary-strong;
+  }
+  .t-caption {
+    @apply text-caption;
+  }
+  .t-caption-strong {
+    @apply text-caption-strong;
+  }
+  .t-overline {
+    @apply text-overline uppercase;
+  }
+  .t-numeric {
+    @apply text-numeric font-mono;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Tabular figures on every time, date, count, duration and table column.
+   Caption is the token the spec assigns to status chips, counters, calendar
+   day numbers and badge text, so it is tabular by construction. */
+time,
+.t-numeric,
+.t-caption,
+.t-caption-strong,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Running text is capped at a 68-character measure. */
+.measure {
+  max-width: 34rem;
+}
+
+/* Under reduced motion, enter/leave transforms are dropped and durations
+   collapse to 0ms — except opacity, which stays at 120ms. (Static transforms
+   used for layout, e.g. -translate-y-1/2 centering, are left alone.) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .motion-enter,
+  .animate-fadeIn,
+  .animate-normalFadeIn {
+    transition-property: opacity !important;
+    transition-duration: 120ms !important;
+    translate: none !important;
+    scale: none !important;
+  }
+}
+
 #tooltip {
   z-index: 10000;
 }
-.box:after {
-  border-radius: 50px;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-  content: '';
-  position: absolute;
-  background: white;
-  opacity: 0;
-  z-index: 1;
-  transition: all 0.3s ease-in-out;
-}
 
-.showbox {
-  @apply text-primary;
-}
-.showbox:after {
-  @apply bg-textColor;
-  opacity: 1;
-  transition: all 0.3s ease-in-out;
-}
+/* `.box` / `.box span` / `.box:after` / `.showbox` / `.showbox:after` were
+   deleted here rather than re-tokenised: they had zero call sites left in
+   apps/ or libraries/, and the rule carried three separate violations at once
+   — a 50px radius that is on no step of the five-value set, a `transition:
+   all 0.3s` that is on no step of the 120/180/240 duration set, and an
+   animated `opacity` fill behind text. Dead code cannot be made to obey the
+   system; it can only be removed. */
 .table1 {
   width: 100%;
   border-collapse: collapse;
 }
 
 .table1 thead {
-  @apply bg-customColor8 border-b border-b-fifth;
+  @apply bg-customColor8 border-b border-b-fifth text-caption;
   height: 44px;
-  font-size: 12px;
 }
 .table1 thead th,
 .table1 tbody td {
   text-align: left;
-  padding: 14px 24px;
+  /* 12/24 — on the spacing scale. 14 was not a step. */
+  padding: 12px 24px;
 }
 
+/* Table body text is the secondary token — the same one the document tables
+   in the legal shell use, so every table in the product reads alike. */
 .table1 tbody td {
+  @apply text-secondary;
   padding: 16px 24px;
-  font-size: 14px;
 }
 
 .swal2-modal {
@@ -87,27 +226,28 @@ body * {
 }
 
 .swal2-cancel {
-  @apply text-white #{!important};
+  @apply text-ink #{!important};
 }
 .swal2-confirm {
-  @apply bg-customColor50 #{!important};
-  @apply text-white #{!important};
+  @apply bg-primaryBg #{!important};
+  @apply text-primaryText #{!important};
 }
 
 .w-md-editor-text {
   min-height: 100% !important;
 }
 
+/* A tag input is a form control, so it is on the control step and the control
+   radius — the same 36 / 10 as Input, Button, Select and CustomSelect. It used
+   to be 42 / 8, which is on neither ladder, and put it 6px taller than the
+   Input it sits beside in every provider settings row. */
 .react-tags {
-  @apply border border-newTableBorder placeholder-textColor;
+  @apply border border-newTableBorder placeholder-textColor text-control;
   position: relative;
   padding-left: 16px;
-  font-size: 14px;
   background-color: var(--new-bgColorInner);
-  height: 42px;
-  border-radius: 8px;
-  /* shared font styles */
-  line-height: 1.2;
+  height: 36px;
+  border-radius: 10px;
   /* clicking anywhere will focus the input */
   cursor: text;
   display: flex;
@@ -116,8 +256,7 @@ body * {
 }
 
 .react-tags input {
-  @apply placeholder-textColor;
-  font-size: 14px;
+  @apply placeholder-textColor text-control;
 }
 
 .react-tags.is-active {
@@ -132,9 +271,11 @@ body * {
   cursor: not-allowed;
 }
 
+/* Errors are never a colored outline wider than a hairline, and never a
+   shadow — the field border takes the critical token and stops there. */
 .react-tags.is-invalid {
-  border-color: #fd5956;
-  box-shadow: 0 0 0 2px rgba(253, 86, 83, 0.25);
+  border-color: var(--slate-critical);
+  box-shadow: none;
 }
 
 .react-tags__label {
@@ -157,11 +298,13 @@ body * {
   list-style: none;
 }
 
+/* `thumb` is the radius the scale assigns to media thumbnails *and tags* —
+   this is the call site the token was named for. 3px was on no step. */
 .react-tags__tag {
-  margin: 0 0.25rem 0 0;
-  padding: 0.15rem 0.5rem;
+  margin: 0 4px 0 0;
+  padding: 2px 8px;
   border: 0;
-  border-radius: 3px;
+  border-radius: 6px;
   @apply bg-seventh;
   /* match the font styles */
   font-size: inherit;
@@ -192,7 +335,6 @@ body * {
     50% 40%
   );
   margin-left: 0.5rem;
-  font-size: 0.875rem;
   @apply bg-customColor53;
 }
 
@@ -218,7 +360,7 @@ body * {
   outline: none;
   background: none;
   /* match the font styles */
-  font-size: 16px;
+  @apply text-control;
   line-height: inherit;
 }
 
@@ -230,20 +372,20 @@ body * {
 .react-tags__listbox {
   position: absolute;
   z-index: 1;
-  top: calc(100% + 5px);
+  top: calc(100% + 4px);
   /* Negate the border width on the container */
   left: -2px;
   right: -2px;
   max-height: 12.5rem;
   overflow-y: auto;
   @apply bg-input border border-customColor54;
-  border-radius: 6px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -4px,
-    rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  border-radius: 14px;
+  box-shadow: var(--slate-shadow-overlay);
 }
 
+/* Same 8/12 menu row as `.dropdown-menu button`. 0.375rem was 6px. */
 .react-tags__listbox-option {
-  padding: 0.375rem 0.5rem;
+  padding: 8px 12px;
 }
 
 .react-tags__listbox-option:hover {
@@ -271,7 +413,7 @@ body * {
 }
 
 .react-tags__listbox-option-highlight {
-  background-color: #ffdd00;
+  background-color: var(--slate-surface-active);
 }
 
 /*#renderEditor:not(:has(:first-child)) {*/
@@ -281,22 +423,24 @@ body * {
   @apply bg-input #{!important};
   border: 0 !important;
   box-shadow: none !important;
-  border-radius: 8px !important;
+  /* Control radius — it is a text control. 8 was on no step. */
+  border-radius: 10px !important;
   border-bottom-left-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
 
+/* Toolbar buttons are controls, so the toolbar is a control row: 36, not 40. */
 .w-md-editor-toolbar {
   @apply bg-input border-fifth #{!important};
-  height: 40px !important;
-  min-height: 40px !important;
+  height: 36px !important;
+  min-height: 36px !important;
   padding: 0 8px !important;
 }
 
+/* Body token — the vendor sheet ships 20px, which is on no scale step. */
 .wmde-markdown {
   background: transparent !important;
-  font-size: 20px !important;
-  font-weight: 400 !important;
+  @apply text-body #{!important};
 }
 .auto-width {
   width: auto !important;
@@ -321,54 +465,18 @@ body * {
 .mantine-Paper-root {
   outline: none !important;
 }
-//
-//:root {
-//  --copilot-kit-primary-color: #612ad5 !important;
-//  --copilot-kit-background-color: #0b0f1c !important;
-//  --copilot-kit-separator-color: #1f2941 !important;
-//  --copilot-kit-contrast-color: #ffffff !important;
-//  --copilot-kit-secondary-contrast-color: #ffffff !important;
-//  --copilot-kit-secondary-color: #000 !important;
-//  --copilot-kit-response-button-background-color: #000 !important;
-//  --copilot-kit-response-button-color: #fff !important;
-//}
-
-//.copilotKitWindow {
-//  @apply bg-customColor3 #{!important};
-//}
-
-//.copilotKitButtonIconOpen svg {
-//  display: none !important;
-//}
-//
-//.copilotKitButtonIconOpen:after {
-//  @apply text-textColor;
-//  content: '';
-//  display: block;
-//  position: relative;
-//  z-index: 1;
-//  object-fit: contain;
-//  background: url('/magic.svg') no-repeat center center / contain;
-//  width: 30px;
-//  height: 30px;
-//}
-//
-//.copilotKitPopup {
-//  right: -2rem !important;
-//  bottom: 2rem !important;
-//}
-//
-//.copilotKitWindow {
-//  /*right: -5rem !important;*/
-//}
 
 .trz {
   transform: translateZ(0);
 }
 
+/* The upload button is a secondary button and is drawn as one: control height,
+   control radius, one 1px control hairline, intrinsic width from its own
+   padding. It used to be an arbitrary 107 x 25 box with a 4px radius and the
+   only 2px border in the product. */
 .uppy-FileInput-container {
-  @apply cursor-pointer font-[500] flex justify-center items-center gap-[4px] text-[12px] rounded-[4px] w-[107px] h-[25px] text-textColor border-[2px];
-  @apply bg-customColor3 border-customColor21;
+  @apply cursor-pointer inline-flex justify-center items-center gap-[4px] px-[16px] text-caption rounded-control h-control text-ink border;
+  @apply bg-surface border-lineControl;
 }
 
 .uppy-ProgressBar {
@@ -378,13 +486,13 @@ body * {
 
 .uppy-ProgressBar-inner {
   @apply bg-customColor51;
-  height: 25px;
-  border-radius: 4px;
+  height: 36px;
+  border-radius: 6px;
 }
 
 .uppy-ProgressBar-percentage {
   position: absolute;
-  color: red;
+  color: var(--slate-text-primary);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -400,7 +508,7 @@ body * {
 }
 
 .fill-text-textColor {
-  -webkit-text-fill-color: white !important;
+  -webkit-text-fill-color: var(--slate-text-primary) !important;
 }
 div div .set-font-family {
   font-family: 'Helvetica Neue', Helvetica !important;
@@ -409,37 +517,28 @@ div div .set-font-family {
   font-weight: 400 !important;
 }
 
+/* Live text, so it takes a text token and no opacity. `--color-text` at 30%
+   composited to #b0b0b0 on the `.repeated-strip` cell (--slate-surface-sunken)
+   in light and #565656 in dark — 1.99:1 and 2.61:1, a hard SC 1.4.3 failure in
+   both themes. A hardcoded opacity is a token bypass: it manufactures a colour
+   step nobody reviewed. Secondary ink is 7.17:1 light / 7.45:1 dark here. */
 .col-calendar:hover:before {
   content: 'Date passed';
-  color: var(--color-text);
+  color: var(--slate-text-secondary);
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   white-space: nowrap;
-  opacity: 30%;
-  font-size: 14px;
+  @apply text-caption;
 }
 
+/* Exactly one looping animation ships (the 1.2s upload bar), and width is
+   not a transitionable property — this shimmer was neither. It is now a
+   plain secondary-text label. */
 .loading-shimmer {
   position: relative;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.loading-shimmer:before {
-  content: attr(data-text);
-  position: absolute;
-  overflow: hidden;
-  max-width: 100%;
-  white-space: nowrap;
-  color: white;
-  animation: loading 4s linear 0s infinite;
-  filter: blur(0.4px);
-}
-@keyframes loading {
-  0% {
-    max-width: 0;
-  }
+  color: var(--slate-text-secondary);
 }
 
 .tbaom7c {
@@ -458,32 +557,36 @@ div div .set-font-family {
   margin-left: 0;
 }
 
+/* Same control step and control radius as `.react-tags` above, so the two
+   halves of the tag field line up with each other and with Input. */
 .tags-top .react-tags__combobox {
-  height: 42px;
+  height: 36px;
   display: flex;
   background-color: var(--new-bgColorInner);
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 12px;
+  padding-right: 12px;
   min-width: 150px;
   text-align: left;
   border-width: 1px;
-  border-radius: 8px;
+  border-radius: 10px;
   border-color: var(--new-table-border);
-  font-size: 14px;
+  @apply text-control;
 }
 
 .tags-top input {
-  font-size: 14px;
+  @apply text-control;
 }
 
 .tags-top input::placeholder {
   color: var(--new-textColor);
 }
 
+/* Chips inside a 36 field take the compact step, which leaves 4px of air top
+   and bottom. 35 was on no step and left 0.5px. */
 .tags-top .react-tags__list,
 .tags-top .react-tags__list li,
 .tags-top .react-tags__list li > div {
-  height: 35px;
+  height: 28px;
 }
 
 .tags-top .react-tags__listbox {
@@ -493,19 +596,20 @@ div div .set-font-family {
 .tags-top .react-tags__list-item > div {
   display: flex;
   align-items: center;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-left: 4px;
+  padding-right: 4px;
 }
 
 /* MediumTags (YouTube / Medium providers) — let the field grow and wrap
    instead of overflowing the fixed-height row once there are many tags. */
 .medium-tags .react-tags {
   height: auto;
-  min-height: 42px;
+  /* One row of 28 chips inside 4/4 padding is exactly the 36 control step. */
+  min-height: 36px;
   flex-wrap: wrap;
   align-items: flex-start;
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding-top: 4px;
+  padding-bottom: 4px;
   padding-right: 16px;
 }
 
@@ -513,7 +617,7 @@ div div .set-font-family {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .medium-tags .react-tags__tag {
@@ -585,8 +689,10 @@ html[dir='rtl'] [dir='ltr'] {
 //}
 //
 
+/* The composer is the most-typed-in surface in the product: it renders in
+   the UI stack, at the scale, at the three permitted weights. */
 .ProseMirror {
-  font-family: Arial;
+  font-family: var(--slate-font-ui);
 }
 
 .ProseMirror:focus {
@@ -594,8 +700,8 @@ html[dir='rtl'] [dir='ltr'] {
 }
 
 .ProseMirror .mention {
-  font-weight: bold;
-  color: #ae8afc;
+  font-weight: 500;
+  color: var(--slate-text-primary);
 }
 
 .ProseMirror ul,
@@ -611,8 +717,7 @@ html[dir='rtl'] [dir='ltr'] {
 
 .ProseMirror h1,
 .preview h1 {
-  font-size: 24px;
-  font-weight: bold;
+  @apply text-title-2;
 }
 
 .ProseMirror * {
@@ -621,49 +726,39 @@ html[dir='rtl'] [dir='ltr'] {
 
 .ProseMirror h2,
 .preview h2 {
-  font-size: 20px;
-  font-weight: bold;
+  @apply text-title-3;
 }
 
 .ProseMirror h3,
 .preview h3 {
-  font-size: 18px;
-  font-weight: bold;
+  @apply text-body-emphasis;
 }
 
 .preview p {
   min-height: 24px;
 }
 
+/* Past cells read as sunken surface — no background pattern. */
 .repeated-strip {
-  background: repeating-linear-gradient(
-    135deg,
-    var(--new-bgColorInner),
-    var(--new-bgColorInner) 4px,
-    var(--new-big-strips) 4px,
-    var(--new-big-strips) 8px
-  );
-}
-
-.mantine-Modal-inner {
-  backdrop-filter: blur(10px);
+  background: var(--slate-surface-sunken);
 }
 
 .mantine-Modal-modal {
   padding: 0;
-  @apply bg-newBgColorInner;
-  border-radius: 24px;
+  background: var(--slate-surface-overlay);
+  border: 1px solid var(--slate-line);
+  border-radius: 14px;
 }
 
 .mantine-Overlay-root {
-  background: rgba(65, 64, 66, 0.3) !important;
+  background: var(--slate-scrim) !important;
 }
 
 .dropdown-menu {
-  @apply shadow-menu;
-  background: var(--new-bgColorInner);
-  border: 1px solid var(--new-bgLineColor);
-  border-radius: 18px;
+  @apply shadow-overlay;
+  background: var(--slate-surface-overlay);
+  border: 1px solid var(--slate-line);
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   overflow: auto;
@@ -675,7 +770,7 @@ html[dir='rtl'] [dir='ltr'] {
     display: flex;
     text-align: left;
     width: 100%;
-    padding: 10px;
+    padding: 8px 12px;
 
     &:hover,
     &:hover.is-selected {
@@ -695,20 +790,24 @@ html[dir='rtl'] [dir='ltr'] {
   }
 
   .mention {
-    background-color: var(--purple-light);
-    border-radius: 0.4rem;
+    background-color: var(--slate-surface-active);
+    border-radius: 6px;
     box-decoration-break: clone;
-    color: #ae8afc;
+    color: var(--slate-text-primary);
+    font-weight: 500;
     &::after {
       content: '\200B';
     }
   }
 }
+/* No glass effects: when a modal opens the scrim does the work, the page
+   behind it is not blurred. Kept as a no-op so callers stay untouched. */
 .blur-xs {
-  filter: blur(4px);
+  filter: none;
 }
+/* No blur/glass effects. Kept as a no-op so callers stay untouched. */
 .blur-s {
-  filter: blur(5px);
+  filter: none;
 }
 
 .agent {
@@ -736,46 +835,26 @@ html[dir='rtl'] [dir='ltr'] {
   color: var(--new-btn-text) !important;
 }
 
-@keyframes marquee-up {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-50%);
-  }
-}
-
-@keyframes marquee-down {
-  0% {
-    transform: translateY(-50%);
-  }
-  100% {
-    transform: translateY(0%);
-  }
-}
-
-.blackGradBottomBg {
-  background: linear-gradient(180deg, #0e0e0e 0%, rgba(14, 14, 14, 0) 100%);
-  rotate: 180deg;
-}
-
+/* No gradients. */
+.blackGradBottomBg,
 .blackGradTopBg {
-  background: linear-gradient(180deg, #0e0e0e 0%, rgba(14, 14, 14, 0) 100%);
+  background: none;
 }
 
 .billing-form input {
   background: transparent !important;
 }
 
+/* Menus and popovers are the only place elevation is allowed. */
 .menu-shadow {
-  border-radius: 12px;
-  box-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.5);
+  border-radius: 14px;
+  border: 1px solid var(--slate-line);
+  background: var(--slate-surface-overlay);
+  box-shadow: var(--slate-shadow-overlay);
 }
 
 .post-now {
-  box-shadow: -33px 57px 18px 0 rgba(0, 0, 0, 0.01),
-    -21px 36px 17px 0 rgba(0, 0, 0, 0.06), -12px 20px 14px 0 rgba(0, 0, 0, 0.2),
-    -5px 9px 11px 0 rgba(0, 0, 0, 0.34), -1px 2px 6px 0 rgba(0, 0, 0, 0.39);
+  box-shadow: none;
 }
 
 .uppyChange .uppy-Dashboard-inner {
@@ -790,7 +869,7 @@ html[dir='rtl'] [dir='ltr'] {
 }
 
 .tiptap p.is-editor-empty:first-child::before {
-  color: #adb5bd;
+  color: var(--slate-text-tertiary);
   content: attr(data-placeholder);
   float: left;
   height: 0;
@@ -802,17 +881,17 @@ html[dir='rtl'] [dir='ltr'] {
   max-width: calc(100% / 6);
 }
 
+/* The one call site (media.component.tsx) offsets this box by -2px on both
+   axes, so it has to grow by exactly 4 on both axes to land its bottom-right
+   back on the parent's. 9 and 6 were neither on the spacing scale nor equal
+   to the offset they were compensating for, and they disagreed with each
+   other on two axes that are offset identically. */
 .withp3 {
-  width: calc(100% + 9px);
-  height: calc(100% + 6px);
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
 }
 
 .forceChange .changeColor {
-  background: var(--new-btn-primary) !important;
-  color: #fff !important;
-}
-
-.text-shadow-tags {
-  text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black,
-    1px 1px 0 black;
+  background: var(--slate-primary-bg) !important;
+  color: var(--slate-primary-text) !important;
 }

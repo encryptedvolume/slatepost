@@ -148,7 +148,7 @@ const Plug: FC<{
   return (
     <div
       key={plug.title}
-      className="flex flex-col gap-[10px] border-tableBorder border p-[15px] rounded-lg"
+      className="flex flex-col gap-[8px] border-tableBorder border p-[16px] rounded-control"
     >
       <div className="flex items-center">
         <div className="flex-1">{plug.title}</div>
@@ -162,13 +162,13 @@ const Plug: FC<{
           />
         </div>
       </div>
-      <div className="w-full max-w-[600px] overflow-y-auto pb-[10px] text-[12px] flex flex-col gap-[10px]">
+      <div className="w-full max-w-[600px] overflow-y-auto pb-[8px] t-caption flex flex-col gap-[8px]">
         {!allowedIntegrations.length ? (
           'No available accounts'
         ) : (
           <div
             className={clsx(
-              'flex flex-col gap-[10px]',
+              'flex flex-col gap-[8px]',
               !active && 'opacity-25 pointer-events-none'
             )}
           >
@@ -185,7 +185,7 @@ const Plug: FC<{
               ))}
             </Select>
             {plug.fields.length > 0 && (
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[8px]">
                 {plug.fields.map((field) => (
                   <PlugField
                     key={field.name}

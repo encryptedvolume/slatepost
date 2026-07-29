@@ -61,20 +61,20 @@ export const ApprovedAppsComponent: FC = () => {
   return (
     <div className="flex flex-col gap-[20px]">
       <div className="flex flex-col">
-        <h3 className="text-[20px]">
+        <h3 className="t-title-3">
           {t('approved_apps', 'Approved Apps')}
         </h3>
-        <div className="text-customColor18 mt-[4px]">
+        <div className="text-inkSecondary mt-[4px]">
           {t(
             'apps_you_have_authorized',
-            'Applications you have authorized to access your Postiz account.'
+            'Applications you have authorized to access your Slate account.'
           )}
         </div>
       </div>
 
-      <div className="bg-sixth border-fifth border rounded-[4px] p-[24px]">
+      <div className="bg-surface border border-line rounded-card p-[20px]">
         {!apps?.length ? (
-          <div className="text-customColor18">
+          <div className="text-inkSecondary">
             {t('no_approved_apps', 'No approved apps yet.')}
           </div>
         ) : (
@@ -82,30 +82,30 @@ export const ApprovedAppsComponent: FC = () => {
             {apps.map((app: any) => (
               <div
                 key={app.id}
-                className="flex items-center justify-between p-[12px] border border-fifth rounded-[4px]"
+                className="flex items-center justify-between p-[12px] border border-fifth rounded-thumb"
               >
                 <div className="flex items-center gap-[12px]">
                   {app.oauthApp?.picture?.path ? (
                     <img
                       src={app.oauthApp.picture.path}
                       alt={app.oauthApp.name}
-                      className="w-[40px] h-[40px] rounded-full object-cover"
+                      className="w-[40px] h-[40px] rounded-pill object-cover"
                     />
                   ) : (
-                    <div className="w-[40px] h-[40px] rounded-full bg-fifth flex items-center justify-center text-customColor18">
+                    <div className="w-[40px] h-[40px] rounded-pill bg-fifth flex items-center justify-center text-inkSecondary">
                       {app.oauthApp?.name?.[0]?.toUpperCase() || '?'}
                     </div>
                   )}
                   <div>
-                    <div className="text-[14px] font-bold">
+                    <div className="t-body-emphasis">
                       {app.oauthApp?.name}
                     </div>
                     {app.oauthApp?.description && (
-                      <div className="text-customColor18 text-[12px]">
+                      <div className="text-inkSecondary t-caption">
                         {app.oauthApp.description}
                       </div>
                     )}
-                    <div className="text-customColor18 text-[12px]">
+                    <div className="text-inkSecondary t-caption">
                       {t('authorized_on', 'Authorized on')}{' '}
                       {new Date(app.createdAt).toLocaleDateString()}
                     </div>

@@ -50,12 +50,12 @@ export const CustomerModal: FC<{
   const { data } = useSWR('/customers', loadCustomers);
   return (
     <div className="relative w-full">
-      <div className="mb-[80px]">
+      <div className="mb-[64px]">
         <Autocomplete
           value={customer}
           onChange={setCustomer}
           classNames={{
-            label: 'text-white',
+            label: 'text-ink',
           }}
           label={t('select_customer_label', 'Select Customer')}
           placeholder={t('start_typing', 'Start typing...')}
@@ -63,10 +63,10 @@ export const CustomerModal: FC<{
         />
       </div>
 
-      <div className="my-[16px] flex gap-[10px]">
+      <div className="my-[16px] flex gap-[8px]">
         <Button onClick={() => saveCustomer()}>{t('save', 'Save')}</Button>
         {!!integration?.customer?.name && (
-          <Button className="bg-red-700" onClick={removeFromCustomer}>
+          <Button className="bg-criticalTint text-critical" onClick={removeFromCustomer}>
             {t('remove_from_customer', 'Remove from customer')}
           </Button>
         )}

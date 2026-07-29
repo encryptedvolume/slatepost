@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-labelledby="slate-appicon-title">
+  <title id="slate-appicon-title">Slate</title>
+  <!--
+    SLATE — app icon master. 1024 x 1024, rasterise to PNG for TikTok / iOS.
+
+    Polarity is inverted on purpose: ink field, light mark. In the product
+    the primary action is ink, which is what keeps Signal Amber scarce
+    enough to mean something — the icon says the same thing. It also reads
+    as the mark's other half: here the channel is the light cut through the
+    slate, where in logo.svg the channel is the ink.
+
+    Geometry
+      field   1024 full bleed, square, no self-drawn corner radius —
+              the platform mask supplies the corner, so this master works
+              masked to a squircle, a circle or left square.
+      mark    576 (9/16 of the icon), centred, inset 224 on every side.
+              Unit = 18, so every edge is a whole number.
+      safety  Mark's outermost corners sit 407 from centre; an iOS
+              superellipse mask cuts at ~483 on the diagonal and a circle
+              mask at 512. Clears both.
+
+    Flat ink only: no gradient, no shadow, no bevel, no inner glow.
+    Colours are brand tokens: canvas ink #0F0F0F, mark n50 #FAFAFA.
+  -->
+  <rect width="1024" height="1024" fill="#0F0F0F"/>
+  <path fill="#FAFAFA" d="M224,224H512V440H656V656H800V800H512V584H368V368H224Z"/>
+</svg>

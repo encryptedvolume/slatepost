@@ -60,19 +60,19 @@ export const Webhooks: FC = () => {
 
   return (
     <div className="flex flex-col">
-      <h3 className="text-[20px]">
+      <h3 className="t-title-3">
         {t('webhooks', 'Webhooks')} ({data?.length || 0}/{user?.tier?.webhooks})
       </h3>
-      <div className="text-customColor18 mt-[4px]">
+      <div className="text-inkSecondary mt-[4px]">
         {t(
           'webhooks_are_a_way_to_get_notified_when_something_happens_in_postiz_via_an_http_request',
-          'Webhooks are a way to get notified when something happens in Postiz via\n        an HTTP request.'
+          'Webhooks are a way to get notified when something happens in Slate via\n        an HTTP request.'
         )}
       </div>
-      <div className="my-[16px] mt-[16px] bg-sixth border-fifth items-center border rounded-[4px] p-[24px] flex gap-[24px]">
+      <div className="my-[16px] mt-[16px] bg-surface items-center border border-line rounded-card p-[20px] flex gap-[24px]">
         <div className="flex flex-col w-full">
           {!!data?.length && (
-            <div className="grid grid-cols-[1fr,1fr,1fr,1fr] w-full gap-y-[10px]">
+            <div className="grid grid-cols-[1fr,1fr,1fr,1fr] w-full gap-y-[8px]">
               <div>{t('name', 'Name')}</div>
               <div>{t('url', 'URL')}</div>
               <div>{t('edit', 'Edit')}</div>
@@ -244,7 +244,7 @@ export const AddOrEditWebhook: FC<{
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(callBack)}>
-        <div className="relative flex gap-[20px] flex-col flex-1 rounded-[4px] pt-0">
+        <div className="relative flex gap-[20px] flex-col flex-1 rounded-thumb pt-0">
           <div>
             <Input
               label="Name"
@@ -280,7 +280,7 @@ export const AddOrEditWebhook: FC<{
                 isMain={true}
               />
             )}
-            <div className="flex gap-[10px]">
+            <div className="flex gap-[8px]">
               <Button
                 type="submit"
                 className="mt-[24px]"

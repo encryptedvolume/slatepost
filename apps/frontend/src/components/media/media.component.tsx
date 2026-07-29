@@ -119,21 +119,21 @@ export const Pagination: FC<{
   }, [current, totalPages]);
 
   return (
-    <ul className="flex flex-row items-center gap-1 justify-center mt-[15px]">
+    <ul className="flex flex-row items-center gap-[4px] justify-center mt-[16px]">
       <li className={clsx(current === 0 && 'opacity-20 pointer-events-none')}>
         <div
-          className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 px-4 py-2 gap-1 ps-2.5 text-gray-400 hover:text-white border-[#1F1F1F] hover:bg-forth"
+          className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-thumb t-secondary-emphasis ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[16px] [&_svg]:shrink-0 h-control px-[16px] py-[8px] gap-[4px] ps-[8px] text-inkSecondary hover:text-ink border-line hover:bg-forth"
           aria-label="Go to previous page"
           onClick={() => setPage(current - 1)}
         >
-          <ChevronLeftIcon className="lucide lucide-chevron-left h-4 w-4" />
+          <ChevronLeftIcon className="lucide lucide-chevron-left h-[16px] w-[16px]" />
           <span>{t('previous', 'Previous')}</span>
         </div>
       </li>
       {paginationItems.map((item, index) => (
         <li key={index}>
           {item === '...' ? (
-            <span className="inline-flex items-center justify-center h-10 w-10 text-textColor select-none">
+            <span className="inline-flex items-center justify-center h-control w-[36px] text-textColor select-none">
               ...
             </span>
           ) : (
@@ -141,10 +141,10 @@ export const Pagination: FC<{
               aria-current="page"
               onClick={() => setPage(item - 1)}
               className={clsx(
-                'cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border hover:bg-forth h-10 w-10 hover:text-white border-newBorder',
+                'cursor-pointer inline-flex items-center justify-center gap-[8px] whitespace-nowrap rounded-thumb t-secondary-emphasis ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[16px] [&_svg]:shrink-0 border hover:bg-forth h-control w-[36px] hover:text-ink border-newBorder',
                 current === item - 1
-                  ? 'bg-forth !text-white'
-                  : 'text-textColor hover:text-white'
+                  ? 'bg-forth !text-ink'
+                  : 'text-textColor hover:text-ink'
               )}
             >
               {item}
@@ -158,12 +158,12 @@ export const Pagination: FC<{
         )}
       >
         <a
-          className="text-textColor hover:text-white group cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 px-4 py-2 gap-1 pe-2.5 text-gray-400 border-[#1F1F1F] hover:bg-forth"
+          className="text-textColor hover:text-ink group cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-thumb t-secondary-emphasis ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[16px] [&_svg]:shrink-0 h-control px-[16px] py-[8px] gap-[4px] pe-[8px] text-inkSecondary border-line hover:bg-forth"
           aria-label="Go to next page"
           onClick={() => setPage(current + 1)}
         >
           <span>{t('next', 'Next')}</span>
-          <ChevronRightIcon className="lucide lucide-chevron-right h-4 w-4" />
+          <ChevronRightIcon className="lucide lucide-chevron-right h-[16px] w-[16px]" />
         </a>
       </li>
     </ul>
@@ -351,7 +351,7 @@ export const MediaBox: FC<{
         title: '',
         top: 10,
         children: (
-          <div className="w-full h-full p-[50px]">
+          <div className="w-full h-full p-[48px]">
             {hasExtension(media.path, 'mp4') ? (
               <VideoFrame
                 autoplay={true}
@@ -399,11 +399,11 @@ export const MediaBox: FC<{
       <button
         disabled={loading}
         onClick={() => uploaderRef?.current?.click()}
-        className="relative cursor-pointer bg-btnSimple changeColor flex gap-[8px] h-[44px] px-[18px] justify-center items-center rounded-[8px]"
+        className="relative cursor-pointer bg-btnSimple changeColor flex gap-[8px] h-large px-[16px] justify-center items-center rounded-control"
       >
         {loading ? (
           <div className="absolute left-[50%] top-[50%] -translate-y-[50%] -translate-x-[50%]">
-            <div className="animate-spin h-[20px] w-[20px] border-4 border-white border-t-transparent rounded-full" />
+            <div className="animate-spin h-[20px] w-[20px] border-4 border-line border-t-transparent rounded-pill" />
           </div>
         ) : (
           <PlusIcon size={14} />
@@ -431,7 +431,7 @@ export const MediaBox: FC<{
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('search_media_by_name', 'Search by file name')}
-              className="w-full h-[44px] px-[14px] rounded-[8px] bg-newBgColorInner border border-newColColor text-[14px] outline-none focus:border-[#612BD3]"
+              className="w-full h-large px-[16px] rounded-control bg-surface border border-line t-control outline-none"
             />
           </div>
           <input
@@ -446,10 +446,10 @@ export const MediaBox: FC<{
             <ThirdPartyMediaLibrary onImported={() => mutate()} />
           </div>
         </div>
-        <div className="w-full pointer-events-none relative mt-[5px] mb-[5px]">
-          <div className="w-full h-[46px] overflow-hidden absolute left-0 bg-newBgColorInner uppyChange">
+        <div className="w-full pointer-events-none relative mt-[4px] mb-[4px]">
+          <div className="w-full h-large overflow-hidden absolute left-0 bg-newBgColorInner uppyChange">
             <Dashboard
-              height={46}
+              height={44}
               uppy={uppy}
               id={`uploader`}
               showProgressDetails={true}
@@ -460,19 +460,19 @@ export const MediaBox: FC<{
               hideProgressAfterFinish={true}
             />
           </div>
-          <div className="w-full h-[46px] uppyChange" />
+          <div className="w-full h-large uppyChange" />
         </div>
         <div
           className={clsx(
             'flex-1 relative',
             !isLoading &&
               !data?.results?.length &&
-              'bg-newTextColor/[0.02] rounded-[12px]'
+              'bg-surfaceSunken rounded-card'
           )}
         >
           <div
             className={clsx(
-              'absolute -left-[3px] -top-[3px] withp3 h-full overflow-x-hidden overflow-y-auto scrollbar scrollbar-thumb-newColColor scrollbar-track-newBgColorInner',
+              'absolute -left-[2px] -top-[2px] withp3 overflow-x-hidden overflow-y-auto scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent',
               !isLoading &&
                 !data?.results?.length &&
                 'flex justify-center items-center gap-[20px] flex-col'
@@ -481,7 +481,7 @@ export const MediaBox: FC<{
             {!isLoading && !data?.results?.length && (
               <>
                 <NoMediaIcon />
-                <div className="text-[20px] font-[600]">
+                <div className="t-title-3">
                   {debouncedSearch
                     ? t(
                         'no_media_match_search',
@@ -492,7 +492,7 @@ export const MediaBox: FC<{
                         "You don't have any media yet"
                       )}
                 </div>
-                <div className="whitespace-pre-line text-newTextColor/[0.6] text-center">
+                <div className="whitespace-pre-line text-inkSecondary text-center">
                   {t(
                     'select_or_upload_pictures_max_1gb',
                     'Select or upload pictures (maximum 1 GB per upload).'
@@ -514,11 +514,11 @@ export const MediaBox: FC<{
                 {[...new Array(16)].map((_, i) => (
                   <div
                     className={clsx(
-                      'px-[3px] py-[3px] float-left rounded-[6px] cursor-pointer w8-max aspect-square'
+                      'px-[2px] py-[2px] float-left rounded-thumb cursor-pointer w8-max aspect-square'
                     )}
                     key={i}
                   >
-                    <div className="w-full h-full bg-newSep rounded-[6px] animate-pulse" />
+                    <div className="w-full h-full bg-skeleton rounded-thumb" />
                   </div>
                 ))}
               </>
@@ -535,36 +535,36 @@ export const MediaBox: FC<{
               .map((media: any) => (
                 <div
                   className={clsx(
-                    'group px-[3px] py-[3px] float-left rounded-[6px] w8-max aspect-square',
+                    'group px-[2px] py-[2px] float-left rounded-thumb w8-max aspect-square',
                     !standalone && 'cursor-pointer'
                   )}
                   key={media.id}
                 >
                   <div
                     className={clsx(
-                      'w-full h-full rounded-[6px] border-[4px] relative',
+                      'w-full h-full rounded-thumb border relative',
                       !!selected.find((p) => p.id === media.id)
-                        ? 'border-[#612BD3]'
+                        ? 'border-lineStrong bg-surfaceActive'
                         : 'border-transparent'
                     )}
                     onClick={addRemoveSelected(media)}
                   >
                     {!!selected.find((p: any) => p.id === media.id) ? (
-                      <div className="text-white flex z-[101] justify-center items-center text-[14px] font-[500] w-[24px] h-[24px] rounded-full bg-[#612BD3] absolute -bottom-[10px] -end-[10px]">
+                      <div className="bg-primaryBg text-primaryText flex z-[101] justify-center items-center t-caption tabular w-[24px] h-[24px] rounded-pill absolute -bottom-[8px] -end-[8px]">
                         {selected.findIndex((z: any) => z.id === media.id) + 1}
                       </div>
                     ) : (
                       <DeleteCircleIcon
-                        className="cursor-pointer hidden z-[100] group-hover:block absolute -top-[5px] -end-[5px]"
+                        className="cursor-pointer hidden z-[100] group-hover:block absolute -top-[4px] -end-[4px]"
                         onClick={deleteImage(media)}
                       />
                     )}
-                    <div className="absolute bottom-[10px] end-[10px] z-[100]">{media.originalName}</div>
-                    <div className="w-full h-full rounded-[6px] overflow-hidden relative">
+                    <div className="absolute bottom-[8px] end-[8px] z-[100]">{media.originalName}</div>
+                    <div className="w-full h-full rounded-thumb overflow-hidden relative">
                       <div className="absolute z-[20] left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%]">
                         <div
                           onClick={maximize(media)}
-                          className="cursor-pointer p-[4px] bg-black/40 hidden group-hover:block hover:scale-150 transition-all"
+                          className="cursor-pointer p-[4px] bg-scrim hidden group-hover:block hover:scale-150 transition-all"
                         >
                           <svg
                             width="30"
@@ -575,7 +575,7 @@ export const MediaBox: FC<{
                           >
                             <path
                               d="M2 9H0V14H5V12H2V9ZM0 5H2V2H5V0H0V5ZM12 12H9V14H14V9H12V12ZM9 0V2H12V5H14V0H9Z"
-                              fill="#F1F5F9"
+                              fill="var(--slate-on-swatch)"
                             />
                           </svg>
                         </div>
@@ -608,7 +608,7 @@ export const MediaBox: FC<{
           <div className="flex justify-end mt-[32px] gap-[8px]">
             <button
               onClick={() => modals.closeCurrent()}
-              className="cursor-pointer h-[52px] px-[20px] items-center justify-center border border-newTextColor/10 flex rounded-[10px]"
+              className="cursor-pointer h-large px-[16px] items-center justify-center border border-line bg-surface text-ink hover:bg-surfaceHover t-control flex rounded-control transition-colors duration-state ease-state"
             >
               {t('cancel', 'Cancel')}
             </button>
@@ -616,7 +616,7 @@ export const MediaBox: FC<{
               <button
                 onClick={standalone ? () => {} : addMedia}
                 disabled={selected.length === 0}
-                className="cursor-pointer text-white disabled:opacity-80 disabled:cursor-not-allowed h-[52px] px-[20px] items-center justify-center bg-[#612BD3] flex rounded-[10px]"
+                className="cursor-pointer bg-primaryBg text-primaryText hover:bg-primaryBgHover disabled:opacity-40 disabled:cursor-not-allowed h-large px-[16px] items-center justify-center t-control flex rounded-control transition-colors duration-state ease-state"
               >
                 {t('add_selected_media', 'Add selected media')}
               </button>
@@ -754,22 +754,22 @@ export const MultiMediaComponent: FC<{
 
   return (
     <>
-      <div className="b1 flex flex-col gap-[8px] rounded-bl-[8px] select-none w-full">
-        <div className="flex gap-[10px] px-[12px]">
+      <div className="b1 flex flex-col gap-[8px] rounded-bl-control select-none w-full">
+        <div className="flex gap-[8px] px-[12px]">
           {!!currentMedia && (
             <ReactSortable
               list={currentMedia}
               setList={(value) =>
                 onChange({ target: { name: 'upload', value } })
               }
-              className="flex gap-[10px] sortable-container"
+              className="flex gap-[8px] sortable-container"
               animation={200}
               swap={true}
               handle=".dragging"
             >
               {currentMedia.map((media, index) => (
-                  <div key={media.id} className="cursor-pointer rounded-[5px] w-[40px] h-[40px] border-2 border-tableBorder relative flex transition-all">
-                    <DragHandleIcon className="z-[20] dragging absolute pe-[1px] pb-[3px] -start-[4px] -top-[4px] cursor-move" />
+                  <div key={media.id} className="cursor-pointer rounded-thumb w-[40px] h-[40px] border-2 border-tableBorder relative flex transition-all">
+                    <DragHandleIcon className="z-[20] dragging absolute pe-[1px] pb-[2px] -start-[4px] -top-[4px] cursor-move" />
 
                     <div className="w-full h-full relative group">
                       <div
@@ -800,7 +800,7 @@ export const MultiMediaComponent: FC<{
                             ),
                           });
                         }}
-                        className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-black/80 rounded-[10px] opacity-0 group-hover:opacity-100 transition-opacity z-[9]"
+                        className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-scrim rounded-control opacity-0 group-hover:opacity-100 transition-opacity z-[9]"
                       >
                         <MediaSettingsIcon className="cursor-pointer relative z-[200]" />
                       </div>
@@ -808,7 +808,7 @@ export const MultiMediaComponent: FC<{
                         <VideoFrame url={mediaDirectory.set(media?.path)} />
                       ) : (
                         <img
-                          className="w-full h-full object-cover rounded-[4px]"
+                          className="w-full h-full object-cover rounded-thumb"
                           src={mediaDirectory.set(media?.path)}
                         />
                       )}
@@ -816,7 +816,7 @@ export const MultiMediaComponent: FC<{
 
                     <CloseCircleIcon
                       onClick={clearMedia(index)}
-                      className="absolute -end-[4px] -top-[4px] z-[20] rounded-full bg-white"
+                      className="absolute -end-[4px] -top-[4px] z-[20] rounded-pill bg-surface"
                     />
                   </div>
               ))}
@@ -825,29 +825,29 @@ export const MultiMediaComponent: FC<{
         </div>
         <div className="flex gap-[8px] px-[12px] border-t border-newColColor w-full b1 text-textColor">
           {!mediaNotAvailable && (
-            <div className="flex py-[10px] b2 items-center gap-[4px]">
+            <div className="flex py-[8px] b2 items-center gap-[4px]">
               <div
                 onClick={showModal}
-                className="cursor-pointer h-[30px] rounded-[6px] justify-center items-center flex bg-newColColor px-[8px]"
+                className="cursor-pointer h-compact rounded-thumb justify-center items-center flex bg-newColColor px-[8px]"
               >
                 <div className="flex gap-[8px] items-center">
                   <div>
                     <InsertMediaIcon />
                   </div>
-                  <div className="text-[10px] font-[600] maxMedia:hidden block">
+                  <div className="t-caption-strong maxMedia:hidden block">
                     {t('insert_media', 'Insert Media')}
                   </div>
                 </div>
               </div>
               <div
                 onClick={designMedia}
-                className="cursor-pointer h-[30px] rounded-[6px] justify-center items-center flex bg-newColColor px-[8px]"
+                className="cursor-pointer h-compact rounded-thumb justify-center items-center flex bg-newColColor px-[8px]"
               >
-                <div className="flex gap-[5px] items-center">
+                <div className="flex gap-[4px] items-center">
                   <div>
                     <DesignMediaIcon />
                   </div>
-                  <div className="text-[10px] font-[600] iconBreak:hidden block">
+                  <div className="t-caption-strong iconBreak:hidden block">
                     {t('design_media', 'Design Media')}
                   </div>
                 </div>
@@ -869,18 +869,18 @@ export const MultiMediaComponent: FC<{
             </div>
           )}
           {!!toolBar && (
-            <div className="flex py-[10px] b2 items-center gap-[4px]">
+            <div className="flex py-[8px] b2 items-center gap-[4px]">
               {toolBar}
             </div>
           )}
           {information && (
-            <div className="flex-1 justify-end flex py-[10px] b2 items-center gap-[4px]">
+            <div className="flex-1 justify-end flex py-[8px] b2 items-center gap-[4px]">
               {information}
             </div>
           )}
         </div>
       </div>
-      <div className="text-[12px] text-red-400">{error}</div>
+      <div className="t-caption text-critical">{error}</div>
     </>
   );
 };
@@ -972,8 +972,8 @@ export const MediaComponent: FC<{
   }, [value]);
   return (
     <div className="flex flex-col gap-[8px]">
-      <div className="text-[14px]">{label}</div>
-      <div className="text-[12px]">{description}</div>
+      <div className="t-control">{label}</div>
+      <div className="t-caption">{description}</div>
       {!!currentMedia && (
         <div className="my-[20px] cursor-pointer w-[200px] h-[200px] border-2 border-tableBorder">
           <img
@@ -983,7 +983,7 @@ export const MediaComponent: FC<{
           />
         </div>
       )}
-      <div className="flex gap-[5px]">
+      <div className="flex gap-[4px]">
         <Button onClick={showModal}>{t('select', 'Select')}</Button>
         <Button onClick={showDesignModal} className="!bg-customColor45">
           {t('editor', 'Editor')}

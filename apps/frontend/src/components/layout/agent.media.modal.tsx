@@ -30,18 +30,18 @@ export const AgentMediaModal: FC = () => {
 
   return (
     <div className="flex flex-col gap-[20px] max-w-[520px]">
-      <div className="text-[14px] leading-[22px] text-newTextColor opacity-80">
+      <div className="t-control text-newTextColor opacity-80">
         {t(
           'agent_media_different_company',
-          'UGC videos are powered by AgentMedia (agent-media.ai), a separate product with its own account and pricing — not part of your Postiz subscription.'
+          'UGC videos are powered by AgentMedia (agent-media.ai), a separate product with its own account and pricing — not part of your Slate subscription.'
         )}
       </div>
 
       <div className="flex flex-col gap-[12px]">
-        <div className="text-[14px] font-[600] text-newTextColor">
+        <div className="t-control-strong text-newTextColor">
           {t('agent_media_what_you_get', 'What you get with AgentMedia')}
         </div>
-        <ul className="flex flex-col gap-[8px] text-[14px] leading-[20px] text-newTextColor opacity-80">
+        <ul className="flex flex-col gap-[8px] t-control text-newTextColor opacity-80">
           <li className="flex gap-[8px]">
             <span className="text-forth">•</span>
             <span>
@@ -73,10 +73,10 @@ export const AgentMediaModal: FC = () => {
       </div>
 
       <div className="flex flex-col gap-[12px]">
-        <div className="text-[14px] font-[600] text-newTextColor">
+        <div className="t-control-strong text-newTextColor">
           {t('agent_media_pricing', 'Separate pricing')}
         </div>
-        <div className="flex flex-col gap-[6px] text-[14px] leading-[20px] text-newTextColor opacity-80">
+        <div className="flex flex-col gap-[8px] t-control text-newTextColor opacity-80">
           <div>
             {t('agent_media_plan_creator', 'Creator — $39/mo · 3,900 credits')}
           </div>

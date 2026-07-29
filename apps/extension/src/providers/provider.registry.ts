@@ -1,9 +1,6 @@
 import { CookieProvider } from './cookie-provider.interface';
-import { skoolProvider } from './list/skool.provider';
 
-export const providers: CookieProvider[] = [
-  skoolProvider,
-];
+export const providers: CookieProvider[] = [];
 
 const providerMap = new Map<string, CookieProvider>(
   providers.map((p) => [p.identifier, p])

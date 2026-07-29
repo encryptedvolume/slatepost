@@ -69,10 +69,10 @@ export const ColorPicker: FC<{
     );
   }
   return (
-    <div className="flex flex-col gap-[6px]">
+    <div className="flex flex-col gap-[8px]">
       <div>
         {!!label && (
-          <div className={`text-[14px]`}>
+          <div className={`t-control`}>
             <TranslatedLabel
               label={label}
               translationKey={translationKey}
@@ -102,7 +102,7 @@ export const ColorPicker: FC<{
             }
           />
         </div>
-        <div className="flex gap-[10px]">
+        <div className="flex gap-[8px]">
           <div>
             <div
               className="w-[20px] h-[20px]"

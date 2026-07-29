@@ -7,7 +7,7 @@ const Spinner: FC<{
   color?: string;
   width?: number;
   height?: number;
-}> = ({ color = '#612bd3', width = 100, height = 100 }) => {
+}> = ({ color = 'currentColor', width = 100, height = 100 }) => {
   const size = Math.min(width, height);
   const borderWidth = Math.max(2, Math.round(size / 8));
 
@@ -32,9 +32,9 @@ export const LoadingComponent: FC<{
   height?: number;
 }> = (props) => {
   return (
-    <div className="flex-1 flex justify-center pt-[100px]">
+    <div className="flex-1 flex justify-center pt-[96px]">
       <Spinner
-        color="#612bd3"
+        color="currentColor"
         width={props.width || 100}
         height={props.height || 100}
       />

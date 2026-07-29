@@ -59,13 +59,13 @@ const ErrorDetailsModal: FC<{ row: ErrorRow }> = ({ row }) => {
   }, [parsedMessage, parsedBody, row, toaster]);
 
   return (
-    <div className="rounded-[4px] border border-newTableBorder bg-newBgColorInner px-[16px] pb-[16px] relative w-full max-h-[80vh] overflow-auto">
+    <div className="rounded-thumb border border-newTableBorder bg-newBgColorInner px-[16px] pb-[16px] relative w-full max-h-[80vh] overflow-auto">
       <div className="sticky top-0 bg-newBgColorInner py-[16px] flex items-center justify-between gap-[12px] z-10 border-b border-newTableBorder mb-[12px]">
-        <div className="text-[16px] font-[600]">Error Details</div>
+        <div className="t-title-3">Error Details</div>
         <div className="flex gap-[8px] items-center">
           <Button onClick={copyAll}>Copy Debug Code</Button>
           <button
-            className="outline-none w-[28px] h-[28px] flex items-center justify-center hover:bg-tableBorder cursor-pointer rounded"
+            className="outline-none w-[28px] h-compact flex items-center justify-center hover:bg-tableBorder cursor-pointer rounded-control"
             type="button"
             onClick={() => modal.closeAll()}
           >
@@ -87,7 +87,7 @@ const ErrorDetailsModal: FC<{ row: ErrorRow }> = ({ row }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-[12px] text-[13px] mb-[12px]">
+      <div className="grid grid-cols-2 gap-[12px] t-secondary mb-[12px]">
         <div>
           <div className="opacity-60">Platform</div>
           <div>{row.platform}</div>
@@ -118,15 +118,15 @@ const ErrorDetailsModal: FC<{ row: ErrorRow }> = ({ row }) => {
         </div>
       </div>
 
-      <div className="text-[13px] font-[600] mb-[6px]">message</div>
-      <pre className="text-[12px] bg-sixth p-[12px] rounded overflow-auto max-h-[40vh] whitespace-pre-wrap break-all">
+      <div className="t-secondary-strong mb-[8px]">message</div>
+      <pre className="t-caption bg-sixth p-[12px] rounded-thumb overflow-auto max-h-[40vh] whitespace-pre-wrap break-all">
         {typeof parsedMessage === 'string'
           ? parsedMessage
           : JSON.stringify(parsedMessage, null, 2)}
       </pre>
 
-      <div className="text-[13px] font-[600] mb-[6px] mt-[12px]">body</div>
-      <pre className="text-[12px] bg-sixth p-[12px] rounded overflow-auto max-h-[40vh] whitespace-pre-wrap break-all">
+      <div className="t-secondary-strong mb-[8px] mt-[12px]">body</div>
+      <pre className="t-caption bg-sixth p-[12px] rounded-thumb overflow-auto max-h-[40vh] whitespace-pre-wrap break-all">
         {typeof parsedBody === 'string'
           ? parsedBody
           : JSON.stringify(parsedBody, null, 2)}
@@ -243,22 +243,22 @@ export const AdminErrorsComponent: FC = () => {
   return (
     <div className="flex flex-col gap-[16px] text-textColor">
       <div className="flex items-center justify-between">
-        <div className="text-[20px] font-[600]">Errors</div>
-        <div className="text-[13px] opacity-70">
+        <div className="t-title-3">Errors</div>
+        <div className="t-secondary opacity-70">
           {data ? `${data.total} total` : ''}
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-[12px] items-end bg-newBgColorInner border border-newTableBorder rounded-[8px] p-[12px]">
-        <div className="flex flex-col gap-[6px]">
-          <div className="text-[12px] opacity-70">Platform</div>
+      <div className="flex flex-wrap gap-[12px] items-end bg-newBgColorInner border border-newTableBorder rounded-control p-[12px]">
+        <div className="flex flex-col gap-[8px]">
+          <div className="t-caption opacity-70">Platform</div>
           <select
             value={platform}
             onChange={(e) => {
               setPage(0);
               setPlatform(e.target.value);
             }}
-            className="bg-newBgColorInner h-[38px] border border-newTableBorder rounded-[8px] px-[10px] text-[14px] text-textColor min-w-[180px]"
+            className="bg-newBgColorInner h-control border border-newTableBorder rounded-control px-[8px] t-control text-textColor min-w-[180px]"
           >
             <option value="">All platforms</option>
             {(platforms || []).map((p) => (
@@ -269,8 +269,8 @@ export const AdminErrorsComponent: FC = () => {
           </select>
         </div>
 
-        <div className="flex flex-col gap-[6px]">
-          <div className="text-[12px] opacity-70">Email contains</div>
+        <div className="flex flex-col gap-[8px]">
+          <div className="t-caption opacity-70">Email contains</div>
           <div className="flex gap-[8px]">
             <input
               value={emailInput}
@@ -279,13 +279,13 @@ export const AdminErrorsComponent: FC = () => {
                 if (e.key === 'Enter') onApplyEmail();
               }}
               placeholder="user@example.com"
-              className="bg-newBgColorInner h-[38px] border border-newTableBorder rounded-[8px] px-[10px] text-[14px] text-textColor min-w-[240px]"
+              className="bg-newBgColorInner h-control border border-newTableBorder rounded-control px-[8px] t-control text-textColor min-w-[240px]"
             />
             <Button onClick={onApplyEmail}>Apply</Button>
           </div>
         </div>
 
-        <label className="flex items-center gap-[6px] text-[13px] cursor-pointer h-[38px]">
+        <label className="flex items-center gap-[8px] t-secondary cursor-pointer h-control">
           <input
             type="checkbox"
             checked={unknownFirst}
@@ -297,15 +297,15 @@ export const AdminErrorsComponent: FC = () => {
           Unknown Error first
         </label>
 
-        <div className="flex flex-col gap-[6px]">
-          <div className="text-[12px] opacity-70">Per page</div>
+        <div className="flex flex-col gap-[8px]">
+          <div className="t-caption opacity-70">Per page</div>
           <select
             value={limit}
             onChange={(e) => {
               setPage(0);
               setLimit(parseInt(e.target.value, 10));
             }}
-            className="bg-newBgColorInner h-[38px] border border-newTableBorder rounded-[8px] px-[10px] text-[14px] text-textColor"
+            className="bg-newBgColorInner h-control border border-newTableBorder rounded-control px-[8px] t-control text-textColor"
           >
             {[10, 20, 50, 100].map((n) => (
               <option key={n} value={n}>
@@ -323,12 +323,12 @@ export const AdminErrorsComponent: FC = () => {
       {isLoading ? (
         <LoadingComponent />
       ) : error ? (
-        <div className="text-red-400">Failed to load errors.</div>
+        <div className="text-critical">Failed to load errors.</div>
       ) : !data || data.items.length === 0 ? (
         <div className="opacity-70">No errors found.</div>
       ) : (
-        <div className="border border-newTableBorder rounded-[8px] overflow-hidden">
-          <div className="grid grid-cols-[170px_120px_220px_1fr_220px] gap-[12px] px-[12px] py-[10px] bg-newBgColorInner text-[12px] uppercase opacity-70 border-b border-newTableBorder">
+        <div className="border border-newTableBorder rounded-control overflow-hidden">
+          <div className="grid grid-cols-[170px_120px_220px_1fr_220px] gap-[12px] px-[12px] py-[8px] bg-newBgColorInner t-caption uppercase opacity-70 border-b border-newTableBorder">
             <div>Created</div>
             <div>Platform</div>
             <div>User / Org</div>
@@ -349,7 +349,7 @@ export const AdminErrorsComponent: FC = () => {
             return (
               <div
                 key={row.id}
-                className="grid grid-cols-[170px_120px_220px_1fr_220px] gap-[12px] px-[12px] py-[10px] text-[13px] border-b border-newTableBorder last:border-b-0 items-start"
+                className="grid grid-cols-[170px_120px_220px_1fr_220px] gap-[12px] px-[12px] py-[8px] t-secondary border-b border-newTableBorder last:border-b-0 items-start"
               >
                 <div className="opacity-90">
                   {new Date(row.createdAt).toLocaleString()}
@@ -358,7 +358,7 @@ export const AdminErrorsComponent: FC = () => {
                   <span
                     className={
                       isUnknown
-                        ? 'text-red-400 font-[600]'
+                        ? 'text-critical t-secondary-strong'
                         : 'opacity-90'
                     }
                   >
@@ -367,11 +367,11 @@ export const AdminErrorsComponent: FC = () => {
                 </div>
                 <div className="break-all">
                   <div>{emails}</div>
-                  <div className="opacity-60 text-[12px]">
+                  <div className="opacity-60 t-caption">
                     {row.organization?.name}
                   </div>
                 </div>
-                <div className="break-all whitespace-pre-wrap font-mono text-[12px] opacity-90">
+                <div className="break-all whitespace-pre-wrap font-mono t-caption opacity-90">
                   {preview}
                 </div>
                 <div className="flex gap-[8px] justify-end">
@@ -387,7 +387,7 @@ export const AdminErrorsComponent: FC = () => {
       )}
 
       <div className="flex items-center justify-between">
-        <div className="text-[13px] opacity-70">
+        <div className="t-secondary opacity-70">
           Page {page + 1} of {totalPages}
         </div>
         <div className="flex gap-[8px]">

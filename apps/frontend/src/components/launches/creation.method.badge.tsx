@@ -17,30 +17,23 @@ export const CreationMethodBadge: FC<Props> = ({
   creationMethod,
   size = 'xs',
   className,
-  ringColor,
 }) => {
   if (!creationMethod || creationMethod === 'UNKNOWN') return null;
 
+  // 12/16/500 caption is the floor: nothing in the product renders below
+  // 11px, and the status-chip token is the one the spec names for badges.
+  // The chip is a neutral surfaceActive pill — badge colour is not a brand
+  // signal and the accent is reserved for post state.
   const sizeClasses =
-    size === 'xs'
-      ? 'h-[12px] px-[4px] text-[7px]'
-      : size === 'md'
-      ? 'h-[22px] px-[10px] text-[12px]'
-      : 'h-[18px] px-[8px] text-[10px]';
+    size === 'md' ? 'h-[24px] px-[8px]' : 'h-[20px] px-[8px]';
 
   return (
     <div
       className={clsx(
-        'inline-flex items-center justify-center rounded-full text-white font-bold uppercase tracking-wide leading-none cursor-default',
+        'inline-flex items-center justify-center rounded-pill bg-surfaceActive text-inkSecondary t-caption uppercase cursor-default',
         sizeClasses,
-        creationMethod === 'WEB' && 'bg-[#6b7280]',
-        creationMethod === 'API' && 'bg-[#2563eb]',
-        creationMethod === 'MCP' && 'bg-[#9333ea]',
-        creationMethod === 'AUTOPOST' && 'bg-[#d97706]',
-        creationMethod === 'CLI' && 'bg-[#0f766e]',
         className
       )}
-      style={ringColor ? { boxShadow: `0 0 0 2px ${ringColor}` } : undefined}
       data-tooltip-id="tooltip"
       data-tooltip-content={tooltipFor(creationMethod)}
     >

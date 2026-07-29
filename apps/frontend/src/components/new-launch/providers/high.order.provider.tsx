@@ -240,7 +240,7 @@ export const withProvider = function <T extends object>(params: {
         <FormProvider {...form}>
           <div
             className={clsx(
-              'border border-borderPreview rounded-[12px] shadow-previewShadow',
+              'border border-borderPreview rounded-card shadow-previewShadow',
               !current && 'hidden'
             )}
           >
@@ -293,24 +293,24 @@ export const withProvider = function <T extends object>(params: {
                     <style>{`#wrapper-settings {display: flex !important} #social-empty {display: block !important;}`}</style>
                   )}
                   {isGlobal && (
-                    <div className="flex py-[20px] items-center gap-[15px]">
+                    <div className="flex py-[20px] items-center gap-[16px]">
                       <div className="relative">
                         <SafeImage
                           alt={selectedIntegration?.integration.name!}
                           width={42}
                           height={42}
-                          className="min-w-[42px] min-h-[42px] w-[42px] h-[42px] rounded-full"
+                          className="min-w-[42px] min-h-[42px] w-[42px] h-[42px] rounded-pill"
                           src={selectedIntegration?.integration.picture}
                         />
                         <SafeImage
                           alt={selectedIntegration?.integration.identifier}
                           width={16}
                           height={16}
-                          className="rounded-[16px] min-w-[16px] min-h-[16px] w-[16px] h-[16px] absolute bottom-0 end-0"
+                          className="rounded-card min-w-[16px] min-h-[16px] w-[16px] h-[16px] absolute bottom-0 end-0"
                           src={`/icons/platforms/${selectedIntegration?.integration.identifier}.png`}
                         />
                       </div>
-                      <div className="text-[20px]">{selectedIntegration?.integration.name}</div>
+                      <div className="t-title-3">{selectedIntegration?.integration.name}</div>
                     </div>
                   )}
                   <SettingsComponent />

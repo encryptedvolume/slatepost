@@ -47,7 +47,7 @@ export const TextArea: FC<{
         placeholder={props.placeHolder}
         value={value}
         className={clsx(
-          '!min-h-40 !max-h-80 p-[24px] overflow-hidden bg-customColor2 outline-none rounded-[4px] border-fifth border'
+          '!min-h-[160px] !max-h-[320px] p-[24px] overflow-hidden bg-customColor2 outline-none rounded-thumb border-fifth border'
         )}
         onChange={(e) => {
           onChange({
@@ -62,7 +62,7 @@ export const TextArea: FC<{
           chatApiConfigs: {},
         }}
       />
-      <div className="text-red-400 text-[12px]">
+      <div className="text-critical t-caption">
         {form?.formState?.errors?.[props.name]?.message as string}
       </div>
     </>
@@ -145,7 +145,7 @@ export const PlugPop: FC<{
                   <Input
                     name={field.name}
                     label={field.description}
-                    className="w-full mt-[8px] p-[8px] border border-tableBorder rounded-md text-black"
+                    className="w-full mt-[8px] p-[8px] border border-tableBorder rounded-thumb text-ink"
                     placeholder={field.placeholder}
                     type={field.type}
                   />
@@ -198,11 +198,11 @@ export const PlugItem: FC<{
     <div
       onClick={() => addPlug(data)}
       key={plug.title}
-      className="w-full h-[300px] rounded-[8px] bg-newTableHeader hover:bg-newTableBorder"
+      className="w-full h-[300px] rounded-control bg-newTableHeader hover:bg-newTableBorder"
     >
       <div key={plug.title} className="p-[16px] h-full flex flex-col flex-1">
         <div className="flex">
-          <div className="text-[20px] mb-[8px] flex-1">{plug.title}</div>
+          <div className="t-title-3 mb-[8px] flex-1">{plug.title}</div>
           {!!data && (
             <div onClick={(e) => e.stopPropagation()}>
               <Slider
@@ -263,7 +263,7 @@ export const Plug = () => {
     return null;
   }
   return (
-    <div className="grid grid-cols-3 gap-[30px]">
+    <div className="grid grid-cols-3 gap-[32px]">
       {plug.plugs.map((p) => (
         <PlugItem
           key={p.title + '-' + plug.providerId}

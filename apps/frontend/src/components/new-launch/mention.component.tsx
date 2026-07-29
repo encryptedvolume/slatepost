@@ -79,23 +79,23 @@ const MentionList: FC = (props: any) => {
   }
 
   return (
-    <div className="dropdown-menu bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto p-2">
+    <div className="dropdown-menu bg-surfaceOverlay border border-line rounded-card shadow-overlay max-h-[240px] overflow-y-auto p-[8px]">
       {props?.items?.none ? (
-        <div className="flex items-center justify-center p-2 text-gray-500">
+        <div className="flex items-center justify-center p-[8px] t-secondary text-inkSecondary">
           We don't have autocomplete for this social media
         </div>
       ) : props?.loading ? (
-        <div className="flex items-center justify-center p-2 text-gray-500">
+        <div className="flex items-center justify-center p-[8px] t-secondary text-inkSecondary">
           Loading...
         </div>
       ) : props?.items ? (
         props.items.length === 0 ? (
-          <div className="p-2 text-gray-500 text-center">No results found</div>
+          <div className="p-[8px] t-secondary text-inkSecondary text-center">No results found</div>
         ) : (
           props?.items?.map((item: any, index: any) => (
             <button
-              className={`flex gap-[10px] w-full p-2 text-start rounded hover:bg-gray-100 ${
-                index === selectedIndex ? 'bg-blue-100' : ''
+              className={`flex gap-[8px] w-full p-[8px] text-start rounded-control hover:bg-surfaceHover ${
+                index === selectedIndex ? 'bg-surfaceActive' : ''
               }`}
               key={item.id || index}
               onClick={() => selectItem(index)}
@@ -103,14 +103,14 @@ const MentionList: FC = (props: any) => {
               <img
                 src={item.image || '/no-picture.jpg'}
                 alt={item.label}
-                className="w-[30px] h-[30px] rounded-full object-cover"
+                className="w-[32px] h-[32px] rounded-pill object-cover"
               />
-              <div className="flex-1 text-gray-800">{item.label}</div>
+              <div className="flex-1 text-ink">{item.label}</div>
             </button>
           ))
         )
       ) : (
-        <div className="p-2 text-gray-500 text-center">Loading...</div>
+        <div className="p-[8px] text-inkTertiary text-center">Loading...</div>
       )}
     </div>
   );
