@@ -6,20 +6,10 @@ const nextConfig = {
   experimental: {
     proxyTimeout: 90_000,
   },
-  // Document-Policy header for browser profiling
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Document-Policy',
-            value: 'js-profiling',
-          },
-        ],
-      },
-    ];
-  },
+  // The `Document-Policy: js-profiling` header that used to be here existed
+  // only to let Sentry's browser profiler sample the main thread. Browser
+  // profiling is gone with the rest of the client-side telemetry, so the
+  // header would just be an unused permission granted on every response.
   reactStrictMode: false,
   transpilePackages: ['crypto-hash'],
   // Enable production sourcemaps for Sentry

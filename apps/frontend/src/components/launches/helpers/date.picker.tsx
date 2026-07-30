@@ -48,36 +48,36 @@ export const DatePicker: FC<{
       {open && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="animate-fadeIn absolute bottom-[100%] mb-[16px] start-[50%] -translate-x-[50%] bg-sixth border border-tableBorder text-textColor rounded-card z-[300] p-[16px] flex flex-col"
+          className="animate-fadeIn absolute bottom-[100%] mb-[16px] start-[50%] -translate-x-[50%] bg-surface border border-hairline text-ink rounded-card z-[300] p-[16px] flex flex-col"
         >
           <Calendar
             onChange={changeDate('date')}
             value={date.toDate()}
             dayClassName={(date, modifiers) => {
               if (modifiers.weekend) {
-                return '!text-customColor28';
+                return '!text-inkSecondary';
               }
               if (modifiers.outside) {
                 return '!text-inkSecondary';
               }
               if (modifiers.selected) {
-                return '!text-ink !bg-seventh !outline-none';
+                return '!text-ink !bg-surfaceActive !outline-none';
               }
-              return '!text-textColor';
+              return '!text-ink';
             }}
             classNames={{
-              day: 'hover:bg-seventh',
-              calendarHeaderControl: 'text-textColor hover:bg-third',
-              calendarHeaderLevel: 'text-textColor hover:bg-third', // cell: 'child:!text-textColor'
+              day: 'hover:bg-surfaceActive',
+              calendarHeaderControl: 'text-ink hover:bg-surface',
+              calendarHeaderLevel: 'text-ink hover:bg-surface', // cell: 'child:!text-ink'
             }}
           />
           <TimeInput
             onChange={changeDate('time')}
             label="Pick time"
             classNames={{
-              label: 'text-textColor py-[12px]',
+              label: 'text-ink py-[12px]',
               input:
-                'bg-sixth h-control border border-tableBorder text-textColor rounded-thumb outline-none',
+                'bg-surface h-control border border-hairline text-ink rounded-thumb outline-none',
             }}
             defaultValue={date.toDate()}
           />

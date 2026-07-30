@@ -27,18 +27,17 @@ const toc: LegalTocEntry[] = [
   { id: 'tiktok-store', label: '4. TikTok: what we store' },
   { id: 'tiktok-send', label: '5. TikTok: what we send' },
   { id: 'tiktok-revoke', label: '6. TikTok: revoke and delete' },
-  { id: 'other-platforms', label: '7. Other platforms' },
-  { id: 'cookies', label: '8. Cookies' },
-  { id: 'legal-bases', label: '9. Legal bases' },
-  { id: 'sharing', label: '10. Who we share with' },
-  { id: 'transfers', label: '11. International transfers' },
-  { id: 'retention', label: '12. How long we keep data' },
-  { id: 'security', label: '13. Security' },
-  { id: 'rights', label: '14. Your rights' },
-  { id: 'children', label: '15. Children' },
-  { id: 'open-source', label: '16. Open source' },
-  { id: 'changes', label: '17. Changes' },
-  { id: 'contact', label: '18. Contact' },
+  { id: 'cookies', label: '7. Cookies' },
+  { id: 'legal-bases', label: '8. Legal bases' },
+  { id: 'sharing', label: '9. Who we share with' },
+  { id: 'transfers', label: '10. International transfers' },
+  { id: 'retention', label: '11. How long we keep data' },
+  { id: 'security', label: '12. Security' },
+  { id: 'rights', label: '13. Your rights' },
+  { id: 'children', label: '14. Children' },
+  { id: 'open-source', label: '15. Open source' },
+  { id: 'changes', label: '16. Changes' },
+  { id: 'contact', label: '17. Contact' },
 ];
 
 export default function PrivacyPage() {
@@ -93,16 +92,6 @@ export default function PrivacyPage() {
               'The platform, when we publish on your instruction.',
             ],
             [
-              'Performance data',
-              'Aggregate counts for connected accounts and for posts Slate published — for example follower counts, views, likes, comments and shares — stored as dated snapshots.',
-              'The platform’s analytics endpoints.',
-            ],
-            [
-              'Billing data',
-              'Plan, subscription status, invoices and the last four digits and brand of your payment card. We never receive your full card number.',
-              'Our payment processor.',
-            ],
-            [
               'Technical data',
               'IP address, browser and device information, and server and application logs including timestamps and error traces.',
               'Automatically, when you use the service.',
@@ -136,21 +125,6 @@ export default function PrivacyPage() {
               <Code key="basic">user.info.basic</Code>,
               'Your TikTok open ID, avatar, display name and username.',
               'Identifying which TikTok account a post will go to, and rendering the channel in the composer, calendar and settings.',
-            ],
-            [
-              <Code key="profile">user.info.profile</Code>,
-              'Your profile link, deep link, bio description and verified status.',
-              'Showing the connected account’s profile details on the channel settings screen.',
-            ],
-            [
-              <Code key="stats">user.info.stats</Code>,
-              'Your follower count, following count, total likes and video count.',
-              'The account-level figures on the Analytics screen.',
-            ],
-            [
-              <Code key="list">video.list</Code>,
-              'A list of your public videos on TikTok.',
-              'Matching a post Slate published back to the video on your profile so its metrics can be shown against the post.',
             ],
             [
               <Code key="upload">video.upload</Code>,
@@ -232,16 +206,6 @@ export default function PrivacyPage() {
               'Publish identifier and resulting video identifier',
               'Our application database, on the post record.',
               'With the post record.',
-            ],
-            [
-              'Post metrics (views, likes, comments, shares)',
-              'Our application database, as dated snapshots against the post.',
-              legal.analyticsRetentionPeriod,
-            ],
-            [
-              'Account metrics (followers, following, likes, videos)',
-              'Our application database, as dated snapshots.',
-              legal.analyticsRetentionPeriod,
             ],
           ]}
         />
@@ -368,23 +332,7 @@ export default function PrivacyPage() {
         </P>
       </Section>
 
-      <Section id="other-platforms" title="7. Other connected platforms">
-        <P>
-          Slate connects to social networks other than TikTok. The pattern is
-          the same for all of them: you authorise us through the
-          platform&rsquo;s OAuth flow, we store the account identifier, display
-          name, avatar and tokens, we send the content and settings you chose,
-          and we read back the metrics the platform exposes for posts we
-          published. You can disconnect any channel in Settings and revoke our
-          access from inside that platform.
-        </P>
-        <P>
-          We only ever request the permissions a platform requires for
-          scheduling, publishing and reading back post performance.
-        </P>
-      </Section>
-
-      <Section id="cookies" title="8. Cookies and similar technologies">
+      <Section id="cookies" title="7. Cookies and similar technologies">
         <P>
           Slate sets a small number of strictly necessary cookies. Without them
           you cannot stay signed in.
@@ -399,35 +347,15 @@ export default function PrivacyPage() {
               'Strictly necessary',
             ],
             [
-              <Code key="showorg">showorg</Code>,
-              'Remembers which organisation you are currently working in.',
-              'Strictly necessary',
-            ],
-            [
-              <Code key="impersonate">impersonate</Code>,
-              'Set only during an authorised support session where a member of our team is acting on your account with permission.',
-              'Strictly necessary',
-            ],
-            [
               <Code key="i18next">i18next</Code>,
               'Remembers your interface language.',
               'Preference',
             ],
           ]}
         />
-        <P>
-          Depending on how this deployment is configured, Slate may also load
-          site analytics, product analytics and error monitoring. The providers
-          in use on slatepost.lol are {legal.analyticsProviders}. These help us
-          understand aggregate usage and diagnose faults. They are never used to
-          build advertising profiles, and they never receive your access tokens
-          or the content of your posts. Where consent is required for
-          non-essential analytics, we ask for it before loading them and you can
-          withdraw it at any time.
-        </P>
       </Section>
 
-      <Section id="legal-bases" title="9. Legal bases for processing">
+      <Section id="legal-bases" title="8. Legal bases for processing">
         <DataTable
           caption="Legal bases relied on under the UK and EU GDPR"
           head={['Purpose', 'Legal basis']}
@@ -441,30 +369,14 @@ export default function PrivacyPage() {
               'Performance of our contract with you.',
             ],
             [
-              'Reading back post and account metrics to show you performance.',
-              'Performance of our contract with you.',
-            ],
-            [
               'Security, abuse prevention, service logs and fault diagnosis.',
               'Our legitimate interest in keeping the service safe and working.',
-            ],
-            [
-              'Product analytics and service emails about changes to Slate.',
-              'Our legitimate interest in improving and supporting the service, or your consent where required.',
-            ],
-            [
-              'Non-essential cookies and marketing email.',
-              'Your consent, which you can withdraw at any time.',
-            ],
-            [
-              'Billing records and tax and accounting obligations.',
-              'Compliance with a legal obligation.',
             ],
           ]}
         />
       </Section>
 
-      <Section id="sharing" title="10. Who we share data with">
+      <Section id="sharing" title="9. Who we share data with">
         <P>
           We do not sell personal data, and we do not share it for cross-context
           behavioural advertising. We disclose it only to the following
@@ -496,19 +408,9 @@ export default function PrivacyPage() {
               'Sending account activation, password reset and notification email.',
             ],
             [
-              legal.paymentProcessor,
-              'Your billing details and payment method. We never receive your full card number.',
-              'Taking payment for paid plans.',
-            ],
-            [
-              legal.analyticsProviders,
-              'Usage events and error reports. Never tokens or post content.',
-              'Understanding aggregate usage and diagnosing faults.',
-            ],
-            [
-              'OpenAI',
-              'Only the text you submit to an AI feature, at the moment you use it.',
-              'Powering the optional AI writing assistance in the composer. If you do not use those features, nothing is sent.',
+              'Sentry (only if this deployment sets a Sentry DSN)',
+              'Error reports: a stack trace, the page it happened on, and browser and version information. Never tokens, never post content.',
+              'Diagnosing faults. Slate loads no product analytics, no advertising pixels, no tag manager and no session recording.',
             ],
           ]}
         />
@@ -520,7 +422,7 @@ export default function PrivacyPage() {
         </P>
       </Section>
 
-      <Section id="transfers" title="11. International transfers">
+      <Section id="transfers" title="10. International transfers">
         <P>
           Slate is hosted in {legal.hostingRegion}. Some of the providers listed
           above process data outside that region. Where personal data leaves the
@@ -536,7 +438,7 @@ export default function PrivacyPage() {
         </P>
       </Section>
 
-      <Section id="retention" title="12. How long we keep data">
+      <Section id="retention" title="11. How long we keep data">
         <DataTable
           caption="Retention periods"
           head={['Data', 'Retention']}
@@ -560,12 +462,7 @@ export default function PrivacyPage() {
               'Uploaded media',
               'Until you delete it from the media library, or until your account is closed.',
             ],
-            ['Performance snapshots', legal.analyticsRetentionPeriod],
             ['Server and application logs', legal.logRetentionPeriod],
-            [
-              'Billing records and invoices',
-              'As long as tax and accounting law requires, typically six to seven years, even after your account closes.',
-            ],
             [
               'Backups',
               <span key="bk">
@@ -583,7 +480,7 @@ export default function PrivacyPage() {
         </P>
       </Section>
 
-      <Section id="security" title="13. Security">
+      <Section id="security" title="12. Security">
         <Bullets>
           <Bullet>
             All traffic to slatepost.lol and to our API is encrypted in transit
@@ -616,7 +513,7 @@ export default function PrivacyPage() {
         </P>
       </Section>
 
-      <Section id="rights" title="14. Your rights">
+      <Section id="rights" title="13. Your rights">
         <P>
           Depending on where you live, you have some or all of the following
           rights over your personal data:
@@ -664,7 +561,7 @@ export default function PrivacyPage() {
         </P>
       </Section>
 
-      <Section id="children" title="15. Children">
+      <Section id="children" title="14. Children">
         <P>
           Slate is not intended for children. You must be at least 16, or the
           minimum age of digital consent in your country if that is higher, to
@@ -675,7 +572,7 @@ export default function PrivacyPage() {
         </P>
       </Section>
 
-      <Section id="open-source" title="16. Open source">
+      <Section id="open-source" title="15. Open source">
         <P>
           Slate is free software licensed under the{' '}
           <A href="https://www.gnu.org/licenses/agpl-3.0.en.html">
@@ -695,7 +592,7 @@ export default function PrivacyPage() {
         </P>
       </Section>
 
-      <Section id="changes" title="17. Changes to this policy">
+      <Section id="changes" title="16. Changes to this policy">
         <P>
           We update this policy when the service changes or when a platform we
           integrate with changes what it requires. The &ldquo;Last
@@ -705,7 +602,7 @@ export default function PrivacyPage() {
         </P>
       </Section>
 
-      <Section id="contact" title="18. Contact">
+      <Section id="contact" title="17. Contact">
         <P>
           Privacy questions, data subject requests and complaints go to{' '}
           <A href={`mailto:${legal.privacyEmail}`}>{legal.privacyEmail}</A>.

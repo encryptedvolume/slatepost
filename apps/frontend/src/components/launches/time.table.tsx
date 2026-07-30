@@ -12,6 +12,7 @@ import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
 // @ts-ignore
 import useKeypress from 'react-use-keypress';
 import { useModals } from '@gitroom/frontend/components/layout/new-modal';
+import { useToaster } from '@gitroom/react/toaster/toaster';
 import { sortBy } from 'lodash';
 import { usePreventWindowUnload } from '@gitroom/react/helpers/use.prevent.window.unload';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
@@ -48,6 +49,7 @@ export const TimeTable: FC<{
   const [minute, setMinute] = useState(0);
   const fetch = useFetch();
   const modal = useModals();
+  const toaster = useToaster();
   usePreventWindowUnload(true);
 
   const askClose = useCallback(async () => {
@@ -116,13 +118,34 @@ export const TimeTable: FC<{
     );
   }, [currentTimes]);
 
+  // A refused save used to close the window anyway, leaving the user with the
+  // old posting times and no idea their edit was dropped. On failure the window
+  // stays open with the slots still in it.
   const save = useCallback(async () => {
-    await fetch(`/integrations/${props.integration.id}/time`, {
-      method: 'POST',
-      body: JSON.stringify({
-        time: currentTimes,
-      }),
-    });
+    try {
+      const response = await fetch(`/integrations/${props.integration.id}/time`, {
+        method: 'POST',
+        body: JSON.stringify({
+          time: currentTimes,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      toaster.show(
+        t(
+          'time_slots_save_failed',
+          'We could not save these times. Your posting times are unchanged — try again in a moment.'
+        ),
+        'warning'
+      );
+      return;
+    }
+
     mutate();
     modal.closeAll();
   }, [currentTimes]);
@@ -130,7 +153,7 @@ export const TimeTable: FC<{
   return (
     <div className="relative w-full max-w-[400px] mx-auto">
       {/* Add Time Slot Section */}
-      <div className="bg-newBgColorInner rounded-card p-[20px] border border-newTableBorder">
+      <div className="bg-surface rounded-card p-[20px] border border-line">
         <div className="t-body-strong mb-[16px] flex items-center gap-[8px]">
           <DelayIcon size={18} className="text-inkSecondary" />
           {t('add_time_slot', 'Add Time Slot')}
@@ -202,7 +225,7 @@ export const TimeTable: FC<{
                 className={clsx(
                   'group flex items-center justify-between',
                   'h-[48px] px-[16px] rounded-control',
-                  'bg-newBgColorInner border border-newTableBorder',
+                  'bg-surface border border-line',
                   'hover:border-lineStrong transition-colors'
                 )}
               >

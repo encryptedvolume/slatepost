@@ -107,7 +107,7 @@ const TikTokSettings: FC<{
     <div className="flex flex-col">
       {/*<CheckTikTokValidity picture={props?.values?.[0]?.image?.[0]?.path} />*/}
       {tiktokRestrictionNotice && (
-        <div className="bg-tableBorder p-[8px] mb-[16px] rounded-control flex gap-[8px] items-start t-secondary text-balance">
+        <div className="bg-hairline p-[8px] mb-[16px] rounded-control flex gap-[8px] items-start t-secondary text-balance">
           <div className="shrink-0 mt-[2px]">
             <svg
               width="20"
@@ -184,7 +184,7 @@ const TikTokSettings: FC<{
             'This feature available only for photos, it will add a default music that\n        you can change later.'
           )}
         </div>
-        <hr className="mb-[16px] border-tableBorder" />
+        <hr className="mb-[16px] border-hairline" />
         <div className="t-control mb-[8px]">
           {t('tiktok_video_features', 'Video features')}
         </div>
@@ -214,7 +214,7 @@ const TikTokSettings: FC<{
             })}
           />
         </div>
-        <hr className="my-[16px] mb-[24px] border-tableBorder" />
+        <hr className="my-[16px] mb-[24px] border-hairline" />
         <div className="flex flex-col gap-[20px]">
           <Checkbox
             label={t('label_comments', 'Allow Comments')}
@@ -233,7 +233,7 @@ const TikTokSettings: FC<{
             })}
           />
           {disclose && (
-            <div className="bg-tableBorder p-[8px] mt-[8px] rounded-control flex gap-[20px] items-center">
+            <div className="bg-hairline p-[8px] mt-[8px] rounded-control flex gap-[20px] items-center">
               <div>
                 <svg
                   width="24"

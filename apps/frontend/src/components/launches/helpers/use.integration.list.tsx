@@ -1,14 +1,21 @@
 'use client';
 
-import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
+import { jsonOrThrow, useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import { useCallback } from 'react';
 import useSWR from 'swr';
 
 export const useIntegrationList = () => {
   const fetch = useFetch();
 
+  // `fallbackData: []` below means a failed load is indistinguishable from "no
+  // channels" unless the failure throws, and "no channels" is a screen that
+  // tells the user to connect TikTok — advice that is wrong and alarming when
+  // their channel is connected and the server merely did not answer.
   const load = useCallback(async (path: string) => {
-    return (await (await fetch(path)).json()).integrations;
+    const { integrations } = await jsonOrThrow<{ integrations: any }>(
+      await fetch(path)
+    );
+    return integrations;
   }, []);
 
   return useSWR('/integrations/list', load, {

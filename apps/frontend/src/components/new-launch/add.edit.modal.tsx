@@ -96,6 +96,23 @@ export const AddEditModalInner: FC<AddEditModalProps> = (props) => {
           addOrRemoveSelectedIntegration(integration, {});
         }
       }
+      return;
+    }
+
+    // Slate holds one channel. Opening the composer with nothing selected left
+    // the only avatar greyscale and the Schedule button disabled, so a
+    // first-run author could not post at all — every caller that did not pass
+    // `selectedChannels` (the header's Create Post, the empty-state CTA) landed
+    // there. When there is a single postable channel it is the answer, so it
+    // starts selected and the author only has to write.
+    if (!props?.set?.posts?.length && !existingData.integration) {
+      const postable = integrations.filter(
+        (i) => !i.inBetweenSteps && !i.disabled
+      );
+
+      if (postable.length === 1) {
+        addOrRemoveSelectedIntegration(postable[0], {});
+      }
     }
   }, []);
 
@@ -215,12 +232,5 @@ export const AddEditModalInnerInner: FC<AddEditModalProps> = (props) => {
     return null;
   }
 
-  return (
-    <>
-      <style>
-        {`#support-discord {display: none !important;}`}
-      </style>
-      <ManageModal {...props} />
-    </>
-  );
+  return <ManageModal {...props} />;
 };

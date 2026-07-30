@@ -33,11 +33,22 @@
    Two functional-only hues (critical, success) exist for post lifecycle state
    and are explicitly not brand colors.
 
-   The legacy `--new-*` and `--color-custom*` variables are kept only while
-   call sites remain, and every one of them is a `var()` onto a semantic token
-   below rather than a literal. `--color-custom*` is deprecated: 28 of the
-   original 55 survive, the other 27 were deleted here and from
-   tailwind.config.cjs once their last reference went.
+   The `--new-*`, `--color-custom*` and ordinal (`--color-third`, `-fifth`,
+   `-sixth`, `-seventh`, `--color-input`, `--color-table-border`, …) alias
+   layer is GONE — all 55 custom slots, all 30 `--new-*` names, and every
+   ordinal. It was a second, parallel colour vocabulary that call sites used
+   instead of the semantic tokens above, and because several aliases named a
+   different semantic token in each theme it is where the 1.00:1 contrast bugs
+   came from: `--color-custom16` was `--slate-canvas` in dark but
+   `--slate-text-primary` in light, so `text-customColor16` was #0f0f0f on
+   #161616 until a call site slapped `!text-ink` over it.
+
+   Do not reintroduce one. A component may name only the semantic tokens
+   above; if none of them fits, the fix is a new semantic token, not an alias.
+
+   Five named tokens below survive because they are product chrome rather than
+   aliases: the overlay shadow, and the TikTok preview's item background, item
+   icon and border.
    --------------------------------------------------------------------------- */
 
 :root {
@@ -153,34 +164,7 @@
       0 8px 24px rgba(0, 0, 0, 0.48);
 
     /* ---- Legacy aliases ---- */
-    --new-back-drop: var(--slate-canvas);
-    --new-settings: var(--slate-surface-active);
-    --new-border: var(--slate-line);
-    --new-bgColor: var(--slate-canvas);
-    --new-bgColorInner: var(--slate-surface);
-    --new-sep: var(--slate-line-strong);
-    --new-bgLineColor: var(--slate-hairline);
-    --new-textItemFocused: var(--slate-text-primary);
-    --new-textItemBlur: var(--slate-text-secondary);
-    --new-boxFocused: var(--slate-surface-active);
-    --new-textColor: 250 250 250;
-    --new-blockSeparator: var(--slate-line);
-    --new-btn-simple: var(--slate-surface-active);
-    --new-btn-text: var(--slate-text-primary);
-    --new-btn-primary: var(--slate-primary-bg);
-    --new-ai-btn: var(--slate-primary-bg);
-    --new-box-hover: var(--slate-surface-hover);
-    --new-table-border: var(--slate-line);
-    --new-table-header: var(--slate-surface-hover);
-    --new-table-text: var(--slate-text-secondary);
-    --new-table-text-focused: var(--slate-text-primary);
-    --new-small-strips: var(--slate-surface-hover);
-    --new-big-strips: var(--slate-surface);
-    --new-col-color: var(--slate-surface-active);
-    --new-menu-dots: var(--slate-text-tertiary);
-    --new-menu-hover: var(--slate-text-primary);
     --menu-shadow: var(--slate-shadow-overlay);
-    --popup-color: var(--slate-scrim);
     --border-preview: var(--slate-line);
     --preview-box-shadow: none;
     --tiktok-item-bg: var(--slate-surface-active);
@@ -229,134 +213,10 @@
       0 8px 24px rgba(0, 0, 0, 0.12);
 
     /* ---- Legacy aliases ---- */
-    --new-back-drop: var(--slate-canvas);
-    --new-settings: var(--slate-surface-active);
-    --new-sep: var(--slate-line-strong);
-    --new-border: var(--slate-line);
-    --new-bgColor: var(--slate-canvas);
-    --new-bgColorInner: var(--slate-surface);
-    --new-bgLineColor: var(--slate-hairline);
-    --new-textItemFocused: var(--slate-text-primary);
-    --new-textItemBlur: var(--slate-text-secondary);
-    --new-boxFocused: var(--slate-surface-active);
-    --new-textColor: 15 15 15;
-    --new-blockSeparator: var(--slate-line);
-    --new-btn-simple: var(--slate-surface-hover);
-    --new-btn-text: var(--slate-text-primary);
-    --new-btn-primary: var(--slate-primary-bg);
-    --new-ai-btn: var(--slate-primary-bg);
-    --new-box-hover: var(--slate-surface-hover);
-    --new-table-border: var(--slate-line);
-    --new-table-header: var(--slate-surface-sunken);
-    --new-table-text: var(--slate-text-secondary);
-    --new-table-text-focused: var(--slate-text-primary);
-    --new-small-strips: var(--slate-surface-sunken);
-    --new-big-strips: var(--slate-surface-sunken);
-    --new-col-color: var(--slate-surface-active);
-    --new-menu-dots: var(--slate-text-tertiary);
-    --new-menu-hover: var(--slate-text-primary);
     --menu-shadow: var(--slate-shadow-overlay);
-    --popup-color: var(--slate-scrim);
     --border-preview: var(--slate-hairline);
     --preview-box-shadow: none;
     --tiktok-item-bg: var(--slate-surface-sunken);
     --tiktok-item-icon-bg: var(--slate-text-primary);
-  }
-}
-
-:root {
-  .dark {
-    --color-primary: var(--slate-canvas);
-    --color-secondary: var(--slate-surface);
-    --color-text: var(--slate-text-primary);
-    --color-third: var(--slate-surface);
-    --color-forth: var(--slate-primary-bg);
-    --color-fifth: var(--slate-hairline);
-    --color-sixth: var(--slate-surface);
-    --color-seventh: var(--slate-surface-active);
-    --color-gray: var(--slate-text-tertiary);
-    --color-input: var(--slate-surface-sunken);
-    --color-table-border: var(--slate-line);
-    /* ---- Deprecated: --color-custom*  ----
-       Do not add a call site and do not add a variable. Every entry is now a
-       var() onto a token above rather than a raw hex, so the header claim at
-       the top of this file is literally true and nothing here can drift off
-       the ramp. Each one is pinned per theme to the step it already used, so
-       the rewrite is byte-identical to what shipped — a handful of aliases
-       therefore name different semantic tokens in the two blocks, which is
-       exactly the incoherence that makes them deprecated. They are deleted
-       here and from tailwind.config.cjs as their last call site migrates;
-       custom6 and custom18 went first, being the two most used. */
-    --color-custom1: var(--slate-line);
-    --color-custom2: var(--slate-surface);
-    --color-custom3: var(--slate-surface-hover);
-    --color-custom4: var(--slate-text-secondary);
-    --color-custom5: var(--slate-text-primary);
-    --color-custom8: var(--slate-surface-active);
-    --color-custom10: var(--slate-text-secondary);
-    --color-custom11: var(--slate-text-secondary);
-    --color-custom12: var(--slate-text-tertiary);
-    --color-custom13: var(--slate-text-primary);
-    --color-custom14: var(--slate-text-tertiary);
-    --color-custom16: var(--slate-canvas);
-    --color-custom17: var(--slate-text-primary);
-    --color-custom21: var(--slate-line);
-    --color-custom25: var(--slate-line);
-    --color-custom26: var(--slate-text-primary);
-    --color-custom27: var(--slate-text-tertiary);
-    --color-custom28: var(--slate-text-secondary);
-    --color-custom29: var(--slate-surface-active);
-    --color-custom30: var(--slate-surface-active);
-    --color-custom39: var(--slate-text-primary);
-    --color-custom40: var(--slate-canvas);
-    --color-custom45: var(--slate-text-primary);
-    --color-custom51: var(--slate-surface-active);
-    --color-custom52: var(--slate-surface-hover);
-    --color-custom53: var(--slate-text-tertiary);
-    --color-custom54: var(--slate-line-strong);
-    --color-custom55: var(--slate-line);
-    --color-modalCustom: var(--slate-canvas);
-  }
-  .light {
-    --color-primary: var(--slate-canvas);
-    --color-secondary: var(--slate-surface);
-    --color-text: var(--slate-text-primary);
-    --color-third: var(--slate-surface);
-    --color-forth: var(--slate-primary-bg);
-    --color-fifth: var(--slate-hairline);
-    --color-sixth: var(--slate-surface);
-    --color-seventh: var(--slate-surface-active);
-    --color-gray: var(--slate-text-tertiary);
-    --color-input: var(--slate-surface);
-    --color-table-border: var(--slate-line);
-    --color-custom1: var(--slate-line-strong);
-    --color-custom2: var(--slate-surface-sunken);
-    --color-custom3: var(--slate-surface);
-    --color-custom4: var(--slate-text-secondary);
-    --color-custom5: var(--slate-surface-active);
-    --color-custom8: var(--slate-surface-hover);
-    --color-custom10: var(--slate-text-tertiary);
-    --color-custom11: var(--slate-text-tertiary);
-    --color-custom12: var(--slate-text-tertiary);
-    --color-custom13: var(--slate-text-primary);
-    --color-custom14: var(--slate-text-tertiary);
-    --color-custom16: var(--slate-text-primary);
-    --color-custom17: var(--slate-text-primary);
-    --color-custom21: var(--slate-line);
-    --color-custom25: var(--slate-line);
-    --color-custom26: var(--slate-text-primary);
-    --color-custom27: var(--slate-text-tertiary);
-    --color-custom28: var(--slate-text-secondary);
-    --color-custom29: var(--slate-surface-active);
-    --color-custom30: var(--slate-surface-active);
-    --color-custom39: var(--slate-text-primary);
-    --color-custom40: var(--slate-surface);
-    --color-custom45: var(--slate-text-primary);
-    --color-custom51: var(--slate-surface-active);
-    --color-custom52: var(--slate-surface-sunken);
-    --color-custom53: var(--slate-text-tertiary);
-    --color-custom54: var(--slate-line-strong);
-    --color-custom55: var(--slate-line);
-    --color-modalCustom: transparent;
   }
 }

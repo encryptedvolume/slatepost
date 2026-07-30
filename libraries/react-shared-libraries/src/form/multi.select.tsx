@@ -66,7 +66,7 @@ export const MultiSelect: FC<{
       </div>
       <div
         className={clsx(
-          'bg-newBgColorInner border border-newTableBorder rounded-control max-h-[160px] overflow-auto p-[12px] flex flex-col gap-[8px]',
+          'bg-surface border border-line rounded-control max-h-[160px] overflow-auto p-[12px] flex flex-col gap-[8px]',
           className
         )}
       >

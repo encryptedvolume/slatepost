@@ -16,12 +16,10 @@ import { useShallow } from 'zustand/react/shallow';
 import { GeneralPreviewComponent } from '@gitroom/frontend/components/launches/general.preview.component';
 import { IntegrationContext } from '@gitroom/frontend/components/launches/helpers/use.integration';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
-import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
-import useSWR from 'swr';
-import { InternalChannels } from '@gitroom/frontend/components/launches/internal.channels';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import SafeImage from '@gitroom/react/helpers/safe.image';
+import { PlatformGlyph } from '@gitroom/frontend/components/ui/platform.glyph';
 
 class Empty {
   @IsOptional()
@@ -60,7 +58,6 @@ export const withProvider = function <T extends object>(params: {
 
   const Wrapped = forwardRef((props: { id: string }, ref) => {
     const t = useT();
-    const fetch = useFetch();
     const {
       current,
       selectedIntegration,
@@ -75,7 +72,6 @@ export const withProvider = function <T extends object>(params: {
       allIntegrations,
       setPostComment,
       setEditor,
-      dummy,
       setChars,
       setComments,
       setHide,
@@ -84,7 +80,6 @@ export const withProvider = function <T extends object>(params: {
         date: state.date,
         tab: state.tab,
         global: state.global,
-        dummy: state.dummy,
         internal: state.internal.find((p) => p.integration.id === props.id),
         integrations: state.selectedIntegrations,
         setHide: state.setHide,
@@ -144,21 +139,6 @@ export const withProvider = function <T extends object>(params: {
         );
       }
     }, [justCurrent, current, isGlobal, setTotalChars]);
-
-    const getInternalPlugs = useCallback(async () => {
-      return (
-        await fetch(
-          `/integrations/${selectedIntegration.integration.identifier}/internal-plugs`
-        )
-      ).json();
-    }, [selectedIntegration.integration.identifier]);
-    const { data, isLoading } = useSWR(
-      `internal-${selectedIntegration.integration.identifier}`,
-      getInternalPlugs,
-      {
-        revalidateOnReconnect: true,
-      }
-    );
 
     const value = useMemo(() => {
       if (internal?.integrationValue?.length) {
@@ -245,8 +225,7 @@ export const withProvider = function <T extends object>(params: {
             )}
           >
             {current &&
-              (tab === 0 ||
-                (!SettingsComponent && !data?.internalPlugs?.length)) &&
+              (tab === 0 || !SettingsComponent) &&
               !value?.[0]?.content?.length && (
                 <div>
                   {t(
@@ -256,8 +235,7 @@ export const withProvider = function <T extends object>(params: {
                 </div>
               )}
             {current &&
-              (tab === 0 ||
-                (!SettingsComponent && !data?.internalPlugs?.length)) &&
+              (tab === 0 || !SettingsComponent) &&
               !!value?.[0]?.content?.length &&
               (CustomPreviewComponent ? (
                 <CustomPreviewComponent
@@ -286,9 +264,9 @@ export const withProvider = function <T extends object>(params: {
                   }
                 />
               ))}
-            {(SettingsComponent || !!data?.internalPlugs?.length) &&
+            {SettingsComponent &&
               createPortal(
-                <div data-id={props.id} className={isGlobal ? 'bg-newSettings pb-[12px] px-[12px]' : 'hidden bg-newSettings px-[12px] pb-[12px]'}>
+                <div data-id={props.id} className={isGlobal ? 'bg-surfaceActive pb-[12px] px-[12px]' : 'hidden bg-surfaceActive px-[12px] pb-[12px]'}>
                   {isGlobal && (
                     <style>{`#wrapper-settings {display: flex !important} #social-empty {display: block !important;}`}</style>
                   )}
@@ -302,21 +280,17 @@ export const withProvider = function <T extends object>(params: {
                           className="min-w-[42px] min-h-[42px] w-[42px] h-[42px] rounded-pill"
                           src={selectedIntegration?.integration.picture}
                         />
-                        <SafeImage
-                          alt={selectedIntegration?.integration.identifier}
-                          width={16}
-                          height={16}
-                          className="rounded-card min-w-[16px] min-h-[16px] w-[16px] h-[16px] absolute bottom-0 end-0"
-                          src={`/icons/platforms/${selectedIntegration?.integration.identifier}.png`}
+                        <PlatformGlyph
+                          identifier={
+                            selectedIntegration?.integration.identifier
+                          }
+                          className="absolute bottom-0 end-0 text-ink"
                         />
                       </div>
                       <div className="t-title-3">{selectedIntegration?.integration.name}</div>
                     </div>
                   )}
                   <SettingsComponent />
-                  {!!data?.internalPlugs?.length && !dummy && (
-                    <InternalChannels plugs={data?.internalPlugs} />
-                  )}
                 </div>,
                 document.querySelector('#social-settings') ||
                   document.createElement('div')

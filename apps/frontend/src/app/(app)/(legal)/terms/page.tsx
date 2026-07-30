@@ -29,13 +29,12 @@ const toc: LegalTocEntry[] = [
   { id: 'content', label: '6. Your content' },
   { id: 'acceptable-use', label: '7. Acceptable use' },
   { id: 'availability', label: '8. Scheduling and availability' },
-  { id: 'plans', label: '9. Plans and payment' },
-  { id: 'termination', label: '10. Suspension and termination' },
-  { id: 'open-source', label: '11. Open source rights' },
-  { id: 'liability', label: '12. Disclaimers and liability' },
-  { id: 'changes', label: '13. Changes to these terms' },
-  { id: 'law', label: '14. Governing law' },
-  { id: 'contact', label: '15. Contact' },
+  { id: 'termination', label: '9. Suspension and termination' },
+  { id: 'open-source', label: '10. Open source rights' },
+  { id: 'liability', label: '11. Disclaimers and liability' },
+  { id: 'changes', label: '12. Changes to these terms' },
+  { id: 'law', label: '13. Governing law' },
+  { id: 'contact', label: '14. Contact' },
 ];
 
 export default function TermsPage() {
@@ -106,9 +105,9 @@ export default function TermsPage() {
           current.
         </P>
         <P>
-          You are responsible for everything that happens under your account,
-          including activity by members of your team you invite. Keep your
-          password and any API keys confidential, and tell us promptly at{' '}
+          You are responsible for everything that happens under your account.
+          Keep your password and any API keys confidential, and tell us promptly
+          at{' '}
           <A href={`mailto:${legal.contactEmail}`}>{legal.contactEmail}</A> if
           you believe your account has been accessed without your permission.
         </P>
@@ -310,29 +309,7 @@ export default function TermsPage() {
         </P>
       </Section>
 
-      <Section id="plans" title="9. Plans and payment">
-        <P>
-          Slate may be offered on free and paid plans. If you subscribe to a
-          paid plan, you agree to the price, billing period and limits shown at
-          the time you subscribe. Fees are billed in advance, are non-refundable
-          except where the law requires otherwise or we say otherwise in
-          writing, and renew automatically for further periods until you cancel.
-        </P>
-        <P>
-          Payments are processed by our payment provider,{' '}
-          {legal.paymentProcessor}. We do not receive or store your full card
-          details. Taxes are added where applicable.
-        </P>
-        <P>
-          You can cancel at any time from your billing settings. Cancellation
-          takes effect at the end of the current billing period; you keep access
-          until then, and we do not pro-rate part periods. If we change our
-          prices, we will give you at least 30 days&rsquo; notice before the
-          change applies to your renewal.
-        </P>
-      </Section>
-
-      <Section id="termination" title="10. Suspension and termination">
+      <Section id="termination" title="9. Suspension and termination">
         <P>
           You may stop using Slate and delete your account at any time. Contact{' '}
           <A href={`mailto:${legal.contactEmail}`}>{legal.contactEmail}</A> if
@@ -354,7 +331,7 @@ export default function TermsPage() {
         </P>
       </Section>
 
-      <Section id="open-source" title="11. Open source rights">
+      <Section id="open-source" title="10. Open source rights">
         <P>
           <Lead>
             These Terms govern the hosted service. They do not govern the
@@ -398,7 +375,7 @@ export default function TermsPage() {
         </P>
       </Section>
 
-      <Section id="liability" title="12. Disclaimers and liability">
+      <Section id="liability" title="11. Disclaimers and liability">
         <P>
           Except as expressly stated in these Terms, and to the fullest extent
           permitted by law, the hosted service is provided &ldquo;as is&rdquo;
@@ -429,7 +406,7 @@ export default function TermsPage() {
         </P>
       </Section>
 
-      <Section id="changes" title="13. Changes to these terms">
+      <Section id="changes" title="12. Changes to these terms">
         <P>
           We may update these Terms as the service changes or as the platforms
           we integrate with change their requirements. If a change is material,
@@ -441,7 +418,7 @@ export default function TermsPage() {
         </P>
       </Section>
 
-      <Section id="law" title="14. Governing law">
+      <Section id="law" title="13. Governing law">
         <P>
           These Terms and any dispute arising out of them are governed by the
           laws of {legal.governingLaw}, and the courts of {legal.governingLaw}{' '}
@@ -458,7 +435,7 @@ export default function TermsPage() {
         </P>
       </Section>
 
-      <Section id="contact" title="15. Contact">
+      <Section id="contact" title="14. Contact">
         <P>
           Questions about these Terms, or about Slate generally, go to{' '}
           <A href={`mailto:${legal.contactEmail}`}>{legal.contactEmail}</A>.

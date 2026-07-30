@@ -8,7 +8,6 @@ import { TopTitle } from '@gitroom/frontend/components/launches/helpers/top.titl
 import { array, boolean, object, string } from 'yup';
 import { FormProvider, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { CopilotTextarea } from '@copilotkit/react-textarea';
 import { Select } from '@gitroom/react/form/select';
 import { useToaster } from '@gitroom/react/toaster/toaster';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
@@ -180,7 +179,7 @@ const AddOrRemoveSignature: FC<{
       <form onSubmit={form.handleSubmit(callBack)}>
         <div className="relative flex gap-[20px] flex-col flex-1 rounded-thumb pt-0">
           <button
-            className="outline-none absolute end-[20px] top-[16px] mantine-UnstyledButton-root mantine-ActionIcon-root hover:bg-tableBorder cursor-pointer mantine-Modal-close mantine-1dcetaa"
+            className="outline-none absolute end-[20px] top-[16px] mantine-UnstyledButton-root mantine-ActionIcon-root hover:bg-hairline cursor-pointer mantine-Modal-close mantine-1dcetaa"
             type="button"
             onClick={() => modal.closeCurrent()}
           >
@@ -200,23 +199,14 @@ const AddOrRemoveSignature: FC<{
             </svg>
           </button>
 
-          <div className="relative bg-customColor2">
-            <CopilotTextarea
-              disableBranding={true}
-              className={clsx(
-                '!min-h-[160px] !max-h-[320px] p-[8px] overflow-x-hidden scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent bg-bigStrip outline-none'
-              )}
-              value={text}
-              onChange={(e) => {
-                form.setValue('content', e.target.value);
-              }}
-              placeholder="Write your signature..."
-              autosuggestionsConfig={{
-                textareaPurpose: `Assist me in writing social media signature`,
-                chatApiConfigs: {},
-              }}
-            />
-          </div>
+          <textarea
+            className="min-h-[160px] max-h-[320px] p-[8px] w-full overflow-x-hidden scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent bg-surface text-ink border border-lineControl rounded-control t-body"
+            value={text}
+            onChange={(e) => {
+              form.setValue('content', e.target.value);
+            }}
+            placeholder={t('write_your_signature', 'Write your signature...')}
+          />
 
           <Select
             label="Auto add signature?"

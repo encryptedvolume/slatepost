@@ -2,9 +2,7 @@
 
 import { createContext, FC, ReactNode, useContext, useEffect } from 'react';
 interface VariableContextInterface {
-  stripeClient: string;
   billingEnabled: boolean;
-  isChatBase: boolean;
   isGeneral: boolean;
   genericOauth: boolean;
   oauthLogoUrl: string;
@@ -17,31 +15,22 @@ interface VariableContextInterface {
   storageProvider: 'local' | 'cloudflare';
   backendUrl: string;
   environment: string;
-  discordUrl: string;
   uploadDirectory: string;
-  facebookPixel: string;
   telegramBotName: string;
   neynarClientId: string;
   isSecured: boolean;
   disableImageCompression: boolean;
   disableXAnalytics: boolean;
   language: string;
-  dub: boolean;
   transloadit: string[];
   sentryDsn: string;
   extensionId: string;
-  googleAdsId?: string;
-  googleAdsTrialTracking?: string;
 }
 const VariableContext = createContext({
-  stripeClient: '',
   billingEnabled: false,
   isGeneral: true,
   genericOauth: false,
-  isChatBase: false,
   oauthLogoUrl: '',
-  googleAdsId: '',
-  googleAdsTrialTracking: '',
   oauthDisplayName: '',
   mcpUrl: '',
   cloudflareUrl: '',
@@ -50,16 +39,13 @@ const VariableContext = createContext({
   storageProvider: 'local',
   plontoKey: '',
   backendUrl: '',
-  discordUrl: '',
   uploadDirectory: '',
   isSecured: false,
   telegramBotName: '',
-  facebookPixel: '',
   neynarClientId: '',
   disableImageCompression: false,
   disableXAnalytics: false,
   language: '',
-  dub: false,
   transloadit: [],
   sentryDsn: '',
   extensionId: '',

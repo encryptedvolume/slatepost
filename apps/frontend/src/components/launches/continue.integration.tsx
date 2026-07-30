@@ -3,7 +3,9 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { HttpStatusCode } from 'axios';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Redirect } from '@gitroom/frontend/components/layout/redirect';
+import { StateNotice } from '@gitroom/frontend/components/ui/state.notice';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import dayjs from 'dayjs';
@@ -34,7 +36,6 @@ export const ContinueIntegration: FC<{
   const fetch = useFetch();
   const { extensionId, backendUrl } = useVariables();
   const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [twoStepState, setTwoStepState] = useState<TwoStepState | null>(null);
   const [successState, setSuccessState] = useState<SuccessState | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -140,9 +141,11 @@ export const ContinueIntegration: FC<{
         data.status !== HttpStatusCode.Created
       ) {
         const errorData = await data.json().catch(() => ({}));
-        setErrorMessage(
-          errorData.message || errorData.msg || 'Could not add provider'
-        );
+        const reason =
+          errorData.message || errorData.msg || 'Could not add provider';
+        // Kept for the console and Sentry only — the screen shows a sentence.
+        // eslint-disable-next-line no-console
+        console.error('social-connect failed', data.status, reason);
         setError(true);
         return;
       }
@@ -224,10 +227,11 @@ export const ContinueIntegration: FC<{
           response.status !== HttpStatusCode.Created
         ) {
           const errorData = await response.json().catch(() => ({}));
-          setErrorMessage(
-            errorData.message || 'Failed to save channel configuration'
-          );
-          setError(true);
+          const reason =
+            errorData.message || 'Failed to save channel configuration';
+          // eslint-disable-next-line no-console
+          console.error('channel connect failed', response.status, reason);
+            setError(true);
           return;
         }
 
@@ -252,16 +256,10 @@ export const ContinueIntegration: FC<{
     );
   }, [provider]);
 
+  // One channel ships, so this is its display name rather than a table of
+  // other networks' display names.
   const providerDisplayName = useMemo(() => {
-    const names: Record<string, string> = {
-      facebook: 'Facebook',
-      instagram: 'Instagram',
-      'linkedin-page': 'LinkedIn',
-      youtube: 'YouTube',
-      gmb: 'Google Business',
-      tumblr: 'Tumblr',
-    };
-    return names[provider] || provider;
+    return provider === 'tiktok' ? 'TikTok' : provider;
   }, [provider]);
 
   // Success state for non-logged users without returnURL
@@ -349,43 +347,51 @@ export const ContinueIntegration: FC<{
     );
   }
 
+  // What comes back from a refused OAuth exchange is a backend sentence at
+  // best and a NestJS envelope, an expired-state message or a provider's own
+  // error code at worst — none of it something to hand a user mid-connect. The
+  // raw text goes to the console (see the `console.error` calls above) and
+  // the screen says what happened and what to do about it.
   if (error) {
     return (
-      <div className="flex flex-1 items-center justify-center bg-canvas text-ink">
-        <div className="text-center">
-          <div className="w-[24px] h-[24px] mx-auto mb-[24px] text-critical">
-            <svg
-              className="w-[24px] h-[24px]"
-              fill="currentColor"
-              viewBox="0 0 20 20"
+      <div className="flex flex-1 items-center justify-center bg-canvas p-[24px]">
+        <StateNotice
+          tone="failure"
+          title={t('could_not_add_channel', 'We could not connect that channel')}
+          body={t(
+            'could_not_add_channel_body',
+            'TikTok did not finish handing the connection over. Nothing was saved, so it is safe to try again from the calendar.'
+          )}
+          action={
+            <Link
+              href="/launches"
+              className="t-control text-ink underline underline-offset-2"
             >
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <div className="t-title-2 mb-[12px]">
-            {t('could_not_add_provider', 'Could not add provider')}
-          </div>
-          <div className="t-body text-inkSecondary max-w-[34rem]">
-            {errorMessage ||
-              t(
-                'you_are_being_redirected_back',
-                'An error occurred. Please try again.'
-              )}
-          </div>
-          {logged && <Redirect url="/launches" delay={3000} />}
-        </div>
+              {t('back_to_calendar', 'Back to the calendar')}
+            </Link>
+          }
+          hint={
+            logged
+              ? t('taking_you_back', 'Taking you back in a moment…')
+              : undefined
+          }
+        />
+        {logged && <Redirect url="/launches" delay={3000} />}
       </div>
     );
   }
 
-  // Loading state
+  // The wait between the OAuth redirect and the channel existing. It is a
+  // sentence, not a spinner: the user has just come back from TikTok and needs
+  // to know this screen is mid-handshake rather than stuck.
   return (
     <div className="flex flex-1 items-center justify-center bg-canvas text-ink">
-      <div className="text-center">
+      <div
+        className="text-center"
+        role="status"
+        aria-busy="true"
+        aria-live="polite"
+      >
         <div className="t-title-2 mb-[12px]">
           {t('adding_channel', 'Adding Channel')}
         </div>

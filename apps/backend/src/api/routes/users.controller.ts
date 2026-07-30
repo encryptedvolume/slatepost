@@ -26,11 +26,6 @@ import { UsersService } from '@gitroom/nestjs-libraries/database/prisma/users/us
 import { UserDetailDto } from '@gitroom/nestjs-libraries/dtos/users/user.details.dto';
 import { EmailNotificationsDto } from '@gitroom/nestjs-libraries/dtos/users/email-notifications.dto';
 import { HttpForbiddenException } from '@gitroom/nestjs-libraries/services/exception.filter';
-import { RealIP } from 'nestjs-real-ip';
-import { UserAgent } from '@gitroom/nestjs-libraries/user/user.agent';
-import { TrackEnum } from '@gitroom/nestjs-libraries/user/track.enum';
-import { TrackService } from '@gitroom/nestjs-libraries/track/track.service';
-import { makeId } from '@gitroom/nestjs-libraries/services/make.is';
 import {
   AuthorizationActions,
   Sections,
@@ -44,40 +39,8 @@ export class UsersController {
     private _stripeService: StripeService,
     private _authService: AuthService,
     private _orgService: OrganizationService,
-    private _userService: UsersService,
-    private _trackService: TrackService
+    private _userService: UsersService
   ) {}
-
-  @Get('/chatbase-token')
-  async getChatbaseToken(
-    @GetUserFromRequest() user: User,
-    @GetOrgFromRequest() organization: Organization
-  ) {
-    if (!process.env.CHATBASE_TOKEN) {
-      throw new HttpException('Chatbase SSO is not configured', 400);
-    }
-
-    const token = sign(
-      {
-        user_id: organization.id,
-        email: user.email,
-        ...(organization.paymentId
-          ? {
-              stripe_accounts: [
-                {
-                  label: organization.name,
-                  stripe_id: organization.paymentId,
-                },
-              ],
-            }
-          : {}),
-      },
-      process.env.CHATBASE_TOKEN,
-      { expiresIn: '1h' }
-    );
-
-    return { token };
-  }
 
   @Get('/agent-media-sso')
   async getAgentMediaSsoUrl(
@@ -373,43 +336,4 @@ export class UsersController {
     response.status(200).send();
   }
 
-  @Post('/t')
-  async trackEvent(
-    @Res({ passthrough: true }) res: Response,
-    @Req() req: Request,
-    @GetUserFromRequest() user: User,
-    @RealIP() ip: string,
-    @UserAgent() userAgent: string,
-    @Body()
-    body: { tt: TrackEnum; fbclid: string; additional: Record<string, any> }
-  ) {
-    const uniqueId = req?.cookies?.track || makeId(10);
-    const fbclid = req?.cookies?.fbclid || body.fbclid;
-    await this._trackService.track(
-      uniqueId,
-      ip,
-      userAgent,
-      body.tt,
-      body.additional,
-      fbclid,
-      user
-    );
-    if (!req.cookies.track) {
-      res.cookie('track', uniqueId, {
-        domain: getCookieUrlFromDomain(process.env.FRONTEND_URL!),
-        ...(!process.env.NOT_SECURED
-          ? {
-              secure: true,
-              httpOnly: true,
-              sameSite: 'none',
-            }
-          : {}),
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-      });
-    }
-
-    res.status(200).json({
-      track: uniqueId,
-    });
-  }
 }

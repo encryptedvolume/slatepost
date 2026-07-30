@@ -85,7 +85,7 @@ export const Canonical: FC<
       <input
         {...(disableForm ? {} : form.register(props.name))}
         className={clsx(
-          'bg-input h-large px-[16px] outline-none border-fifth border rounded-thumb text-ink placeholder:text-inkTertiary',
+          'bg-surface h-large px-[16px] outline-none border-lineControl border rounded-thumb text-ink placeholder:text-inkTertiary',
           className
         )}
         {...rest}

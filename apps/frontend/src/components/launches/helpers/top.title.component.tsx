@@ -33,7 +33,7 @@ export const TopTitle: FC<{
       className={clsx(
         // 64px matches the app header and the rail's logo row, so all three
         // title bars in the shell sit on one baseline. 57 was on no grid.
-        'border-b flex items-center border-newBgLineColor -mx-[24px]',
+        'border-b flex items-center border-hairline -mx-[24px]',
         props.extraClass ? props.extraClass : 'h-[64px]'
       )}
     >

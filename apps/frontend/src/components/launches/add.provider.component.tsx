@@ -2,36 +2,62 @@
 
 import { useModals } from '@gitroom/frontend/components/layout/new-modal';
 import React, { FC, useCallback, useMemo } from 'react';
-import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
+import { jsonOrThrow, useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import { Input } from '@gitroom/react/form/input';
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { Button } from '@gitroom/react/form/button';
-import { classValidatorResolver } from '@hookform/resolvers/class-validator';
-import { ApiKeyDto } from '@gitroom/nestjs-libraries/dtos/integrations/api.key.dto';
 import { useRouter } from 'next/navigation';
-import { TopTitle } from '@gitroom/frontend/components/launches/helpers/top.title.component';
-import { useVariables } from '@gitroom/react/helpers/variable.context';
 import { useToaster } from '@gitroom/react/toaster/toaster';
 import { object, string } from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { web3List } from '@gitroom/frontend/components/launches/web3/web3.list';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import clsx from 'clsx';
-import copy from 'copy-to-clipboard';
-import { capitalize } from 'lodash';
 import { PlatformGlyph } from '@gitroom/frontend/components/ui/platform.glyph';
-const resolver = classValidatorResolver(ApiKeyDto);
+import {
+  EmptyState,
+  ErrorState,
+} from '@gitroom/frontend/components/ui/state.notice';
 
-export const useAddProvider = (update?: () => void, invite?: boolean) => {
+export const useAddProvider = (update?: () => void) => {
   const modal = useModals();
   const fetch = useFetch();
-  return useCallback(async () => {
-    const data = await (await fetch('/integrations')).json();
+  const t = useT();
+
+  // "Connect TikTok" is the one action the empty queue and onboarding both
+  // point at. When the list of connectable channels failed to
+  // load, this used to reject inside the click handler: no modal, no message,
+  // a button that simply did nothing. The modal now opens either way and says
+  // which of the two it is.
+  return useCallback(async function openAddChannel(): Promise<void> {
+    let data: { social?: any[] } | null = null;
+
+    try {
+      data = await jsonOrThrow(await fetch('/integrations'));
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+    }
+
     modal.openModal({
       title: 'Add Channel',
       withCloseButton: true,
-      children: (
-        <AddProviderComponent invite={!!invite} update={update} {...data} />
+      children: !data ? (
+        <ErrorState
+          title={t(
+            'add_channel_failed_title',
+            'We could not load the channels you can connect'
+          )}
+          body={t(
+            'add_channel_failed_body',
+            'Nothing has changed on your account. Try again in a moment.'
+          )}
+          onRetry={() => {
+            modal.closeAll();
+            openAddChannel();
+          }}
+        />
+      ) : (
+        <AddProviderComponent update={update} {...(data as any)} />
       ),
     });
   }, []);
@@ -41,123 +67,40 @@ export const AddProviderButton: FC<{
 }> = (props) => {
   const { update } = props;
   const add = useAddProvider(update);
-  const invite = useAddProvider(update, true);
   const t = useT();
 
   return (
-    <div className="flex group-[.sidebar]:block gap-[8px]">
-      {/* Primary action is ink — the accent is never spent on a button fill. */}
-      <button
-        className="flex-1 group-[.sidebar]:w-[100%] group-[.sidebar]:flex-none bg-primaryBg text-primaryText hover:bg-primaryBgHover h-control px-[16px] justify-center items-center flex rounded-control gap-[8px] t-control transition-colors duration-state ease-state"
-        onClick={add}
-      >
-        <div className="w-[16px] h-[16px]">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 20 20"
-            fill="none"
-          >
-            <path
-              d="M1.66675 10.0417C3.35907 10.2299 4.93698 10.9884 6.14101 12.1924C7.34504 13.3964 8.10353 14.9743 8.29175 16.6667M1.66675 13.4167C2.46749 13.58 3.20253 13.9751 3.7804 14.553C4.35827 15.1309 4.75344 15.8659 4.91675 16.6667M1.66675 16.6667H1.67508M11.6667 17.5H14.3334C15.7335 17.5 16.4336 17.5 16.9684 17.2275C17.4388 16.9878 17.8212 16.6054 18.0609 16.135C18.3334 15.6002 18.3334 14.9001 18.3334 13.5V6.5C18.3334 5.09987 18.3334 4.3998 18.0609 3.86502C17.8212 3.39462 17.4388 3.01217 16.9684 2.77248C16.4336 2.5 15.7335 2.5 14.3334 2.5H5.66675C4.26662 2.5 3.56655 2.5 3.03177 2.77248C2.56137 3.01217 2.17892 3.39462 1.93923 3.86502C1.66675 4.3998 1.66675 5.09987 1.66675 6.5V6.66667"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-        <div className="text-start group-[.sidebar]:hidden">
-          {t('add_channel', 'Add Channel')}
-        </div>
-      </button>
-      <button
-        onClick={invite}
-        data-tooltip-id="tooltip"
-        data-tooltip-content={t(
-          'invite_link',
-          'Send Invite Link to a customer to add channel'
-        )}
-        className="group-[.sidebar]:hidden h-control w-[36px] shrink-0 bg-surface text-inkSecondary border border-line hover:bg-surfaceHover hover:text-ink justify-center items-center flex rounded-control cursor-pointer transition-colors duration-state ease-state"
-      >
+    /* One button. The chain-link button that used to sit beside this one
+       copied an invite link for "a customer to add channel" — the Postiz
+       agency flow — and was the second visible button on the main screen of a
+       single-user, self-hosted app. */
+    /* Primary action is ink — the accent is never spent on a button fill. */
+    <button
+      className="bg-primaryBg text-primaryText hover:bg-primaryBgHover h-control px-[16px] justify-center items-center flex rounded-control gap-[8px] t-control transition-colors duration-state ease-state"
+      onClick={add}
+    >
+      <div className="w-[16px] h-[16px]">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
           height="16"
-          viewBox="0 0 16 16"
+          viewBox="0 0 20 20"
           fill="none"
-        >
-          <g clipPath="url(#clip0_2452_193804)">
-            <path
-              d="M6.6668 8.66599C6.9531 9.04875 7.31837 9.36545 7.73783 9.59462C8.1573 9.82379 8.62114 9.96007 9.0979 9.99422C9.57466 10.0284 10.0532 9.95957 10.501 9.79251C10.9489 9.62546 11.3555 9.36404 11.6935 9.02599L13.6935 7.02599C14.3007 6.39732 14.6366 5.55531 14.629 4.68132C14.6215 3.80733 14.2709 2.97129 13.6529 2.35326C13.0348 1.73524 12.1988 1.38467 11.3248 1.37708C10.4508 1.36948 9.60881 1.70547 8.98013 2.31266L7.83347 3.45266M9.33347 7.33266C9.04716 6.94991 8.68189 6.6332 8.26243 6.40403C7.84297 6.17486 7.37913 6.03858 6.90237 6.00444C6.4256 5.97029 5.94708 6.03908 5.49924 6.20614C5.0514 6.3732 4.64472 6.63461 4.3068 6.97266L2.3068 8.97266C1.69961 9.60133 1.36363 10.4433 1.37122 11.3173C1.37881 12.1913 1.72938 13.0274 2.3474 13.6454C2.96543 14.2634 3.80147 14.614 4.67546 14.6216C5.54945 14.6292 6.39146 14.2932 7.02013 13.686L8.16013 12.546"
-              stroke="currentColor"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-          </g>
-          <defs>
-            <clipPath id="clip0_2452_193804">
-              <rect width="16" height="16" fill="textColor"></rect>
-            </clipPath>
-          </defs>
-        </svg>
-      </button>
-    </div>
-  );
-};
-
-export const UrlModal: FC<{
-  gotoUrl(url: string): void;
-}> = (props) => {
-  const { gotoUrl } = props;
-  const methods = useForm({
-    mode: 'onChange',
-  });
-
-  const t = useT();
-
-  const submit = useCallback(async (data: FieldValues) => {
-    gotoUrl(data.url);
-  }, []);
-  return (
-    <div className="rounded-card border border-line bg-surface p-[20px] relative">
-      <TopTitle title={`Instance URL`} />
-      <button
-        onClick={close}
-        className="outline-none absolute end-[20px] top-[20px] mantine-UnstyledButton-root mantine-ActionIcon-root hover:bg-tableBorder cursor-pointer mantine-Modal-close mantine-1dcetaa"
-        type="button"
-      >
-        <svg
-          viewBox="0 0 15 15"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
         >
           <path
-            d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z"
-            fill="currentColor"
-            fillRule="evenodd"
-            clipRule="evenodd"
-          ></path>
+            d="M1.66675 10.0417C3.35907 10.2299 4.93698 10.9884 6.14101 12.1924C7.34504 13.3964 8.10353 14.9743 8.29175 16.6667M1.66675 13.4167C2.46749 13.58 3.20253 13.9751 3.7804 14.553C4.35827 15.1309 4.75344 15.8659 4.91675 16.6667M1.66675 16.6667H1.67508M11.6667 17.5H14.3334C15.7335 17.5 16.4336 17.5 16.9684 17.2275C17.4388 16.9878 17.8212 16.6054 18.0609 16.135C18.3334 15.6002 18.3334 14.9001 18.3334 13.5V6.5C18.3334 5.09987 18.3334 4.3998 18.0609 3.86502C17.8212 3.39462 17.4388 3.01217 16.9684 2.77248C16.4336 2.5 15.7335 2.5 14.3334 2.5H5.66675C4.26662 2.5 3.56655 2.5 3.03177 2.77248C2.56137 3.01217 2.17892 3.39462 1.93923 3.86502C1.66675 4.3998 1.66675 5.09987 1.66675 6.5V6.66667"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
-      </button>
-      <FormProvider {...methods}>
-        <form
-          className="gap-[24px] flex flex-col"
-          onSubmit={methods.handleSubmit(submit)}
-        >
-          <Input label="URL" name="url" />
-          <div className="flex">
-            <Button type="submit">{t('connect', 'Connect')}</Button>
-          </div>
-        </form>
-      </FormProvider>
-    </div>
+      </div>
+      <div className="text-start">{t('add_channel', 'Add Channel')}</div>
+    </button>
   );
 };
+
 export const CustomVariables: FC<{
   variables: Array<{
     key: string;
@@ -272,124 +215,11 @@ export const CustomVariables: FC<{
     </div>
   );
 };
-const ExtensionNotFound: FC = () => {
-  const modals = useModals();
-  const t = useT();
-  return (
-    <div className="flex flex-col gap-[24px]">
-      <p className="t-body text-inkSecondary measure">
-        {t(
-          'extension_not_available',
-          'The Slate browser extension is not installed. You need to install it before connecting this channel.'
-        )}
-      </p>
-      <div className="flex gap-[8px]">
-        <Button
-          type="button"
-          className="flex-1"
-          onClick={() => {
-            window.open(
-              'https://chromewebstore.google.com/detail/postiz/cidhffagahknaeodkplfbcpfeielnkjl?hl=en',
-              '_blank'
-            );
-            modals.closeCurrent();
-          }}
-        >
-          {t('install_extension', 'Install Extension')}
-        </Button>
-        <Button
-          secondary={true}
-          type="button"
-          className="flex-1"
-          onClick={() => modals.closeCurrent()}
-        >
-          {t('cancel', 'Cancel')}
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-const ChromeExtensionWarning: FC<{
-  onConfirm: () => void;
-  onCancel: () => void;
-}> = ({ onConfirm, onCancel }) => {
-  const modals = useModals();
-  const t = useT();
-  return (
-    <div className="flex flex-col gap-[24px]">
-      <p className="t-body text-inkSecondary measure">
-        {t(
-          'chrome_extension_warning_intro',
-          'This channel connects via the browser extension. Please be aware of the following:'
-        )}
-      </p>
-      <ul className="flex flex-col gap-[8px] list-disc ps-[16px] t-secondary text-inkSecondary measure">
-        <li>
-          {t(
-            'chrome_extension_warning_tos',
-            'Using a browser extension to interact with a platform may violate its terms of service and could result in your account being suspended or banned.'
-          )}
-        </li>
-        <li>
-          {t(
-            'chrome_extension_warning_unstable',
-            'This method is not as reliable as native integrations and may experience random disconnections.'
-          )}
-        </li>
-        <li>
-          {t(
-            'chrome_extension_warning_reconnect',
-            'You may need to reconnect periodically if the session expires.'
-          )}
-        </li>
-        <li>
-          We will store your cookies securely to facilitate the connection.
-        </li>
-        <li>
-          Slate does not take responsibility for any issues arising or account
-          termination due to the use of this method.
-        </li>
-      </ul>
-      <div className="flex gap-[8px]">
-        <Button
-          type="button"
-          className="flex-1"
-          onClick={() => {
-            modals.closeCurrent();
-            onConfirm();
-          }}
-        >
-          {t('i_understand_continue', 'I understand, continue')}
-        </Button>
-        <Button
-          secondary={true}
-          type="button"
-          className="flex-1"
-          onClick={() => {
-            modals.closeCurrent();
-            onCancel();
-          }}
-        >
-          {t('cancel', 'Cancel')}
-        </Button>
-      </div>
-    </div>
-  );
-};
-
 export const AddProviderComponent: FC<{
   social: Array<{
     identifier: string;
     name: string;
     toolTip?: string;
-    isExternal: boolean;
-    isWeb3: boolean;
-    isChromeExtension?: boolean;
-    extensionCookies?: Array<{
-      name: string;
-      domain: string;
-    }>;
     customFields?: Array<{
       key: string;
       label: string;
@@ -398,28 +228,18 @@ export const AddProviderComponent: FC<{
       hint?: string;
     }>;
   }>;
-  article: Array<{
-    identifier: string;
-    name: string;
-  }>;
-  invite: boolean;
   update?: () => void;
   onboarding?: boolean;
   isMobile?: boolean;
 }> = (props) => {
-  const { update, social, article, onboarding, isMobile } = props;
-  const { isGeneral, extensionId } = useVariables();
+  const { update, social, onboarding, isMobile } = props;
   const toaster = useToaster();
   const router = useRouter();
   const fetch = useFetch();
   const modal = useModals();
   const getSocialLink = useCallback(
     (
-        invite: boolean,
         identifier: string,
-        isExternal: boolean,
-        isWeb3: boolean,
-        isChromeExtension?: boolean,
         customFields?: Array<{
           key: string;
           label: string;
@@ -431,223 +251,34 @@ export const AddProviderComponent: FC<{
       ) =>
       async () => {
         const onboardingParam = onboarding ? 'onboarding=true' : '';
-        const openWeb3 = async () => {
-          const { component: Web3Providers } = web3List.find(
-            (item) => item.identifier === identifier
-          )!;
-          const { url } = await (
-            await fetch(
-              `/integrations/social/${identifier}${
-                onboarding ? '?onboarding=true' : ''
-              }`
-            )
-          ).json();
-          modal.openModal({
-            title: `Add ${capitalize(identifier)}`,
-            withCloseButton: true,
-            ...(isMobile ? { removeLayout: true, fullScreen: true } : {}),
-            classNames: {
-              modal: 'bg-transparent text-textColor',
-            },
-            children: (
-              <div
-                {...(isMobile ? { className: 'h-full bg-canvas p-[24px]' } : {})}
-              >
-                <Web3Providers
-                  onComplete={(code, newState) => {
-                    window.location.href = `/integrations/social/${identifier}?code=${code}&state=${newState}${
-                      onboarding ? '&onboarding=true' : ''
-                    }`;
-                  }}
-                  nonce={url}
-                />
-              </div>
-            ),
-          });
-          return;
-        };
-        const gotoIntegration = async (externalUrl?: string) => {
-          // Mobile WebView: reuse the existing `externalUrl` param to
-          // carry the `postiz://` deep link so the backend redirects
-          // back to the iOS/Android app after OAuth completes, instead
-          // of the default web redirect.
-          const params = [
-            `externalUrl=${encodeURIComponent(externalUrl)}`,
-            onboardingParam,
-            isMobile
-              ? `redirectUrl=${encodeURIComponent('postiz://integrations')}`
-              : '',
-          ]
-            .filter(Boolean)
-            .join('&');
+        const gotoIntegration = async () => {
           const { url, err } = await (
             await fetch(
-              `/integrations/social/${identifier}${params ? `?${params}` : ''}`
+              `/integrations/social/${identifier}${
+                onboardingParam ? `?${onboardingParam}` : ''
+              }`
             )
           ).json();
           if (err) {
             toaster.show(
               t(
-                'could_not_connect_to_platform',
-                'Could not connect to the platform'
+                'could_not_connect_to_channel',
+                'Could not connect to the channel'
               ),
               'warning'
             );
-            return;
-          }
-
-          if (invite) {
-            toaster.show(
-              'Invite link copied to clipboard, link will be available for 1 hour',
-              'success'
-            );
-            modal.closeAll();
-            copy(url);
-            return;
-          }
-
-          if (isMobile) {
-            // In the mobile WebView the OAuth provider (Google, Facebook,
-            // etc.) typically refuses in-WebView sign-in. Post the URL
-            // out to React Native so it can open the system browser;
-            // `window.open`/`location.href` aren't reliable here because
-            // RN WebView doesn't always route them through the native
-            // navigation intercept. The backend redirects back to the
-            // app via `postiz://` once OAuth completes.
-            const rn = (window as any).ReactNativeWebView;
-            if (rn && typeof rn.postMessage === 'function') {
-              rn.postMessage(JSON.stringify({ type: 'open-external', url }));
-              return;
-            }
-            window.open(url, '_blank');
             return;
           }
 
           window.location.href = url;
         };
-        if (isWeb3) {
-          openWeb3();
-          return;
-        }
-        if (isChromeExtension) {
-          const confirmed = await new Promise<boolean>((resolve) => {
-            modal.openModal({
-              title: t('chrome_extension_notice', 'Browser Extension Notice'),
-              withCloseButton: true,
-              onClose: () => resolve(false),
-              children: (
-                <ChromeExtensionWarning
-                  onConfirm={() => {
-                    resolve(true);
-                  }}
-                  onCancel={() => {
-                    resolve(false);
-                  }}
-                />
-              ),
-            });
-          });
-          if (!confirmed) {
-            return;
-          }
-          if (!extensionId || !chrome?.runtime?.sendMessage) {
-            modal.openModal({
-              title: t('extension_not_available_title', 'Extension Not Found'),
-              withCloseButton: true,
-              children: <ExtensionNotFound />,
-            });
-            return;
-          }
-          try {
-            await new Promise<void>((resolve, reject) => {
-              chrome.runtime.sendMessage(
-                extensionId,
-                { type: 'PING' },
-                (response: any) => {
-                  if (chrome.runtime.lastError || !response?.status) {
-                    reject(new Error('Extension not reachable'));
-                  } else {
-                    resolve();
-                  }
-                }
-              );
-            });
-          } catch {
-            toaster.show(
-              t(
-                'extension_not_installed',
-                'Slate browser extension is not installed or not reachable.'
-              ),
-              'warning'
-            );
-            return;
-          }
-          try {
-            const cookieResponse = await new Promise<any>((resolve, reject) => {
-              chrome.runtime.sendMessage(
-                extensionId,
-                { type: 'GET_COOKIES', provider: identifier },
-                (response: any) => {
-                  if (chrome.runtime.lastError) {
-                    reject(new Error(chrome.runtime.lastError.message));
-                  } else {
-                    resolve(response);
-                  }
-                }
-              );
-            });
-            if (!cookieResponse.success) {
-              toaster.show(
-                cookieResponse.error ||
-                  t(
-                    'extension_cookies_missing',
-                    'Could not get cookies. Please log in to the platform first.'
-                  ),
-                'warning'
-              );
-              return;
-            }
-            const { url } = await (
-              await fetch(
-                `/integrations/social/${identifier}${
-                  onboarding ? '?onboarding=true' : ''
-                }`
-              )
-            ).json();
-            modal.closeAll();
-            window.location.href = `/integrations/social/${identifier}?state=${url}&code=${Buffer.from(
-              JSON.stringify(cookieResponse.cookies)
-            ).toString('base64')}${onboarding ? '&onboarding=true' : ''}`;
-          } catch {
-            toaster.show(
-              t(
-                'extension_communication_error',
-                'Failed to communicate with the browser extension.'
-              ),
-              'warning'
-            );
-          }
-          return;
-        }
-        if (isExternal) {
-          modal.openModal({
-            title: 'URL',
-            withCloseButton: true,
-            ...(isMobile ? { removeLayout: true, fullScreen: true } : {}),
-            classNames: {
-              modal: 'bg-transparent text-textColor',
-            },
-            children: <UrlModal gotoUrl={gotoIntegration} />,
-          });
-          return;
-        }
         if (customFields) {
           modal.openModal({
-            title: t('add_provider_title', 'Add Provider'),
+            title: t('add_channel_title', 'Add Channel'),
             withCloseButton: true,
             ...(isMobile ? { removeLayout: true, fullScreen: true } : {}),
             classNames: {
-              modal: 'bg-transparent text-textColor',
+              modal: 'bg-transparent text-ink',
             },
             children: (
               <div
@@ -671,6 +302,24 @@ export const AddProviderComponent: FC<{
 
   const t = useT();
 
+  const connectable = social;
+
+  // An empty card with a hairline round it says nothing. This happens when the
+  // server reports no connectable channel — a deployment with no TikTok
+  // credentials configured — and the fix is on the server, so the state says
+  // that plainly instead of offering a button that cannot work.
+  if (!connectable.length) {
+    return (
+      <EmptyState
+        title={t('no_channel_available', 'No channel available to connect')}
+        body={t(
+          'no_channel_available_body',
+          'Slate posts to TikTok, and this server has no TikTok credentials configured yet. Add them to the environment and reopen this window.'
+        )}
+      />
+    );
+  }
+
   return (
     // A grouped list, not a wall of tiles: one 44px row per channel, a 16px
     // monochrome mark, and dividers inset 16px. With a single channel this
@@ -689,30 +338,10 @@ export const AddProviderComponent: FC<{
             '[&>*+*]:border-t [&>*+*]:border-hairline'
           )}
         >
-          {social
-            .filter((item) => {
-              if (!props.invite) {
-                return true;
-              }
-
-              return (
-                !item.isExternal &&
-                !item.isWeb3 &&
-                !item.isChromeExtension &&
-                !item.customFields
-              );
-            })
-            .map((item) => (
+          {connectable.map((item) => (
               <div
                 key={item.identifier}
-                onClick={getSocialLink(
-                  props.invite,
-                  item.identifier,
-                  item.isExternal,
-                  item.isWeb3,
-                  item.isChromeExtension,
-                  item.customFields
-                )}
+                onClick={getSocialLink(item.identifier, item.customFields)}
                 {...(!!item.toolTip
                   ? {
                       'data-tooltip-id': 'tooltip',

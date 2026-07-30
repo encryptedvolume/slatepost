@@ -8,9 +8,7 @@ import { BillingSubscribeDto } from '@gitroom/nestjs-libraries/dtos/billing/bill
 import { groupBy } from 'lodash';
 import { pricing } from '@gitroom/nestjs-libraries/database/prisma/subscriptions/pricing';
 import { AuthService } from '@gitroom/helpers/auth/auth.service';
-import { TrackService } from '@gitroom/nestjs-libraries/track/track.service';
 import { UsersService } from '@gitroom/nestjs-libraries/database/prisma/users/users.service';
-import { TrackEnum } from '@gitroom/nestjs-libraries/user/track.enum';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_nothing');
 
@@ -19,8 +17,7 @@ export class StripeService {
   constructor(
     private _subscriptionService: SubscriptionService,
     private _organizationService: OrganizationService,
-    private _userService: UsersService,
-    private _trackService: TrackService
+    private _userService: UsersService
   ) {}
   validateRequest(rawBody: Buffer, signature: string, endpointSecret: string) {
     return stripe.webhooks.constructEvent(rawBody, signature, endpointSecret);
@@ -503,14 +500,6 @@ export class StripeService {
           ud,
         },
       },
-      ...(body.datafast_session_id && body.datafast_visitor_id
-        ? {
-            metadata: {
-              datafast_visitor_id: body.datafast_visitor_id,
-              datafast_session_id: body.datafast_session_id,
-            },
-          }
-        : {}),
       allow_promotion_codes: body.period === 'MONTHLY',
       line_items: [
         {
@@ -867,13 +856,9 @@ export class StripeService {
       typeof subscriptionId === 'string' ? subscriptionId : subscriptionId.id
     );
 
-    const { userId, ud } = subscription.metadata;
-    const user = await this._userService.getUserById(userId);
-    if (user && user.ip && user.agent) {
-      this._trackService.track(ud, user.ip, user.agent, TrackEnum.Purchase, {
-        value: event.data.object.amount_paid / 100,
-      });
-    }
+    // The Purchase event that used to fire here posted the payer's hashed
+    // email, IP and user agent to the Meta Conversions API. Slate takes no
+    // payments and runs no ad attribution.
 
     return { ok: true };
   }

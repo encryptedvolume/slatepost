@@ -19,10 +19,8 @@ import { NotificationsController } from '@gitroom/backend/api/routes/notificatio
 import { OpenaiService } from '@gitroom/nestjs-libraries/openai/openai.service';
 import { ExtractContentService } from '@gitroom/nestjs-libraries/openai/extract.content.service';
 import { CodesService } from '@gitroom/nestjs-libraries/services/codes.service';
-import { CopilotController } from '@gitroom/backend/api/routes/copilot.controller';
 import { PublicController } from '@gitroom/backend/api/routes/public.controller';
 import { RootController } from '@gitroom/backend/api/routes/root.controller';
-import { TrackService } from '@gitroom/nestjs-libraries/track/track.service';
 import { ShortLinkService } from '@gitroom/nestjs-libraries/short-linking/short.link.service';
 import { WebhookController } from '@gitroom/backend/api/routes/webhooks.controller';
 import { SignatureController } from '@gitroom/backend/api/routes/signature.controller';
@@ -53,7 +51,6 @@ const authenticatedController = [
   MediaController,
   BillingController,
   NotificationsController,
-  CopilotController,
   WebhookController,
   SignatureController,
   AutopostController,
@@ -88,7 +85,6 @@ const authenticatedController = [
     PermissionsService,
     CodesService,
     IntegrationManager,
-    TrackService,
     ShortLinkService,
     AuthProviderManager,
     GithubProvider,

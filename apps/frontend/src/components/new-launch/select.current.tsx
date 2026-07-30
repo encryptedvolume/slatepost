@@ -11,6 +11,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { GlobalIcon } from '@gitroom/frontend/components/ui/icons';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import { Integrations } from '@gitroom/frontend/components/launches/calendar.context';
+import { PlatformGlyph } from '@gitroom/frontend/components/ui/platform.glyph';
 import {
   useDecisionModal,
   useModals,
@@ -108,7 +109,7 @@ export const SelectCurrent: FC = () => {
               setCurrent('global');
             }}
             className={clsx(
-              'cursor-pointer flex gap-[8px] rounded-control w-[36px] h-control justify-center items-center bg-newBgLineColor',
+              'cursor-pointer flex gap-[8px] rounded-control w-[36px] h-control justify-center items-center bg-hairline',
               current !== 'global'
                 ? 'text-inkSecondary'
                 : 'border border-lineStrong text-ink'
@@ -126,7 +127,7 @@ export const SelectCurrent: FC = () => {
               }}
               key={integration.id}
               className={clsx(
-                'border cursor-pointer relative flex gap-[8px] w-[36px] h-control rounded-control items-center bg-newBgLineColor justify-center',
+                'border cursor-pointer relative flex gap-[8px] w-[36px] h-control rounded-control items-center bg-hairline justify-center',
                 current === integration.id
                   ? 'border-lineStrong text-ink'
                   : 'border-transparent'
@@ -159,21 +160,11 @@ export const SelectCurrent: FC = () => {
                     e.currentTarget.srcset = '/no-picture.jpg';
                   }}
                 />
-                {integration.identifier === 'youtube' ? (
-                  <img
-                    src="/icons/platforms/youtube.svg"
-                    className="absolute z-10 bottom-[2px] end-[2px] min-w-[12px]"
-                    width={12}
-                  />
-                ) : (
-                  <SafeImage
-                    src={`/icons/platforms/${integration.identifier}.png`}
-                    className="min-w-[12px] min-h-[12px] rounded-thumb absolute z-10 bottom-[8px] end-[8px]"
-                    alt={integration.identifier}
-                    width={12}
-                    height={12}
-                  />
-                )}
+                <PlatformGlyph
+                  identifier={integration.identifier}
+                  size={12}
+                  className="absolute z-10 bottom-[8px] end-[8px] text-ink"
+                />
               </div>
             </div>
           ))}

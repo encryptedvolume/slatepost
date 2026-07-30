@@ -29,7 +29,6 @@ import { MultiMediaComponent } from '@gitroom/frontend/components/media/media.co
 import { UpDownArrow } from '@gitroom/frontend/components/launches/up.down.arrow';
 import { deleteDialog } from '@gitroom/react/helpers/delete.dialog';
 import { useExistingData } from '@gitroom/frontend/components/launches/helpers/use.existing.data';
-import { useCopilotAction, useCopilotReadable } from '@copilotkit/react-core';
 import { useDropzone } from 'react-dropzone';
 import { useUppyUploader } from '@gitroom/frontend/components/media/new.uploader';
 import { Dashboard } from '@uppy/react';
@@ -195,47 +194,6 @@ export const EditorWrapper: FC<{
     return global;
   }, [internal, global]);
 
-  const setValue = useCallback(
-    (value: string[]) => {
-      const newValue = value.map((p, index) => {
-        return {
-          id: makeId(10),
-          delay: 0,
-          ...(items?.[index]?.media
-            ? { media: items[index].media }
-            : { media: [] }),
-          content: p,
-        };
-      });
-      if (internal) {
-        return setInternalValue(current, newValue);
-      }
-
-      return setGlobalValue(newValue);
-    },
-    [internal, items]
-  );
-
-  useCopilotReadable({
-    description: 'Current content of posts',
-    value: items.map((p) => p.content),
-  });
-
-  useCopilotAction({
-    name: 'setPosts',
-    description: 'a thread of posts',
-    parameters: [
-      {
-        name: 'content',
-        type: 'string[]',
-        description: 'a thread of posts',
-      },
-    ],
-    handler: async ({ content }) => {
-      setValue(content);
-    },
-  });
-
   const changeValue = useCallback(
     (index: number) => (value: string) => {
       if (internal) {
@@ -363,7 +321,7 @@ export const EditorWrapper: FC<{
         'relative flex-col gap-[20px] flex-1',
         (items.length === 1 || !canEdit || !comments) && 'flex',
         ((!canEdit && !isCreateSet) || !comments) &&
-          'bg-newSettings rounded-card'
+          'bg-surfaceActive rounded-card'
       )}
     >
       {isCreateSet && current !== 'global' && (
@@ -373,7 +331,7 @@ export const EditorWrapper: FC<{
               <div className="w-[54px] h-[54px] rounded-pill absolute z-[101] flex justify-center items-center">
                 <LockIcon />
               </div>
-              <div className="w-[54px] h-[54px] rounded-pill bg-newSettings opacity-80" />
+              <div className="w-[54px] h-[54px] rounded-pill bg-surfaceActive opacity-80" />
             </div>
             <div className="t-control-strong text-ink">
               {t(
@@ -382,7 +340,7 @@ export const EditorWrapper: FC<{
               )}
             </div>
           </div>
-          <div className="absolute w-full h-full left-0 top-0 bg-newBackdrop opacity-60 z-[100] rounded-card" />
+          <div className="absolute w-full h-full left-0 top-0 bg-canvas opacity-60 z-[100] rounded-card" />
         </>
       )}
       {!canEdit && !isCreateSet && (
@@ -398,7 +356,7 @@ export const EditorWrapper: FC<{
               <div className="w-[54px] h-[54px] rounded-pill absolute z-[101] flex justify-center items-center">
                 <LockIcon />
               </div>
-              <div className="w-[54px] h-[54px] rounded-pill bg-newSettings opacity-80" />
+              <div className="w-[54px] h-[54px] rounded-pill bg-surfaceActive opacity-80" />
             </div>
             <div className="t-control-strong text-ink">
               {t(
@@ -412,14 +370,14 @@ export const EditorWrapper: FC<{
               </div>
             </div>
           </div>
-          <div className="absolute w-full h-full left-0 top-0 bg-newBackdrop opacity-60 z-[100] rounded-card" />
+          <div className="absolute w-full h-full left-0 top-0 bg-canvas opacity-60 z-[100] rounded-card" />
         </>
       )}
       {items.map((g, index) => (
         <div
           key={g.id}
           className={clsx(
-            'relative flex flex-col gap-[20px] flex-1 bg-newSettings',
+            'relative flex flex-col gap-[20px] flex-1 bg-surfaceActive',
             index === 0 && 'rounded-t-card',
             (index === items.length - 1 || !comments) && 'rounded-b-card',
             !canEdit && !isCreateSet && 'blur-s',
@@ -429,7 +387,7 @@ export const EditorWrapper: FC<{
           <div className="flex gap-[4px] flex-1 w-full">
             <div className="flex-1 flex w-full">
               {index > 0 && (
-                <div className="flex justify-center pl-[12px] text-newSep">
+                <div className="flex justify-center pl-[12px] text-lineStrong">
                   <ConnectionLineIcon />
                 </div>
               )}
@@ -713,7 +671,7 @@ export const Editor: FC<{
             >
               {t('drop_files_here_to_upload', 'Drop your files here to upload')}
             </div>
-            <div className="px-[8px] pt-[8px] bg-newBgColorInner rounded-t-thumb relative z-[99]">
+            <div className="px-[8px] pt-[8px] bg-surface rounded-t-thumb relative z-[99]">
               <OnlyEditor
                 value={props.value}
                 editorType={editorType}
@@ -723,7 +681,7 @@ export const Editor: FC<{
               />
             </div>
             <div
-              className="bg-newBgColorInner flex-1"
+              className="bg-surface flex-1"
               onClick={() => {
                 if (editorRef?.current?.editor?.isFocused) {
                   return;
@@ -732,7 +690,7 @@ export const Editor: FC<{
               }}
             />
             <div className="w-full pointer-events-none">
-              <div className="w-full h-large overflow-hidden absolute left-0 bg-newBgColorInner uppyChange">
+              <div className="w-full h-large overflow-hidden absolute left-0 bg-surface uppyChange">
                 <Dashboard
                   height={44}
                   uppy={uppy}
@@ -747,7 +705,7 @@ export const Editor: FC<{
               </div>
             </div>
             <div
-              className="w-full h-large bg-newBgColorInner cursor-text"
+              className="w-full h-large bg-surface cursor-text"
               onClick={() => {
                 if (editorRef?.current?.editor?.isFocused) {
                   return;
@@ -755,12 +713,10 @@ export const Editor: FC<{
                 editorRef?.current?.editor?.commands?.focus('end');
               }}
             />
-            <div className="flex bg-newBgColorInner rounded-b-thumb cursor-default">
+            <div className="flex bg-surface rounded-b-thumb cursor-default">
               {setImages && (
                 <MultiMediaComponent
                   mediaNotAvailable={num > 0 && comments === 'no-media'}
-                  allData={allValues}
-                  text={valueWithoutHtml}
                   label={t('attachments', 'Attachments')}
                   description=""
                   value={props.pictures}
@@ -810,7 +766,7 @@ export const Editor: FC<{
                       <div
                         data-tooltip-id="tooltip"
                         data-tooltip-content={t('insert_emoji', 'Insert Emoji')}
-                        className="select-none cursor-pointer rounded-thumb w-[28px] h-compact bg-newColColor flex justify-center items-center"
+                        className="select-none cursor-pointer rounded-thumb w-[28px] h-compact bg-surfaceActive flex justify-center items-center"
                         onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}
                       >
                         <EmojiIcon />
@@ -884,6 +840,9 @@ export const OnlyEditor = forwardRef<
         return [];
       }
 
+      // Failures are rethrown, not flattened to an empty list: the dropdown
+      // distinguishes "no handle matches that" from "we could not check", and it
+      // can only do that if the failure reaches it.
       try {
         const load = await fetch('/integrations/mentions', {
           method: 'POST',
@@ -894,11 +853,14 @@ export const OnlyEditor = forwardRef<
           }),
         });
 
-        const result = await load.json();
-        return result;
+        if (!load.ok) {
+          throw new Error(`Request failed: ${load.status}`);
+        }
+
+        return await load.json();
       } catch (error) {
         console.error('Error loading mentions:', error);
-        return [];
+        throw error;
       }
     },
     [internal, fetch]

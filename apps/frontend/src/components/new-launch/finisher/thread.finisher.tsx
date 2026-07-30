@@ -29,7 +29,7 @@ export const ThreadFinisher = () => {
   const value = watch('thread_finisher');
 
   return (
-    <div className="flex flex-col gap-[8px] border-tableBorder border p-[16px] rounded-control mb-[20px]">
+    <div className="flex flex-col gap-[8px] border-hairline border p-[16px] rounded-control mb-[20px]">
       <div className="flex items-center">
         <div className="flex-1">Add a thread finisher</div>
         <div>
@@ -48,7 +48,7 @@ export const ThreadFinisher = () => {
         >
           <div>
             <div className="flex gap-[4px]">
-              <div className="flex-1 editor text-textColor">
+              <div className="flex-1 editor text-ink">
                 <Editor
                   comments={true}
                   chars={{}}

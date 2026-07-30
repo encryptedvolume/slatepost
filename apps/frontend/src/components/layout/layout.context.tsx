@@ -2,7 +2,6 @@
 
 import { ReactNode, useCallback } from 'react';
 import { FetchWrapperComponent } from '@gitroom/helpers/utils/custom.fetch';
-import { deleteDialog } from '@gitroom/react/helpers/delete.dialog';
 import { useReturnUrl } from '@gitroom/frontend/app/(app)/auth/return.url.component';
 import { useVariables } from '@gitroom/react/helpers/variable.context';
 export default function LayoutContext(params: { children: ReactNode }) {
@@ -23,13 +22,12 @@ export function setCookie(cname: string, cvalue: string, exdays: number) {
 }
 function LayoutContextInner(params: { children: ReactNode }) {
   const returnUrl = useReturnUrl();
-  const { backendUrl, isGeneral, isSecured } = useVariables();
+  const { backendUrl, isSecured } = useVariables();
   const afterRequest = useCallback(
     async (url: string, options: RequestInit, response: Response) => {
       if (
         typeof window !== 'undefined' &&
-        (window.location.href.includes('/p/') ||
-          window.location.pathname.startsWith('/provider/'))
+        window.location.href.includes('/p/')
       ) {
         return true;
       }
@@ -37,9 +35,6 @@ function LayoutContextInner(params: { children: ReactNode }) {
         response?.headers?.get('auth') || response?.headers?.get('Auth');
       const showOrg =
         response?.headers?.get('showorg') || response?.headers?.get('Showorg');
-      const impersonate =
-        response?.headers?.get('impersonate') ||
-        response?.headers?.get('Impersonate');
       const logout =
         response?.headers?.get('logout') || response?.headers?.get('Logout');
       if (headerAuth) {
@@ -48,13 +43,9 @@ function LayoutContextInner(params: { children: ReactNode }) {
       if (showOrg) {
         setCookie('showorg', showOrg, 365);
       }
-      if (impersonate) {
-        setCookie('impersonate', impersonate, 365);
-      }
       if (logout && !isSecured) {
         setCookie('auth', '', -10);
         setCookie('showorg', '', -10);
-        setCookie('impersonate', '', -10);
         window.location.href = '/';
         return true;
       }
@@ -69,9 +60,7 @@ function LayoutContextInner(params: { children: ReactNode }) {
         }
       }
       if (response?.headers?.get('onboarding')) {
-        window.location.href = isGeneral
-          ? '/launches?onboarding=true'
-          : '/analytics?onboarding=true';
+        window.location.href = '/launches?onboarding=true';
         return true;
       }
 
@@ -84,40 +73,12 @@ function LayoutContextInner(params: { children: ReactNode }) {
         if (!isSecured) {
           setCookie('auth', '', -10);
           setCookie('showorg', '', -10);
-          setCookie('impersonate', '', -10);
         }
         window.location.href = '/';
       }
-      if (response.status === 406) {
-        if (
-          await deleteDialog(
-            'You are currently on trial, in order to use the feature you must finish the trial',
-            'Finish the trial, charge me now',
-            'Trial',
-
-          )
-        ) {
-          window.open('/billing?finishTrial=true', '_blank');
-          return false;
-        }
-        return false;
-      }
-
-      if (response.status === 402) {
-        if (
-          await deleteDialog(
-            (
-              await response.json()
-            ).message,
-            'Move to billing',
-            'Payment Required'
-          )
-        ) {
-          window.open('/billing', '_blank');
-          return false;
-        }
-        return true;
-      }
+      // 402 Payment Required and 406 (finish your trial) used to open a
+      // billing dialog. This fork takes no payments, so either status is a
+      // backend bug to surface, not a prompt to upsell the one user.
       return true;
     },
     []

@@ -3,25 +3,16 @@ import { SentryComponent } from '@gitroom/frontend/components/layout/sentry.comp
 export const dynamic = 'force-dynamic';
 import '../global.scss';
 import 'react-tooltip/dist/react-tooltip.css';
-import '@copilotkit/react-ui/styles.css';
 import LayoutContext from '@gitroom/frontend/components/layout/layout.context';
 import { ReactNode } from 'react';
-import PlausibleProvider from 'next-plausible';
 import clsx from 'clsx';
 import { VariableContextComponent } from '@gitroom/react/helpers/variable.context';
-import { Fragment } from 'react';
-import { PHProvider } from '@gitroom/react/helpers/posthog';
-import UtmSaver from '@gitroom/helpers/utils/utm.saver';
-import { DubAnalytics } from '@gitroom/frontend/components/layout/dubAnalytics';
-import { FacebookComponent } from '@gitroom/frontend/components/layout/facebook.component';
-import { GoogleTagManagerComponent } from '@gitroom/frontend/components/layout/gtm.component';
 import { cookies } from 'next/headers';
 import {
   cookieName,
   fallbackLng,
 } from '@gitroom/react/translation/i18n.config';
 import { HtmlComponent } from '@gitroom/frontend/components/layout/html.component';
-import Script from 'next/script';
 import { ChangeDirClient } from '@gitroom/frontend/components/new-layout/change.dir.client';
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
@@ -30,9 +21,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   // Theme is resolved server-side from the same `mode` cookie the toggle
   // writes, so light-mode users never get a dark first paint.
   const mode = cookieStore.get('mode')?.value === 'light' ? 'light' : 'dark';
-  const Plausible = !!process.env.STRIPE_PUBLISHABLE_KEY
-    ? PlausibleProvider
-    : Fragment;
   return (
     // `color-scheme` has to be on <html>, not on the themed <body>: it is what
     // paints the UA's own chrome — the macOS rubber-band gutter, native
@@ -51,14 +39,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/app-icon-1024.png" />
-        {!!process.env.DATAFAST_WEBSITE_ID && (
-          <Script
-            data-website-id={process.env.DATAFAST_WEBSITE_ID}
-            data-domain="slatepost.lol"
-            src="https://datafa.st/js/script.js"
-            strategy="afterInteractive"
-          />
-        )}
       </head>
       <ChangeDirClient />
       {/* Slate ships the system UI stack at three weights (400/500/600) and
@@ -71,10 +51,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           environment={process.env.NODE_ENV!}
           backendUrl={process.env.NEXT_PUBLIC_BACKEND_URL!}
           plontoKey={process.env.NEXT_PUBLIC_POLOTNO!}
-          stripeClient={process.env.STRIPE_PUBLISHABLE_KEY!}
-          isChatBase={!!process.env.CHATBASE_TOKEN}
+          /* The Stripe publishable key used to be published here as
+             `stripeClient`, which put it on `window.vars` in every browser that
+             loaded the app. Its only reader was the embedded checkout form,
+             and that is gone with the rest of billing. */
           billingEnabled={!!process.env.STRIPE_PUBLISHABLE_KEY}
-          discordUrl={process.env.NEXT_PUBLIC_DISCORD_SUPPORT!}
           frontEndUrl={process.env.FRONTEND_URL!}
           isGeneral={!!process.env.IS_GENERAL}
           genericOauth={!!process.env.POSTIZ_GENERIC_OAUTH}
@@ -84,8 +65,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           cloudflareUrl={process.env.CLOUDFLARE_BUCKET_URL || ''}
           mainUrl={process.env.MAIN_URL || ''}
           mcpUrl={process.env.MCP_URL}
-          dub={!!process.env.STRIPE_PUBLISHABLE_KEY}
-          facebookPixel={process.env.NEXT_PUBLIC_FACEBOOK_PIXEL!}
           telegramBotName={process.env.TELEGRAM_BOT_NAME!}
           neynarClientId={process.env.NEYNAR_CLIENT_ID!}
           isSecured={!process.env.NOT_SECURED}
@@ -93,8 +72,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           disableXAnalytics={!!process.env.DISABLE_X_ANALYTICS}
           sentryDsn={process.env.NEXT_PUBLIC_SENTRY_DSN!}
           extensionId={process.env.EXTENSION_ID || ''}
-          googleAdsId={process.env.NEXT_PUBLIC_GTM_ID}
-          googleAdsTrialTracking={process.env.NEXT_PUBLIC_TRACKING_TRIAL}
           language={language}
           transloadit={
             process.env.TRANSLOADIT_AUTH && process.env.TRANSLOADIT_TEMPLATE
@@ -105,25 +82,15 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
               : []
           }
         >
+          {/* Sentry is the only third party the app is allowed to talk to for
+              its own sake, it is error monitoring only, and with no DSN set it
+              makes no network call at all. Nothing else is loaded here: no
+              product analytics, no pixels, no tag manager, no session
+              recording of a marketing kind. The Privacy Policy says so. */}
           <SentryComponent>
             {/*<SetTimezone />*/}
             <HtmlComponent />
-            <DubAnalytics />
-            <FacebookComponent />
-            <GoogleTagManagerComponent gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
-            <Plausible
-              domain={!!process.env.IS_GENERAL ? 'slatepost.lol' : 'gitroom.com'}
-            >
-              <PHProvider
-                phkey={process.env.NEXT_PUBLIC_POSTHOG_KEY}
-                host={process.env.NEXT_PUBLIC_POSTHOG_HOST}
-              >
-                <LayoutContext>
-                  <UtmSaver />
-                  {children}
-                </LayoutContext>
-              </PHProvider>
-            </Plausible>
+            <LayoutContext>{children}</LayoutContext>
           </SentryComponent>
         </VariableContextComponent>
       </body>

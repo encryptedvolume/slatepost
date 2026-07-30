@@ -46,18 +46,24 @@ import SafeImage from '@gitroom/react/helpers/safe.image';
 import { extend } from 'dayjs';
 import { isUSCitizen } from './helpers/isuscitizen.utils';
 import { useInterval } from '@mantine/hooks';
-import { StatisticsModal } from '@gitroom/frontend/components/launches/statistics';
-import { MissingReleaseModal } from '@gitroom/frontend/components/launches/missing-release.modal';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import i18next from 'i18next';
 import { AddEditModal } from '@gitroom/frontend/components/new-launch/add.edit.modal';
 import { CreationMethodBadge } from '@gitroom/frontend/components/launches/creation.method.badge';
 import { deleteDialog } from '@gitroom/react/helpers/delete.dialog';
-import { useVariables } from '@gitroom/react/helpers/variable.context';
+import { PlatformGlyph } from '@gitroom/frontend/components/ui/platform.glyph';
 import copy from 'copy-to-clipboard';
 import { stripHtmlValidation } from '@gitroom/helpers/utils/strip.html.validation';
 import { newDayjs } from '@gitroom/frontend/components/layout/set.timezone';
 import { Button } from '@gitroom/react/form/button';
+import {
+  EmptyState,
+  ErrorState,
+} from '@gitroom/frontend/components/ui/state.notice';
+import {
+  Skeleton,
+  SkeletonRegion,
+} from '@gitroom/frontend/components/ui/skeleton';
 
 // Extend dayjs with necessary plugins
 extend(isSameOrAfter);
@@ -93,7 +99,7 @@ export const hours = Array.from(
   (_, i) => i
 );
 
-// Shared hook for post actions (edit, delete, statistics)
+// Shared hook for post actions (edit, duplicate, delete)
 const usePostActions = (onMutate?: () => void) => {
   const t = useT();
   const fetch = useFetch();
@@ -113,10 +119,26 @@ const usePostActions = (onMutate?: () => void) => {
         publishDate: loadPost.actualDate || loadPost.publishDate,
       };
 
-      const data = await (await fetch(`/posts/group/${post.group}`)).json();
+      // Opening the composer needs the post it is going to edit. When that
+      // request fails the click used to do nothing at all — the row simply did
+      // not respond — so the failure is reported and the post stays as it is.
+      const groupResponse = await fetch(`/posts/group/${post.group}`);
+
+      if (!groupResponse.ok) {
+        toaster.show(
+          t(
+            'post_open_failed',
+            'We could not open this post. Nothing has changed — try again in a moment.'
+          ),
+          'warning'
+        );
+        return;
+      }
+
+      const data = await groupResponse.json();
       const date = !isDuplicate
         ? null
-        : (await (await fetch('/posts/find-slot')).json()).date;
+        : (await (await fetch('/posts/find-slot')).json())?.date;
       const publishDate = dayjs
         .utc(date || data.posts[0].publishDate)
         .local();
@@ -132,7 +154,7 @@ const usePostActions = (onMutate?: () => void) => {
         askClose: true,
         fullScreen: true,
         classNames: {
-          modal: 'w-[100%] max-w-[1400px] text-textColor',
+          modal: 'w-[100%] max-w-[1400px] text-ink',
         },
         children: (
           <ExistingData value={data}>
@@ -202,9 +224,22 @@ const usePostActions = (onMutate?: () => void) => {
         return;
       }
 
-      await fetch(`/posts/${post.group}`, {
+      // A refused delete used to report success, the calendar refreshed, and the
+      // post reappeared with no explanation for why it came back.
+      const deleted = await fetch(`/posts/${post.group}`, {
         method: 'DELETE',
       });
+
+      if (!deleted.ok) {
+        toaster.show(
+          t(
+            'post_delete_failed',
+            'We could not delete this post. It is still scheduled — try again in a moment.'
+          ),
+          'warning'
+        );
+        return;
+      }
 
       toaster.show(
         t('post_deleted_successfully', 'Post deleted successfully'),
@@ -216,43 +251,65 @@ const usePostActions = (onMutate?: () => void) => {
     [toaster, t, fetch, mutate]
   );
 
-  const openStatistics = useCallback(
-    (id: string) => () => {
-      modal.openModal({
-        title: t('statistics', 'Statistics'),
-        closeOnClickOutside: true,
-        closeOnEscape: true,
-        withCloseButton: true,
-        classNames: {
-          modal: 'w-[100%] max-w-[1400px]',
-        },
-        children: <StatisticsModal postId={id} />,
-        size: '80%',
-      });
-    },
-    [modal, t]
-  );
+  return { editPost, deletePost, copyDebugJson };
+};
 
-  const openMissingRelease = useCallback(
-    (id: string) => () => {
-      modal.openModal({
-        title: t('connect_post', 'Connect Post'),
-        closeOnClickOutside: true,
-        closeOnEscape: true,
-        withCloseButton: true,
-        classNames: {
-          modal: 'w-[100%] max-w-[800px]',
-        },
-        children: (
-          <MissingReleaseModal postId={id} onSuccess={mutate} />
+/**
+ * Opens the composer on the next free slot the backend offers.
+ *
+ * This exists so an empty state can carry a real next action instead of only
+ * describing one. It is the same modal the calendar cells and the rail button
+ * open, minus the date the cell would have supplied — with nothing on the
+ * calendar there is no cell to click, so the slot comes from `/posts/find-slot`.
+ */
+const useScheduleNextSlot = () => {
+  const fetch = useFetch();
+  const modal = useModals();
+  const toaster = useToaster();
+  const t = useT();
+  const { integrations, reloadCalendarView } = useCalendar();
+
+  return useCallback(async () => {
+    // This is the button an empty state offers, so it is the last place that can
+    // afford to do nothing when it is pressed.
+    const slotResponse = await fetch('/posts/find-slot');
+
+    if (!slotResponse.ok) {
+      toaster.show(
+        t(
+          'find_slot_failed',
+          'We could not work out the next free slot. Try again in a moment.'
         ),
-        size: '60%',
-      });
-    },
-    [modal, t, mutate]
-  );
+        'warning'
+      );
+      return;
+    }
 
-  return { editPost, deletePost, copyDebugJson, openStatistics, openMissingRelease };
+    const { date } = await slotResponse.json();
+
+    modal.openModal({
+      id: 'add-edit-modal',
+      closeOnClickOutside: false,
+      removeLayout: true,
+      closeOnEscape: false,
+      withCloseButton: false,
+      askClose: true,
+      fullScreen: true,
+      classNames: {
+        modal: 'w-[100%] max-w-[1400px] text-ink',
+      },
+      children: (
+        <AddEditModal
+          allIntegrations={integrations.map((p) => ({ ...p }))}
+          integrations={integrations.map((p) => ({ ...p }))}
+          mutate={reloadCalendarView}
+          date={dayjs.utc(date).local()}
+          reopenModal={() => ({})}
+        />
+      ),
+      size: '80%',
+    });
+  }, [integrations, reloadCalendarView]);
 };
 
 export const DayView = () => {
@@ -360,7 +417,7 @@ export const WeekView = () => {
   }, [i18next.resolvedLanguage, startDate]);
 
   return (
-    <div className="flex flex-col text-textColor flex-1">
+    <div className="flex flex-col text-ink flex-1">
       <div className="flex-1 relative">
         {/* The calendar is a grid, not a card grid: radius 0, gap 0, and every
             cell separated by a 1px hairline. No shadow, forever. The gutter is
@@ -457,7 +514,7 @@ export const MonthView = () => {
   }, [startDate]);
 
   return (
-    <div className="flex flex-col text-textColor flex-1">
+    <div className="flex flex-col text-ink flex-1">
       <div className="flex-1 flex relative">
         <div className="grid grid-cols-7 grid-rows-[64px_auto] gap-0 rounded-none absolute start-0 top-0 overflow-auto w-full h-full scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent">
           {localizedDays.map((day) => (
@@ -488,17 +545,51 @@ export const ListView = () => {
   const t = useT();
   const user = useUser();
   const { integrations, loading, listPosts, listState } = useCalendar();
-  const emptyMessage =
-    listState === 'scheduled'
-      ? t('no_upcoming_posts', 'No upcoming posts scheduled')
-      : listState === 'draft'
-      ? t('no_draft_posts', 'No draft posts')
-      : listState === 'published'
-      ? t('no_published_posts', 'No published posts')
-      : t('no_posts', 'No posts');
+  const scheduleNextSlot = useScheduleNextSlot();
+  const addProvider = useAddProvider();
+
+  // The empty state is written per filter, because "No posts" under the Draft
+  // tab and "No posts" under the Published tab are different facts about the
+  // account and only one of them is worth acting on in the same way.
+  const empty = useMemo(() => {
+    if (listState === 'scheduled') {
+      return {
+        title: t('no_upcoming_posts', 'Nothing scheduled'),
+        body: t(
+          'no_upcoming_posts_body',
+          'No post is waiting to go out. Schedule one and it shows up here with the exact time it publishes.'
+        ),
+      };
+    }
+    if (listState === 'draft') {
+      return {
+        title: t('no_draft_posts', 'No drafts'),
+        body: t(
+          'no_draft_posts_body',
+          'A draft is a post you have written but not scheduled. Start one and it waits here until you pick a time.'
+        ),
+      };
+    }
+    if (listState === 'published') {
+      return {
+        title: t('no_published_posts', 'Nothing published yet'),
+        body: t(
+          'no_published_posts_body',
+          'Posts move here once TikTok confirms they went out.'
+        ),
+      };
+    }
+    return {
+      title: t('no_posts', 'Your queue is empty'),
+      body: t(
+        'no_posts_body',
+        'Every post you schedule is listed here, with the time it goes out. Write the first one to fill the queue.'
+      ),
+    };
+  }, [listState, t]);
 
   // Use shared post actions hook
-  const { editPost, deletePost, copyDebugJson, openStatistics, openMissingRelease } = usePostActions();
+  const { editPost, deletePost, copyDebugJson } = usePostActions();
 
   // Group posts by date
   const groupedPosts = useMemo(() => {
@@ -513,19 +604,60 @@ export const ListView = () => {
     return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
   }, [listPosts]);
 
+  // Placeholders in the shape of the list that is coming — two date groups of
+  // three rows — rather than a spinner in the middle of an empty column.
   if (loading) {
     return (
-      <div className="flex flex-col flex-1 items-center justify-center">
-        <div className="text-textColor">{t('loading', 'Loading...')}</div>
-      </div>
+      <SkeletonRegion
+        label={t('loading_posts', 'Loading your posts')}
+        className="flex flex-col gap-[8px] flex-1 relative"
+      >
+        <div className="absolute start-0 top-0 w-full h-full flex flex-col overflow-hidden">
+          {[0, 1].map((group) => (
+            <Fragment key={group}>
+              <div className="flex justify-center min-h-[24px] mt-[8px]">
+                <Skeleton className="h-[18px] w-[200px] rounded-thumb" />
+              </div>
+              <div className="flex flex-col gap-[8px] mb-[24px] px-[8px] mt-[8px]">
+                {[0, 1, 2].map((row) => (
+                  <Skeleton key={row} className="h-[84px] w-full rounded-none" />
+                ))}
+              </div>
+            </Fragment>
+          ))}
+        </div>
+      </SkeletonRegion>
     );
   }
 
   if (listPosts.length === 0) {
-    return (
-      <div className="flex flex-col flex-1 items-center justify-center">
-        <div className="t-body text-inkSecondary">{emptyMessage}</div>
-      </div>
+    // No channel is the more fundamental emptiness: scheduling is not reachable
+    // until one is connected, so that is the action the state offers.
+    return integrations.length === 0 ? (
+      <EmptyState
+        className="flex-1"
+        title={t('no_channel_connected', 'No channel connected')}
+        body={t(
+          'no_channel_connected_body',
+          'Slate posts to one TikTok channel. Connect it and your queue starts here.'
+        )}
+        action={
+          <Button onClick={addProvider}>
+            {t('connect_tiktok', 'Connect TikTok')}
+          </Button>
+        }
+      />
+    ) : (
+      <EmptyState
+        className="flex-1"
+        title={empty.title}
+        body={empty.body}
+        action={
+          <Button onClick={scheduleNextSlot}>
+            {t('create_new_post', 'Create Post')}
+          </Button>
+        }
+      />
     );
   }
 
@@ -545,8 +677,6 @@ export const ListView = () => {
                   isBeforeNow={false}
                   date={newDayjs(post.publishDate)}
                   state={post.state}
-                  statistics={openStatistics(post.id)}
-                  missingRelease={openMissingRelease(post.id)}
                   editPost={editPost(post, false)}
                   duplicatePost={editPost(post, true)}
                   copyDebugJson={user?.isSuperAdmin ? copyDebugJson(post) : undefined}
@@ -565,9 +695,65 @@ export const ListView = () => {
 };
 
 export const Calendar = () => {
-  const { display } = useCalendar();
+  const { display, loading, posts, loadError, reloadCalendarView } =
+    useCalendar();
+  const t = useT();
+
+  // The grid views have no row to be empty — they are a scaffold of hours, and
+  // a scaffold with nothing in it is indistinguishable from one that has not
+  // finished loading. So the two are said out loud, in the same spot, in one
+  // line each: the wait as a status, the emptiness as a nudge at the slot the
+  // user is meant to click. Neither ever occupies a cell.
+  const rangeIsEmpty = useMemo(() => {
+    if (display === 'day') {
+      return t('nothing_scheduled_today', 'Nothing scheduled today');
+    }
+    if (display === 'month') {
+      return t('nothing_scheduled_month', 'Nothing scheduled this month');
+    }
+    return t('nothing_scheduled_week', 'Nothing scheduled this week');
+  }, [display, t]);
+
+  // One failure state for all four views: the request behind them is the same
+  // one, and a grid drawn with no posts in it would read as "nothing is
+  // scheduled", which is the one thing it must never say by accident.
+  if (loadError) {
+    return (
+      <ErrorState
+        className="m-auto"
+        title={t('calendar_failed_title', 'We could not load your posts')}
+        body={t(
+          'calendar_failed_body',
+          'The queue is still there — this screen just could not reach it. Try again in a moment.'
+        )}
+        onRetry={reloadCalendarView}
+      />
+    );
+  }
+
   return (
-    <>
+    <div className="flex flex-1 relative min-w-0">
+      {display !== 'list' && loading && (
+        <div
+          role="status"
+          aria-busy="true"
+          aria-live="polite"
+          className="absolute start-[50%] -translate-x-[50%] top-[50%] -translate-y-[50%] z-[60] pointer-events-none px-[12px] h-compact flex items-center rounded-pill bg-surfaceOverlay border border-line t-secondary text-inkSecondary"
+        >
+          {t('loading_posts', 'Loading your posts')}
+        </div>
+      )}
+      {display !== 'list' && !loading && !posts.length && (
+        <div className="absolute start-[50%] -translate-x-[50%] top-[50%] -translate-y-[50%] z-[60] pointer-events-none px-[16px] py-[8px] max-w-[320px] text-center rounded-card bg-surfaceOverlay border border-line">
+          <div className="t-body-emphasis text-ink">{rangeIsEmpty}</div>
+          <div className="t-secondary text-inkSecondary">
+            {t(
+              'nothing_scheduled_hint',
+              'Pick any slot in the grid to write a post for that time.'
+            )}
+          </div>
+        </div>
+      )}
       {display === 'list' ? (
         <ListView />
       ) : display === 'day' ? (
@@ -577,7 +763,7 @@ export const Calendar = () => {
       ) : (
         <MonthView />
       )}
-    </>
+    </div>
   );
 };
 export const CalendarColumn: FC<{
@@ -597,13 +783,13 @@ export const CalendarColumn: FC<{
     reloadCalendarView,
     sets,
     signature,
-    loading,
   } = useCalendar();
   const modal = useModals();
   const fetch = useFetch();
+  const toaster = useToaster();
 
   // Use shared post actions hook
-  const { editPost, deletePost, copyDebugJson, openStatistics, openMissingRelease } = usePostActions();
+  const { editPost, deletePost, copyDebugJson } = usePostActions();
   const postList = useMemo(() => {
     return posts.filter((post) => {
       const pList = dayjs.utc(post.publishDate).local();
@@ -739,19 +925,31 @@ export const CalendarColumn: FC<{
       if (!item.interval) {
         changeDate(item.id, getDate);
       }
-      const { status } = await fetch(`/posts/${item.id}/date`, {
+      const response = await fetch(`/posts/${item.id}/date`, {
         method: 'PUT',
         body: JSON.stringify({
           date: getDate.utc().format('YYYY-MM-DDTHH:mm:ss'),
           action,
         }),
       });
-      if (status !== 500) {
-        if (item.interval || action === 'schedule') {
-          reloadCalendarView();
-          return;
-        }
+
+      // The card is moved optimistically, so a refused reschedule leaves the
+      // post drawn at a time it is not going out at. Reloading puts it back
+      // where the server says it is, and the sentence explains why it jumped.
+      if (!response.ok) {
+        toaster.show(
+          t(
+            'reschedule_failed',
+            'We could not move this post. It still goes out at its original time.'
+          ),
+          'warning'
+        );
+        reloadCalendarView();
         return;
+      }
+
+      if (item.interval || action === 'schedule') {
+        reloadCalendarView();
       }
     },
     collect: (monitor) => ({
@@ -797,7 +995,7 @@ export const CalendarColumn: FC<{
       askClose: true,
       fullScreen: true,
       classNames: {
-        modal: 'w-[100%] max-w-[1400px] text-textColor',
+        modal: 'w-[100%] max-w-[1400px] text-ink',
       },
       children: (
         <AddEditModal
@@ -874,11 +1072,10 @@ export const CalendarColumn: FC<{
             isBeforeNow && postList.length === 0 && 'col-calendar'
           )}
         >
-          {loading && (
-            <div className="h-full w-full p-[4px] absolute left-0 top-0 z-[50]">
-              <div className="h-full w-full bg-skeleton rounded-none" />
-            </div>
-          )}
+          {/* No placeholder is drawn in a cell. A block in every cell of the
+              grid is a calendar that looks fully booked while it loads, and
+              then empties — the wait is announced once, above the grid, by
+              `Calendar`. */}
           {list.map((post) => (
             <div
               key={post.id}
@@ -892,8 +1089,6 @@ export const CalendarColumn: FC<{
                   isBeforeNow={isBeforeNow}
                   date={getDate}
                   state={post.state}
-                  statistics={openStatistics(post.id)}
-                  missingRelease={openMissingRelease(post.id)}
                   editPost={editPost(post, false)}
                   duplicatePost={editPost(post, true)}
                   copyDebugJson={user?.isSuperAdmin ? copyDebugJson(post) : undefined}
@@ -970,21 +1165,11 @@ export const CalendarColumn: FC<{
                           width={32}
                           height={32}
                         />
-                        {selectedIntegrations.identifier === 'youtube' ? (
-                          <img
-                            src="/icons/platforms/youtube.svg"
-                            className="absolute z-10 -bottom-[4px] -end-[4px]"
-                            width={20}
-                          />
-                        ) : (
-                          <SafeImage
-                            src={`/icons/platforms/${selectedIntegrations.identifier}.png`}
-                            className="rounded-thumb absolute z-10 -bottom-[4px] -end-[4px] border border-line"
-                            alt={selectedIntegrations.identifier}
-                            width={20}
-                            height={20}
-                          />
-                        )}
+                        <PlatformGlyph
+                          identifier={selectedIntegrations.identifier}
+                          size={20}
+                          className="absolute z-10 -bottom-[4px] -end-[4px] text-ink"
+                        />
                       </div>
                     </div>
                   ))}
@@ -1004,8 +1189,6 @@ const CalendarItem: FC<{
   duplicatePost: () => void;
   copyDebugJson?: () => void;
   deletePost: () => void;
-  statistics: () => void;
-  missingRelease?: () => void;
   integrations: Integrations[];
   state: State;
   display: 'day' | 'week' | 'month';
@@ -1020,7 +1203,6 @@ const CalendarItem: FC<{
   const t = useT();
   const {
     editPost,
-    statistics,
     duplicatePost,
     copyDebugJson,
     post,
@@ -1030,9 +1212,7 @@ const CalendarItem: FC<{
     display,
     deletePost,
     showTime,
-    missingRelease,
   } = props;
-  const { disableXAnalytics } = useVariables();
   const user = useUser();
   const showCreationMethodBadge =
     user?.impersonate &&
@@ -1083,7 +1263,7 @@ const CalendarItem: FC<{
         <div className="absolute -bottom-[4px] -right-[4px] z-10">
           <CreationMethodBadge
             creationMethod={post.creationMethod}
-            ringColor="var(--new-bgColor)"
+            ringColor="var(--slate-canvas)"
           />
         </div>
       )}
@@ -1093,7 +1273,7 @@ const CalendarItem: FC<{
           the 6px swatch dot below instead. */}
       <div
         className={clsx(
-          'text-primaryText t-caption max-h-[24px] h-[24px] min-h-[24px] w-full rounded-none flex items-center justify-center gap-[8px] px-[8px] bg-btnPrimary'
+          'text-primaryText t-caption max-h-[24px] h-[24px] min-h-[24px] w-full rounded-none flex items-center justify-center gap-[8px] px-[8px] bg-primaryBg'
         )}
       >
         {/* The 6px scheduled/queued dot — one of the four sanctioned uses of
@@ -1136,25 +1316,6 @@ const CalendarItem: FC<{
         >
           <Preview />
         </div>{' '}
-        {((post.integration.providerIdentifier === 'x' && disableXAnalytics) || !post.releaseId) ? (
-          <></>
-        ) : post.releaseId === 'missing' && missingRelease ? (
-          <div
-            className="hidden group-hover:block hover:underline cursor-pointer"
-            onClick={missingRelease}
-          >
-            <Statistics />
-          </div>
-        ) : post.releaseId !== 'missing' ? (
-          <div
-            className="hidden group-hover:block hover:underline cursor-pointer"
-            onClick={statistics}
-          >
-            <Statistics />
-          </div>
-        ) : (
-          <></>
-        )}{' '}
         <div
           className="hidden group-hover:block hover:underline cursor-pointer"
           onClick={deletePost}
@@ -1165,7 +1326,7 @@ const CalendarItem: FC<{
       <div
         onClick={editPost}
         className={clsx(
-          'gap-[8px] w-full flex h-full flex-1 rounded-none p-[8px] t-secondary bg-newColColor',
+          'gap-[8px] w-full flex h-full flex-1 rounded-none p-[8px] t-secondary bg-surfaceActive',
           'relative',
           isBeforeNow && '!grayscale'
         )}
@@ -1175,9 +1336,10 @@ const CalendarItem: FC<{
             className="w-[20px] h-[20px] rounded-thumb"
             src={post.integration.picture! || '/no-picture.jpg'}
           />
-          <img
-            className="w-[12px] h-[12px] rounded-thumb absolute z-10 top-[12px] end-0 border border-line"
-            src={`/icons/platforms/${post.integration?.providerIdentifier}.png`}
+          <PlatformGlyph
+            identifier={post.integration?.providerIdentifier}
+            size={12}
+            className="absolute z-10 top-[12px] end-0 text-ink"
           />
         </div>
         <div className="w-full flex-1 flex flex-col min-h-large">
@@ -1315,26 +1477,6 @@ const Preview = () => {
     </svg>
   );
 };
-export const Statistics = () => {
-  const t = useT();
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="15"
-      height="15"
-      viewBox="0 0 32 32"
-      fill="none"
-      data-tooltip-id="tooltip"
-      data-tooltip-content={t('post_statistics', 'Post Statistics')}
-    >
-      <path
-        d="M28 25H27V5C27 4.73478 26.8946 4.48043 26.7071 4.29289C26.5196 4.10536 26.2652 4 26 4H19C18.7348 4 18.4804 4.10536 18.2929 4.29289C18.1054 4.48043 18 4.73478 18 5V10H12C11.7348 10 11.4804 10.1054 11.2929 10.2929C11.1054 10.4804 11 10.7348 11 11V16H6C5.73478 16 5.48043 16.1054 5.29289 16.2929C5.10536 16.4804 5 16.7348 5 17V25H4C3.73478 25 3.48043 25.1054 3.29289 25.2929C3.10536 25.4804 3 25.7348 3 26C3 26.2652 3.10536 26.5196 3.29289 26.7071C3.48043 26.8946 3.73478 27 4 27H28C28.2652 27 28.5196 26.8946 28.7071 26.7071C28.8946 26.5196 29 26.2652 29 26C29 25.7348 28.8946 25.4804 28.7071 25.2929C28.5196 25.1054 28.2652 25 28 25ZM20 6H25V25H20V6ZM13 12H18V25H13V12ZM7 18H11V25H7V18Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-};
-
 export const DeletePost = () => {
   const t = useT();
   return (

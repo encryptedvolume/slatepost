@@ -13,7 +13,7 @@ import React, {
 } from 'react';
 import { Button } from '@gitroom/react/form/button';
 import useSWR from 'swr';
-import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
+import { jsonOrThrow, useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import { hasExtension } from '@gitroom/helpers/utils/has.extension';
 import { Media } from '@prisma/client';
 import { useMediaDirectory } from '@gitroom/react/helpers/use.media.directory';
@@ -23,18 +23,12 @@ import { useToaster } from '@gitroom/react/toaster/toaster';
 import clsx from 'clsx';
 import { VideoFrame } from '@gitroom/react/helpers/video.frame';
 import { useUppyUploader } from '@gitroom/frontend/components/media/new.uploader';
-import dynamic from 'next/dynamic';
-import { useUser } from '@gitroom/frontend/components/layout/user.context';
-import { AiImage } from '@gitroom/frontend/components/launches/ai.image';
 import { DropFiles } from '@gitroom/frontend/components/layout/drop.files';
 import { deleteDialog } from '@gitroom/react/helpers/delete.dialog';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
-import { ThirdPartyMedia } from '@gitroom/frontend/components/third-parties/third-party.media';
 import { ReactSortable } from 'react-sortablejs';
 import { MediaComponentInner } from '@gitroom/frontend/components/launches/helpers/media.settings.component';
-import { AiVideo } from '@gitroom/frontend/components/launches/ai.video';
 import { useModals } from '@gitroom/frontend/components/layout/new-modal';
-import { ThirdPartyMediaLibrary } from '@gitroom/frontend/components/third-parties/third-party.media-library';
 import { Dashboard } from '@uppy/react';
 import {
   ChevronLeftIcon,
@@ -45,17 +39,14 @@ import {
   DragHandleIcon,
   MediaSettingsIcon,
   InsertMediaIcon,
-  DesignMediaIcon,
   VerticalDividerIcon,
   NoMediaIcon,
 } from '@gitroom/frontend/components/ui/icons';
 import { useLaunchStore } from '@gitroom/frontend/components/new-launch/store';
 import { useShallow } from 'zustand/react/shallow';
-import { LoadingComponent } from '@gitroom/frontend/components/layout/loading';
+import { ErrorState } from '@gitroom/frontend/components/ui/state.notice';
+import { Skeleton } from '@gitroom/frontend/components/ui/skeleton';
 import { useDebounce } from 'use-debounce';
-const Polonto = dynamic(
-  () => import('@gitroom/frontend/components/launches/polonto')
-);
 const showModalEmitter = new EventEmitter();
 export const Pagination: FC<{
   current: number;
@@ -122,7 +113,7 @@ export const Pagination: FC<{
     <ul className="flex flex-row items-center gap-[4px] justify-center mt-[16px]">
       <li className={clsx(current === 0 && 'opacity-20 pointer-events-none')}>
         <div
-          className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-thumb t-secondary-emphasis ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[16px] [&_svg]:shrink-0 h-control px-[16px] py-[8px] gap-[4px] ps-[8px] text-inkSecondary hover:text-ink border-line hover:bg-forth"
+          className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-thumb t-secondary-emphasis transition-colors duration-state ease-state [&_svg]:pointer-events-none [&_svg]:size-[16px] [&_svg]:shrink-0 h-control px-[16px] py-[8px] gap-[4px] ps-[8px] text-inkSecondary hover:text-ink hover:bg-surfaceActive"
           aria-label="Go to previous page"
           onClick={() => setPage(current - 1)}
         >
@@ -133,7 +124,7 @@ export const Pagination: FC<{
       {paginationItems.map((item, index) => (
         <li key={index}>
           {item === '...' ? (
-            <span className="inline-flex items-center justify-center h-control w-[36px] text-textColor select-none">
+            <span className="inline-flex items-center justify-center h-control w-[36px] text-ink select-none">
               ...
             </span>
           ) : (
@@ -141,10 +132,10 @@ export const Pagination: FC<{
               aria-current="page"
               onClick={() => setPage(item - 1)}
               className={clsx(
-                'cursor-pointer inline-flex items-center justify-center gap-[8px] whitespace-nowrap rounded-thumb t-secondary-emphasis ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[16px] [&_svg]:shrink-0 border hover:bg-forth h-control w-[36px] hover:text-ink border-newBorder',
+                'cursor-pointer inline-flex items-center justify-center gap-[8px] whitespace-nowrap rounded-thumb t-secondary-emphasis transition-colors duration-state ease-state [&_svg]:pointer-events-none [&_svg]:size-[16px] [&_svg]:shrink-0 border h-control w-[36px] border-hairline hover:bg-surfaceActive',
                 current === item - 1
-                  ? 'bg-forth !text-ink'
-                  : 'text-textColor hover:text-ink'
+                  ? 'bg-surfaceActive text-ink'
+                  : 'text-ink hover:text-ink'
               )}
             >
               {item}
@@ -158,7 +149,7 @@ export const Pagination: FC<{
         )}
       >
         <a
-          className="text-textColor hover:text-ink group cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-thumb t-secondary-emphasis ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[16px] [&_svg]:shrink-0 h-control px-[16px] py-[8px] gap-[4px] pe-[8px] text-inkSecondary border-line hover:bg-forth"
+          className="group cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-thumb t-secondary-emphasis transition-colors duration-state ease-state [&_svg]:pointer-events-none [&_svg]:size-[16px] [&_svg]:shrink-0 h-control px-[16px] py-[8px] gap-[4px] pe-[8px] text-inkSecondary hover:text-ink hover:bg-surfaceActive"
           aria-label="Go to next page"
           onClick={() => setPage(current + 1)}
         >
@@ -188,7 +179,7 @@ export const ShowMediaBoxModal: FC = () => {
   }, []);
   if (!showModal) return null;
   return (
-    <div className="text-textColor">
+    <div className="text-ink">
       <MediaBox setMedia={callBack!} closeModal={closeModal} />
     </div>
   );
@@ -215,14 +206,17 @@ export const MediaBox: FC<{
   useEffect(() => {
     setPage(0);
   }, [debouncedSearch]);
+  // A failed listing has to reach `error` below, because an error body read as
+  // data has no `results` and would draw "You don't have any media yet" over a
+  // library that is perfectly intact.
   const loadMedia = useCallback(async () => {
     const params = new URLSearchParams({ page: String(page + 1) });
     if (debouncedSearch.trim()) {
       params.set('search', debouncedSearch.trim());
     }
-    return (await fetch(`/media?${params.toString()}`)).json();
+    return jsonOrThrow(await fetch(`/media?${params.toString()}`));
   }, [page, debouncedSearch]);
-  const { data, mutate, isLoading } = useSWR(
+  const { data, mutate, isLoading, error } = useSWR(
     `get-media-${page}-${debouncedSearch}`,
     loadMedia
   );
@@ -379,8 +373,8 @@ export const MediaBox: FC<{
       if (
         !(await deleteDialog(
           t(
-            'are_you_sure_you_want_to_delete_the_image',
-            'Are you sure you want to delete the image?'
+            'are_you_sure_you_want_to_delete_this_file',
+            'Are you sure you want to delete this file?'
           )
         ))
       ) {
@@ -399,11 +393,11 @@ export const MediaBox: FC<{
       <button
         disabled={loading}
         onClick={() => uploaderRef?.current?.click()}
-        className="relative cursor-pointer bg-btnSimple changeColor flex gap-[8px] h-large px-[16px] justify-center items-center rounded-control"
+        className="relative cursor-pointer bg-surfaceActive changeColor flex gap-[8px] h-large px-[16px] justify-center items-center rounded-control"
       >
         {loading ? (
           <div className="absolute left-[50%] top-[50%] -translate-y-[50%] -translate-x-[50%]">
-            <div className="animate-spin h-[20px] w-[20px] border-4 border-line border-t-transparent rounded-pill" />
+            <div className="animate-spin h-[20px] w-[20px] border border-line border-t-transparent rounded-pill" />
           </div>
         ) : (
           <PlusIcon size={14} />
@@ -441,13 +435,10 @@ export const MediaBox: FC<{
             className="hidden"
             multiple={true}
           />
-          <div className="flex gap-[8px]">
-            {btn}
-            <ThirdPartyMediaLibrary onImported={() => mutate()} />
-          </div>
+          <div className="flex gap-[8px]">{btn}</div>
         </div>
         <div className="w-full pointer-events-none relative mt-[4px] mb-[4px]">
-          <div className="w-full h-large overflow-hidden absolute left-0 bg-newBgColorInner uppyChange">
+          <div className="w-full h-large overflow-hidden absolute left-0 bg-surface uppyChange">
             <Dashboard
               height={44}
               uppy={uppy}
@@ -478,7 +469,20 @@ export const MediaBox: FC<{
                 'flex justify-center items-center gap-[20px] flex-col'
             )}
           >
-            {!isLoading && !data?.results?.length && (
+            {/* A failed request also arrives as "no results", so the failure is
+                checked first. Otherwise the library would calmly tell the user
+                their media is gone. */}
+            {!isLoading && !!error && !data?.results?.length && (
+              <ErrorState
+                title={t('media_failed_title', 'We could not load your media')}
+                body={t(
+                  'media_failed_body',
+                  'Your files are still on the server — this panel just could not list them. Try again in a moment.'
+                )}
+                onRetry={() => mutate()}
+              />
+            )}
+            {!isLoading && !error && !data?.results?.length && (
               <>
                 <NoMediaIcon />
                 <div className="t-title-3">
@@ -494,31 +498,39 @@ export const MediaBox: FC<{
                 </div>
                 <div className="whitespace-pre-line text-inkSecondary text-center">
                   {t(
-                    'select_or_upload_pictures_max_1gb',
-                    'Select or upload pictures (maximum 1 GB per upload).'
+                    'upload_the_video_you_want_to_post',
+                    'Upload the video you want to post — up to 1 GB.'
                   )}{' '}
                   {'\n'}
                   {t(
-                    'you_can_drag_drop_pictures',
-                    'You can also drag & drop pictures.'
+                    'you_can_drag_and_drop_it_here',
+                    'You can drag and drop it here.'
                   )}
                 </div>
-                <div className="forceChange flex gap-[8px]">
-                  {btn}
-                  <ThirdPartyMediaLibrary onImported={() => mutate()} />
-                </div>
+                <div className="forceChange flex gap-[8px]">{btn}</div>
               </>
             )}
+            {/* Placeholders in the shape of the grid that is coming. The tiles
+                float, so the wait is announced by a sibling status line rather
+                than by wrapping them in a region that would break the flow. */}
             {isLoading && (
               <>
+                <div
+                  role="status"
+                  aria-busy="true"
+                  aria-live="polite"
+                  className="sr-only"
+                >
+                  {t('loading_media', 'Loading your media')}
+                </div>
                 {[...new Array(16)].map((_, i) => (
                   <div
                     className={clsx(
-                      'px-[2px] py-[2px] float-left rounded-thumb cursor-pointer w8-max aspect-square'
+                      'px-[2px] py-[2px] float-left rounded-thumb w8-max aspect-square'
                     )}
                     key={i}
                   >
-                    <div className="w-full h-full bg-skeleton rounded-thumb" />
+                    <Skeleton className="w-full h-full rounded-thumb" />
                   </div>
                 ))}
               </>
@@ -632,19 +644,10 @@ export const MultiMediaComponent: FC<{
   description: string;
   mediaNotAvailable?: boolean;
   dummy: boolean;
-  allData: {
-    content: string;
-    id?: string;
-    image?: Array<{
-      id: string;
-      path: string;
-    }>;
-  }[];
   value?: Array<{
     path: string;
     id: string;
   }>;
-  text: string;
   name: string;
   error?: any;
   onOpen?: () => void;
@@ -667,16 +670,13 @@ export const MultiMediaComponent: FC<{
   const {
     name,
     error,
-    text,
     onChange,
     value,
-    allData,
     dummy,
     toolBar,
     information,
     mediaNotAvailable,
   } = props;
-  const user = useUser();
   const modals = useModals();
   const t = useT();
   useEffect(() => {
@@ -739,19 +739,6 @@ export const MultiMediaComponent: FC<{
     [currentMedia]
   );
 
-  const designMedia = useCallback(() => {
-    if (!!user?.tier?.ai && !dummy) {
-      modals.openModal({
-        askClose: false,
-        title: t('design_media', 'Design Media'),
-        size: '80%',
-        children: (close) => (
-          <Polonto setMedia={changeMedia} closeModal={close} />
-        ),
-      });
-    }
-  }, [changeMedia, t]);
-
   return (
     <>
       <div className="b1 flex flex-col gap-[8px] rounded-bl-control select-none w-full">
@@ -768,7 +755,7 @@ export const MultiMediaComponent: FC<{
               handle=".dragging"
             >
               {currentMedia.map((media, index) => (
-                  <div key={media.id} className="cursor-pointer rounded-thumb w-[40px] h-[40px] border-2 border-tableBorder relative flex transition-all">
+                  <div key={media.id} className="cursor-pointer rounded-thumb w-[40px] h-[40px] border border-hairline bg-surfaceActive relative flex transition-all">
                     <DragHandleIcon className="z-[20] dragging absolute pe-[1px] pb-[2px] -start-[4px] -top-[4px] cursor-move" />
 
                     <div className="w-full h-full relative group">
@@ -823,12 +810,12 @@ export const MultiMediaComponent: FC<{
             </ReactSortable>
           )}
         </div>
-        <div className="flex gap-[8px] px-[12px] border-t border-newColColor w-full b1 text-textColor">
+        <div className="flex gap-[8px] px-[12px] border-t border-surfaceActive w-full b1 text-ink">
           {!mediaNotAvailable && (
             <div className="flex py-[8px] b2 items-center gap-[4px]">
               <div
                 onClick={showModal}
-                className="cursor-pointer h-compact rounded-thumb justify-center items-center flex bg-newColColor px-[8px]"
+                className="cursor-pointer h-compact rounded-thumb justify-center items-center flex bg-surfaceActive px-[8px]"
               >
                 <div className="flex gap-[8px] items-center">
                   <div>
@@ -839,32 +826,10 @@ export const MultiMediaComponent: FC<{
                   </div>
                 </div>
               </div>
-              <div
-                onClick={designMedia}
-                className="cursor-pointer h-compact rounded-thumb justify-center items-center flex bg-newColColor px-[8px]"
-              >
-                <div className="flex gap-[4px] items-center">
-                  <div>
-                    <DesignMediaIcon />
-                  </div>
-                  <div className="t-caption-strong iconBreak:hidden block">
-                    {t('design_media', 'Design Media')}
-                  </div>
-                </div>
-              </div>
-
-              <ThirdPartyMedia allData={allData} onChange={changeMedia} />
-
-              {!!user?.tier?.ai && (
-                <>
-                  <AiImage value={text} onChange={changeMedia} />
-                  <AiVideo value={text} onChange={changeMedia} />
-                </>
-              )}
             </div>
           )}
           {!mediaNotAvailable && (
-            <div className="text-newColColor h-full flex items-center">
+            <div className="text-line h-full flex items-center">
               <VerticalDividerIcon />
             </div>
           )}
@@ -902,15 +867,11 @@ export const MediaComponent: FC<{
     };
   }) => void;
   type?: 'image' | 'video';
-  width?: number;
-  height?: number;
 }> = (props) => {
   const t = useT();
 
-  const { name, type, label, description, onChange, value, width, height } =
-    props;
+  const { name, type, label, description, onChange, value } = props;
   const { getValues } = useSettings();
-  const user = useUser();
   useEffect(() => {
     const settings = getValues()[props.name];
     if (settings) {
@@ -921,24 +882,6 @@ export const MediaComponent: FC<{
   const modals = useModals();
   const mediaDirectory = useMediaDirectory();
 
-  const showDesignModal = useCallback(() => {
-    modals.openModal({
-      title: t('media_editor', 'Media Editor'),
-      askClose: false,
-      closeOnEscape: true,
-      fullScreen: true,
-      size: 'calc(100% - 80px)',
-      height: 'calc(100% - 80px)',
-      children: (close) => (
-        <Polonto
-          width={width}
-          height={height}
-          setMedia={changeMedia}
-          closeModal={close}
-        />
-      ),
-    });
-  }, [t]);
   const changeMedia = useCallback((m: { path: string; id: string }[]) => {
     setCurrentMedia(m[0]);
     onChange({
@@ -975,7 +918,7 @@ export const MediaComponent: FC<{
       <div className="t-control">{label}</div>
       <div className="t-caption">{description}</div>
       {!!currentMedia && (
-        <div className="my-[20px] cursor-pointer w-[200px] h-[200px] border-2 border-tableBorder">
+        <div className="my-[20px] cursor-pointer w-[200px] h-[200px] border border-hairline">
           <img
             className="w-full h-full object-cover"
             src={currentMedia.path}
@@ -985,9 +928,6 @@ export const MediaComponent: FC<{
       )}
       <div className="flex gap-[4px]">
         <Button onClick={showModal}>{t('select', 'Select')}</Button>
-        <Button onClick={showDesignModal} className="!bg-customColor45">
-          {t('editor', 'Editor')}
-        </Button>
         <Button secondary={true} onClick={clearMedia}>
           {t('clear', 'Clear')}
         </Button>

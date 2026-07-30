@@ -19,8 +19,6 @@ import {
   Integrations,
   useCalendar,
 } from '@gitroom/frontend/components/launches/calendar.context';
-import { BotPicture } from '@gitroom/frontend/components/launches/bot.picture';
-import { CustomerModal } from '@gitroom/frontend/components/launches/customer.modal';
 import { Integration } from '@prisma/client';
 import { SettingsModal } from '@gitroom/frontend/components/launches/settings.modal';
 import { CustomVariables } from '@gitroom/frontend/components/launches/add.provider.component';
@@ -30,13 +28,10 @@ import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import { AddEditModal } from '@gitroom/frontend/components/new-launch/add.edit.modal';
 import dayjs from 'dayjs';
 import { ModalWrapperComponent } from '@gitroom/frontend/components/new-launch/modal.wrapper.component';
-import copy from 'copy-to-clipboard';
 
 export const Menu: FC<{
   canEnable: boolean;
   canDisable: boolean;
-  canChangeProfilePicture: boolean;
-  canChangeNickName: boolean;
   refreshChannel: (
     integration: Integration & {
       identifier: string;
@@ -52,8 +47,6 @@ export const Menu: FC<{
     id,
     onChange,
     mutate,
-    canChangeProfilePicture,
-    canChangeNickName,
     refreshChannel,
   } = props;
   const t = useT();
@@ -116,12 +109,26 @@ export const Menu: FC<{
     ) {
       return;
     }
-    await fetch('/integrations/disable', {
+    // The response used to be ignored, so a refused request still announced
+    // "Channel Disabled" — and the channel kept publishing.
+    const disable = await fetch('/integrations/disable', {
       method: 'POST',
       body: JSON.stringify({
         id,
       }),
     });
+
+    if (!disable.ok) {
+      toast.show(
+        t(
+          'channel_disable_failed',
+          'We could not disable the channel. It is still active — try again in a moment.'
+        ),
+        'warning'
+      );
+      return;
+    }
+
     toast.show(t('channel_disabled', 'Channel Disabled'), 'success');
     setShow(false);
     onChange(false);
@@ -148,6 +155,19 @@ export const Menu: FC<{
       );
       return;
     }
+
+    // Any other refusal means the channel is still connected, and saying
+    // otherwise would send the user off to reconnect something they still have.
+    if (!deleteIntegration.ok) {
+      toast.show(
+        t(
+          'channel_delete_failed',
+          'We could not delete the channel. It is still connected — try again in a moment.'
+        ),
+        'warning'
+      );
+      return;
+    }
     // Clean up extension refresh token if applicable
     if (
       extensionId &&
@@ -170,12 +190,24 @@ export const Menu: FC<{
   }, [t, extensionId, id]);
 
   const enableChannel = useCallback(async () => {
-    await fetch('/integrations/enable', {
+    const enable = await fetch('/integrations/enable', {
       method: 'POST',
       body: JSON.stringify({
         id,
       }),
     });
+
+    if (!enable.ok) {
+      toast.show(
+        t(
+          'channel_enable_failed',
+          'We could not enable the channel. It is still disabled — try again in a moment.'
+        ),
+        'warning'
+      );
+      return;
+    }
+
     toast.show(t('channel_enabled', 'Channel Enabled'), 'success');
     setShow(false);
     onChange(false);
@@ -196,23 +228,27 @@ export const Menu: FC<{
     setShow(false);
   }, [integrations, t]);
 
-  const copyChannelId = useCallback(
-    (integration: Integrations) => async () => {
-      setShow(false);
-      const channelId = integration.id;
-      copy(channelId);
-      toast.show(t('channel_id_copied', 'Channel ID copied to clipboard'), 'success');
-    },
-    [t]
-  );
-
   const createPost = useCallback(
     (integration: Integrations) => async () => {
       setShow(false);
 
-      const { date } = await (
-        await fetch(`/posts/find-slot/${integration.id}`)
-      ).json();
+      // The composer needs a date to open on. When the slot lookup fails there
+      // is no date, and `dayjs.utc(undefined)` is *now* — which would quietly
+      // pre-fill a time the user never chose. Say so instead of guessing.
+      const slotResponse = await fetch(`/posts/find-slot/${integration.id}`);
+
+      if (!slotResponse.ok) {
+        toast.show(
+          t(
+            'find_slot_failed',
+            'We could not work out the next free slot. Try again in a moment.'
+          ),
+          'warning'
+        );
+        return;
+      }
+
+      const { date } = await slotResponse.json();
 
       modal.openModal({
         id: 'add-edit-modal',
@@ -223,7 +259,7 @@ export const Menu: FC<{
         askClose: true,
         fullScreen: true,
         classNames: {
-          modal: 'w-[100%] max-w-[1400px] text-textColor',
+          modal: 'w-[100%] max-w-[1400px] text-ink',
         },
         children: (
           <AddEditModal
@@ -245,29 +281,6 @@ export const Menu: FC<{
     [integrations]
   );
 
-  const changeBotPicture = useCallback(() => {
-    const findIntegration = integrations.find(
-      (integration) => integration.id === id
-    );
-    modal.openModal({
-      classNames: {
-        modal: 'w-[100%] max-w-[600px] bg-transparent text-textColor',
-      },
-      size: '100%',
-      withCloseButton: false,
-      closeOnEscape: true,
-      closeOnClickOutside: true,
-      children: (
-        <BotPicture
-          canChangeProfilePicture={canChangeProfilePicture}
-          canChangeNickName={canChangeNickName}
-          integration={findIntegration!}
-          mutate={mutate}
-        />
-      ),
-    });
-    setShow(false);
-  }, [integrations]);
   const additionalSettings = useCallback(() => {
     const findIntegration = integrations.find(
       (integration) => integration.id === id
@@ -281,31 +294,6 @@ export const Menu: FC<{
           onClose={() => {
             mutate();
             toast.show(t('settings_updated', 'Settings Updated'), 'success');
-          }}
-        />
-      ),
-    });
-    setShow(false);
-  }, [integrations, t]);
-  const addToCustomer = useCallback(() => {
-    const findIntegration = integrations.find(
-      (integration) => integration.id === id
-    );
-    modal.openModal({
-      classNames: {
-        modal: 'md',
-      },
-      title: t('move_add_to_group', 'Move / Add to group'),
-      withCloseButton: false,
-      closeOnEscape: true,
-      closeOnClickOutside: true,
-      children: (
-        <CustomerModal
-          // @ts-ignore
-          integration={findIntegration}
-          onClose={() => {
-            mutate();
-            toast.show(t('customer_updated', 'Customer Updated'), 'success');
           }}
         />
       ),
@@ -341,7 +329,7 @@ export const Menu: FC<{
         height="24"
         viewBox="0 0 24 24"
         fill="none"
-        className="text-menuDots group-hover/profile:text-menuDotsHover"
+        className="text-inkTertiary group-hover/profile:text-ink"
       >
         <path
           d="M13.125 12C13.125 12.2225 13.059 12.44 12.9354 12.625C12.8118 12.81 12.6361 12.9542 12.4305 13.0394C12.225 13.1245 11.9988 13.1468 11.7805 13.1034C11.5623 13.06 11.3618 12.9528 11.2045 12.7955C11.0472 12.6382 10.94 12.4377 10.8966 12.2195C10.8532 12.0012 10.8755 11.775 10.9606 11.5695C11.0458 11.3639 11.19 11.1882 11.375 11.0646C11.56 10.941 11.7775 10.875 12 10.875C12.2984 10.875 12.5845 10.9935 12.7955 11.2045C13.0065 11.4155 13.125 11.7016 13.125 12ZM12 6.75C12.2225 6.75 12.44 6.68402 12.625 6.5604C12.81 6.43679 12.9542 6.26109 13.0394 6.05552C13.1245 5.84995 13.1468 5.62375 13.1034 5.40552C13.06 5.1873 12.9528 4.98684 12.7955 4.82951C12.6382 4.67217 12.4377 4.56503 12.2195 4.52162C12.0012 4.47821 11.775 4.50049 11.5695 4.58564C11.3639 4.67078 11.1882 4.81498 11.0646 4.99998C10.941 5.18499 10.875 5.4025 10.875 5.625C10.875 5.92337 10.9935 6.20952 11.2045 6.4205C11.4155 6.63147 11.7016 6.75 12 6.75ZM12 17.25C11.7775 17.25 11.56 17.316 11.375 17.4396C11.19 17.5632 11.0458 17.7389 10.9606 17.9445C10.8755 18.15 10.8532 18.3762 10.8966 18.5945C10.94 18.8127 11.0472 19.0132 11.2045 19.1705C11.3618 19.3278 11.5623 19.435 11.7805 19.4784C11.9988 19.5218 12.225 19.4995 12.4305 19.4144C12.6361 19.3292 12.8118 19.185 12.9354 19C13.059 18.815 13.125 18.5975 13.125 18.375C13.125 18.0766 13.0065 17.7905 12.7955 17.5795C12.5845 17.3685 12.2984 17.25 12 17.25Z"
@@ -356,7 +344,7 @@ export const Menu: FC<{
           ref={menuRef}
           onClick={(e) => e.stopPropagation()}
           style={{ left: show.x, top: show.y }}
-          className={`fixed p-[12px] bg-newBgColorInner shadow-menu flex flex-col gap-[16px] z-[100] rounded-control border border-tableBorder text-nowrap`}
+          className={`fixed p-[12px] bg-surface shadow-menu flex flex-col gap-[16px] z-[100] rounded-control border border-hairline text-nowrap`}
         >
           {canDisable && !findIntegration?.refreshNeeded && (
             <div
@@ -382,34 +370,6 @@ export const Menu: FC<{
               </div>
             </div>
           )}
-          <div
-            className="flex gap-[12px] items-center py-[8px] px-[8px]"
-            onClick={copyChannelId(findIntegration)}
-          >
-            <div>
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 26 28"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M13 0.749756C13.2093 0.749756 13.4155 0.802887 13.5986 0.904053L13.5996 0.905029L24.5996 6.92749C24.7962 7.03506 24.9608 7.19374 25.0752 7.38647C25.1609 7.53099 25.2159 7.69083 25.2383 7.8562L25.25 8.02319V19.9773C25.25 20.2016 25.1896 20.4221 25.0752 20.615C24.9608 20.8078 24.7963 20.9664 24.5996 21.074L13.5996 27.0955H13.5986C13.4153 27.1965 13.2093 27.2498 13 27.2498L12.8438 27.24C12.689 27.2203 12.5388 27.1712 12.4014 27.0955H12.4004L1.40039 21.074C1.20372 20.9664 1.03916 20.8078 0.924805 20.615C0.810442 20.4221 0.750028 20.2016 0.75 19.9773V8.02222L0.761719 7.85522C0.784096 7.68984 0.839135 7.53004 0.924805 7.3855C1.03917 7.19259 1.20366 7.03416 1.40039 6.92651L12.4004 0.905029L12.4014 0.904053C12.5845 0.802887 12.7907 0.749756 13 0.749756ZM24.0098 8.25659L13.5098 14.0066L13.25 14.1492V26.7195L13.9902 26.3132L18.4902 23.8484L18.75 23.7058V16.9998L18.7588 16.9333C18.7647 16.9119 18.7737 16.8911 18.7852 16.8718C18.808 16.8333 18.8406 16.8015 18.8799 16.78L24.4902 13.7087L24.75 13.5662V7.85132L24.0098 8.25659ZM24.0098 14.5427L19.5098 17.0056L19.25 17.1472V23.4333L19.9902 23.0291L24.3652 20.6365L24.625 20.4939V20.3914C24.6326 20.3798 24.6415 20.3691 24.6484 20.3572C24.6978 20.2723 24.7299 20.1784 24.7432 20.0818L24.75 19.9841V14.1375L24.0098 14.5427ZM18.3721 4.34741L13.1221 7.22241C13.0855 7.2424 13.0446 7.25359 13.0029 7.25366C12.961 7.25366 12.9196 7.2425 12.8828 7.22241L7.63281 4.34741L7.39258 4.21655L7.15234 4.34741L2.32129 6.99097L1.51953 7.43042L2.32129 7.8689L12.7598 13.5837L13 13.7146L13.2402 13.5837L23.6836 7.8689L24.4854 7.43042L23.6836 6.99097L18.8525 4.34741L18.6123 4.21655L18.3721 4.34741ZM12.9951 1.25073C12.8693 1.25073 12.7451 1.28213 12.6348 1.34253L8.71289 3.49292L7.91309 3.9314L8.71387 4.36987L12.7598 6.58374L13 6.71558L13.2402 6.58374L17.2803 4.36987L18.0811 3.9314L17.2803 3.49292L13.3555 1.34253L13.2695 1.30249C13.2115 1.27967 13.1507 1.2644 13.0889 1.25659L12.9951 1.25073ZM6.75 17.1433L6.49023 17.0017L1.99023 14.5388L1.25 14.1335V19.9734C1.24887 20.1061 1.2828 20.2371 1.34863 20.3523C1.39806 20.4387 1.46456 20.5137 1.54297 20.574L1.625 20.6296L1.63574 20.6355L6.01074 23.0242L6.75 23.4275V17.1433ZM12.75 14.1501L12.4902 14.0076L1.99023 8.25757L1.25 7.85229V13.5671L1.50977 13.7097L7.12012 16.781C7.15938 16.8025 7.19198 16.8343 7.21484 16.8728C7.22629 16.8921 7.23533 16.9129 7.24121 16.9343L7.25 17.0007V23.7058L7.50977 23.8484L12.0098 26.3132L12.75 26.7195V14.1501Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M13 0.749756C13.2093 0.749756 13.4155 0.802887 13.5986 0.904053L13.5996 0.905029L24.5996 6.92749C24.7962 7.03506 24.9608 7.19374 25.0752 7.38647C25.1609 7.53099 25.2159 7.69083 25.2383 7.8562L25.25 8.02319V19.9773C25.25 20.2016 25.1896 20.4221 25.0752 20.615C24.9608 20.8078 24.7963 20.9664 24.5996 21.074L13.5996 27.0955H13.5986C13.4153 27.1965 13.2093 27.2498 13 27.2498L12.8438 27.24C12.689 27.2203 12.5388 27.1712 12.4014 27.0955H12.4004L1.40039 21.074C1.20372 20.9664 1.03916 20.8078 0.924805 20.615C0.810442 20.4221 0.750028 20.2016 0.75 19.9773V8.02222L0.761719 7.85522C0.784096 7.68984 0.839135 7.53004 0.924805 7.3855C1.03917 7.19259 1.20366 7.03416 1.40039 6.92651L12.4004 0.905029L12.4014 0.904053C12.5845 0.802887 12.7907 0.749756 13 0.749756ZM24.0098 8.25659L13.5098 14.0066L13.25 14.1492V26.7195L13.9902 26.3132L18.4902 23.8484L18.75 23.7058V16.9998L18.7588 16.9333C18.7647 16.9119 18.7737 16.8911 18.7852 16.8718C18.808 16.8333 18.8406 16.8015 18.8799 16.78L24.4902 13.7087L24.75 13.5662V7.85132L24.0098 8.25659ZM24.0098 14.5427L19.5098 17.0056L19.25 17.1472V23.4333L19.9902 23.0291L24.3652 20.6365L24.625 20.4939V20.3914C24.6326 20.3798 24.6415 20.3691 24.6484 20.3572C24.6978 20.2723 24.7299 20.1784 24.7432 20.0818L24.75 19.9841V14.1375L24.0098 14.5427ZM18.3721 4.34741L13.1221 7.22241C13.0855 7.2424 13.0446 7.25359 13.0029 7.25366C12.961 7.25366 12.9196 7.2425 12.8828 7.22241L7.63281 4.34741L7.39258 4.21655L7.15234 4.34741L2.32129 6.99097L1.51953 7.43042L2.32129 7.8689L12.7598 13.5837L13 13.7146L13.2402 13.5837L23.6836 7.8689L24.4854 7.43042L23.6836 6.99097L18.8525 4.34741L18.6123 4.21655L18.3721 4.34741ZM12.9951 1.25073C12.8693 1.25073 12.7451 1.28213 12.6348 1.34253L8.71289 3.49292L7.91309 3.9314L8.71387 4.36987L12.7598 6.58374L13 6.71558L13.2402 6.58374L17.2803 4.36987L18.0811 3.9314L17.2803 3.49292L13.3555 1.34253L13.2695 1.30249C13.2115 1.27967 13.1507 1.2644 13.0889 1.25659L12.9951 1.25073ZM6.75 17.1433L6.49023 17.0017L1.99023 14.5388L1.25 14.1335V19.9734C1.24887 20.1061 1.2828 20.2371 1.34863 20.3523C1.39806 20.4387 1.46456 20.5137 1.54297 20.574L1.625 20.6296L1.63574 20.6355L6.01074 23.0242L6.75 23.4275V17.1433ZM12.75 14.1501L12.4902 14.0076L1.99023 8.25757L1.25 7.85229V13.5671L1.50977 13.7097L7.12012 16.781C7.15938 16.8025 7.19198 16.8343 7.21484 16.8728C7.22629 16.8921 7.23533 16.9129 7.24121 16.9343L7.25 17.0007V23.7058L7.50977 23.8484L12.0098 26.3132L12.75 26.7195V14.1501Z"
-                  stroke="currentColor"
-                />
-                <path
-                  d="M13 0.749756C13.2093 0.749756 13.4155 0.802887 13.5986 0.904053L13.5996 0.905029L24.5996 6.92749C24.7962 7.03506 24.9608 7.19374 25.0752 7.38647C25.1609 7.53099 25.2159 7.69083 25.2383 7.8562L25.25 8.02319V19.9773C25.25 20.2016 25.1896 20.4221 25.0752 20.615C24.9608 20.8078 24.7963 20.9664 24.5996 21.074L13.5996 27.0955H13.5986C13.4153 27.1965 13.2093 27.2498 13 27.2498L12.8438 27.24C12.689 27.2203 12.5388 27.1712 12.4014 27.0955H12.4004L1.40039 21.074C1.20372 20.9664 1.03916 20.8078 0.924805 20.615C0.810442 20.4221 0.750028 20.2016 0.75 19.9773V8.02222L0.761719 7.85522C0.784096 7.68984 0.839135 7.53004 0.924805 7.3855C1.03917 7.19259 1.20366 7.03416 1.40039 6.92651L12.4004 0.905029L12.4014 0.904053C12.5845 0.802887 12.7907 0.749756 13 0.749756ZM24.0098 8.25659L13.5098 14.0066L13.25 14.1492V26.7195L13.9902 26.3132L18.4902 23.8484L18.75 23.7058V16.9998L18.7588 16.9333C18.7647 16.9119 18.7737 16.8911 18.7852 16.8718C18.808 16.8333 18.8406 16.8015 18.8799 16.78L24.4902 13.7087L24.75 13.5662V7.85132L24.0098 8.25659ZM24.0098 14.5427L19.5098 17.0056L19.25 17.1472V23.4333L19.9902 23.0291L24.3652 20.6365L24.625 20.4939V20.3914C24.6326 20.3798 24.6415 20.3691 24.6484 20.3572C24.6978 20.2723 24.7299 20.1784 24.7432 20.0818L24.75 19.9841V14.1375L24.0098 14.5427ZM18.3721 4.34741L13.1221 7.22241C13.0855 7.2424 13.0446 7.25359 13.0029 7.25366C12.961 7.25366 12.9196 7.2425 12.8828 7.22241L7.63281 4.34741L7.39258 4.21655L7.15234 4.34741L2.32129 6.99097L1.51953 7.43042L2.32129 7.8689L12.7598 13.5837L13 13.7146L13.2402 13.5837L23.6836 7.8689L24.4854 7.43042L23.6836 6.99097L18.8525 4.34741L18.6123 4.21655L18.3721 4.34741ZM12.9951 1.25073C12.8693 1.25073 12.7451 1.28213 12.6348 1.34253L8.71289 3.49292L7.91309 3.9314L8.71387 4.36987L12.7598 6.58374L13 6.71558L13.2402 6.58374L17.2803 4.36987L18.0811 3.9314L17.2803 3.49292L13.3555 1.34253L13.2695 1.30249C13.2115 1.27967 13.1507 1.2644 13.0889 1.25659L12.9951 1.25073ZM6.75 17.1433L6.49023 17.0017L1.99023 14.5388L1.25 14.1335V19.9734C1.24887 20.1061 1.2828 20.2371 1.34863 20.3523C1.39806 20.4387 1.46456 20.5137 1.54297 20.574L1.625 20.6296L1.63574 20.6355L6.01074 23.0242L6.75 23.4275V17.1433ZM12.75 14.1501L12.4902 14.0076L1.99023 8.25757L1.25 7.85229V13.5671L1.50977 13.7097L7.12012 16.781C7.15938 16.8025 7.19198 16.8343 7.21484 16.8728C7.22629 16.8921 7.23533 16.9129 7.24121 16.9343L7.25 17.0007V23.7058L7.50977 23.8484L12.0098 26.3132L12.75 26.7195V14.1501Z"
-                  stroke="currentColor"
-                />
-              </svg>
-            </div>
-            <div className="t-control">{t('copy_id', 'Copy Channel ID')}</div>
-          </div>
           {canDisable &&
             findIntegration?.refreshNeeded &&
             !findIntegration.customFields && (
@@ -484,58 +444,6 @@ export const Menu: FC<{
               </div>
             </div>
           )}
-          {(canChangeProfilePicture || canChangeNickName) && (
-            <div
-              className="flex gap-[12px] items-center py-[8px] px-[8px]"
-              onClick={changeBotPicture}
-            >
-              <div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 32 32"
-                  fill="none"
-                >
-                  <path
-                    d="M26 4H10C9.46957 4 8.96086 4.21071 8.58579 4.58579C8.21071 4.96086 8 5.46957 8 6V8H6C5.46957 8 4.96086 8.21071 4.58579 8.58579C4.21071 8.96086 4 9.46957 4 10V26C4 26.5304 4.21071 27.0391 4.58579 27.4142C4.96086 27.7893 5.46957 28 6 28H22C22.5304 28 23.0391 27.7893 23.4142 27.4142C23.7893 27.0391 24 26.5304 24 26V24H26C26.5304 24 27.0391 23.7893 27.4142 23.4142C27.7893 23.0391 28 22.5304 28 22V6C28 5.46957 27.7893 4.96086 27.4142 4.58579C27.0391 4.21071 26.5304 4 26 4ZM10 6H26V14.6725L23.9125 12.585C23.5375 12.2102 23.029 11.9997 22.4988 11.9997C21.9685 11.9997 21.46 12.2102 21.085 12.585L11.6713 22H10V6ZM22 26H6V10H8V22C8 22.5304 8.21071 23.0391 8.58579 23.4142C8.96086 23.7893 9.46957 24 10 24H22V26ZM26 22H14.5L22.5 14L26 17.5V22ZM15 14C15.5933 14 16.1734 13.8241 16.6667 13.4944C17.1601 13.1648 17.5446 12.6962 17.7716 12.1481C17.9987 11.5999 18.0581 10.9967 17.9424 10.4147C17.8266 9.83279 17.5409 9.29824 17.1213 8.87868C16.7018 8.45912 16.1672 8.1734 15.5853 8.05764C15.0033 7.94189 14.4001 8.0013 13.8519 8.22836C13.3038 8.45542 12.8352 8.83994 12.5056 9.33329C12.1759 9.82664 12 10.4067 12 11C12 11.7956 12.3161 12.5587 12.8787 13.1213C13.4413 13.6839 14.2044 14 15 14ZM15 10C15.1978 10 15.3911 10.0586 15.5556 10.1685C15.72 10.2784 15.8482 10.4346 15.9239 10.6173C15.9996 10.8 16.0194 11.0011 15.9808 11.1951C15.9422 11.3891 15.847 11.5673 15.7071 11.7071C15.5673 11.847 15.3891 11.9422 15.1951 11.9808C15.0011 12.0194 14.8 11.9996 14.6173 11.9239C14.4346 11.8482 14.2784 11.72 14.1685 11.5556C14.0586 11.3911 14 11.1978 14 11C14 10.7348 14.1054 10.4804 14.2929 10.2929C14.4804 10.1054 14.7348 10 15 10Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </div>
-              <div className="t-control">
-                {t('change_bot', 'Change Bot')}{' '}
-                {[
-                  canChangeProfilePicture && t('picture', 'Picture'),
-                  canChangeNickName && t('label_nickname', 'Nickname'),
-                ]
-                  .filter((f) => f)
-                  .join(' / ')}
-              </div>
-            </div>
-          )}
-          <div
-            className="flex gap-[12px] items-center py-[8px] px-[8px]"
-            onClick={addToCustomer}
-          >
-            <div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width={18}
-                height={18}
-                viewBox="0 0 32 32"
-                fill="none"
-              >
-                <path
-                  d="M31.9997 17C31.9997 17.2652 31.8943 17.5196 31.7068 17.7071C31.5192 17.8946 31.2649 18 30.9997 18H28.9997V20C28.9997 20.2652 28.8943 20.5196 28.7068 20.7071C28.5192 20.8946 28.2649 21 27.9997 21C27.7345 21 27.4801 20.8946 27.2926 20.7071C27.105 20.5196 26.9997 20.2652 26.9997 20V18H24.9997C24.7345 18 24.4801 17.8946 24.2926 17.7071C24.105 17.5196 23.9997 17.2652 23.9997 17C23.9997 16.7348 24.105 16.4804 24.2926 16.2929C24.4801 16.1054 24.7345 16 24.9997 16H26.9997V14C26.9997 13.7348 27.105 13.4804 27.2926 13.2929C27.4801 13.1054 27.7345 13 27.9997 13C28.2649 13 28.5192 13.1054 28.7068 13.2929C28.8943 13.4804 28.9997 13.7348 28.9997 14V16H30.9997C31.2649 16 31.5192 16.1054 31.7068 16.2929C31.8943 16.4804 31.9997 16.7348 31.9997 17ZM24.7659 24.3562C24.9367 24.5595 25.0197 24.8222 24.9967 25.0866C24.9737 25.351 24.8466 25.5955 24.6434 25.7662C24.4402 25.937 24.1775 26.02 23.9131 25.997C23.6486 25.974 23.4042 25.847 23.2334 25.6437C20.7184 22.6487 17.2609 21 13.4997 21C9.73843 21 6.28093 22.6487 3.76593 25.6437C3.59519 25.8468 3.35079 25.9737 3.08648 25.9966C2.82217 26.0194 2.55961 25.9364 2.35655 25.7656C2.15349 25.5949 2.02658 25.3505 2.00372 25.0862C1.98087 24.8219 2.06394 24.5593 2.23468 24.3562C4.10218 22.1337 6.42468 20.555 9.00593 19.71C7.43831 18.7336 6.23133 17.2733 5.56759 15.5498C4.90386 13.8264 4.81949 11.9337 5.32724 10.1581C5.83499 8.38242 6.90724 6.82045 8.38176 5.70847C9.85629 4.59649 11.6529 3.995 13.4997 3.995C15.3465 3.995 17.1431 4.59649 18.6176 5.70847C20.0921 6.82045 21.1644 8.38242 21.6721 10.1581C22.1799 11.9337 22.0955 13.8264 21.4318 15.5498C20.768 17.2733 19.561 18.7336 17.9934 19.71C20.5747 20.555 22.8972 22.1337 24.7659 24.3562ZM13.4997 19C14.7853 19 16.042 18.6188 17.1109 17.9045C18.1798 17.1903 19.0129 16.1752 19.5049 14.9874C19.9969 13.7997 20.1256 12.4928 19.8748 11.2319C19.624 9.97103 19.0049 8.81284 18.0959 7.9038C17.1868 6.99476 16.0286 6.37569 14.7678 6.12489C13.5069 5.87409 12.2 6.00281 11.0122 6.49478C9.82451 6.98675 8.80935 7.81987 8.09512 8.88879C7.38089 9.95771 6.99968 11.2144 6.99968 12.5C7.00166 14.2233 7.68712 15.8754 8.90567 17.094C10.1242 18.3126 11.7764 18.998 13.4997 19Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </div>
-            <div className="t-control">
-              {t('move_add_to_group', 'Move / add to group')}
-            </div>
-          </div>
           <div
             className="flex gap-[12px] items-center py-[8px] px-[8px]"
             onClick={editTimeTable}

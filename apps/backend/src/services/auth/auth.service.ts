@@ -10,7 +10,6 @@ import dayjs from 'dayjs';
 import { NotificationService } from '@gitroom/nestjs-libraries/database/prisma/notifications/notification.service';
 import { ForgotReturnPasswordDto } from '@gitroom/nestjs-libraries/dtos/auth/forgot-return.password.dto';
 import { EmailService } from '@gitroom/nestjs-libraries/services/email.service';
-import { NewsletterService } from '@gitroom/nestjs-libraries/newsletter/newsletter.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +20,20 @@ export class AuthService {
     private _emailService: EmailService,
     private _providerManager: AuthProviderManager
   ) {}
+  /**
+   * The organisation name.
+   *
+   * Slate holds one self-hosted user and never displays this string — the org
+   * switcher was removed from the shell — but the organisation row still needs
+   * a name. Sign-up used to demand a Company before it would create the
+   * account, which is a made-up answer to a question the product never asks, so
+   * the field is gone from the form and the name falls back to the email
+   * local-part. `company` is still honoured when something does send one.
+   */
+  private static orgName(company: string | undefined, email: string) {
+    return company?.trim() || email.split('@')[0] || email;
+  }
+
   async canRegister(provider: string) {
     if (
       process.env.DISABLE_REGISTRATION !== 'true' ||
@@ -57,7 +70,10 @@ export class AuthService {
         }
 
         const create = await this._organizationService.createOrgAndUser(
-          body,
+          {
+            ...body,
+            company: AuthService.orgName(body.company, body.email),
+          },
           ip,
           userAgent
         );
@@ -161,22 +177,15 @@ export class AuthService {
 
     const create = await this._organizationService.createOrgAndUser(
       {
-        company: body.company,
+        company: AuthService.orgName(body.company, providerUser.email),
         email: providerUser.email,
         password: '',
         provider,
         providerId: providerUser.id,
-        datafast_visitor_id: body.datafast_visitor_id,
       },
       ip,
       userAgent
     );
-
-    this._track('register', providerUser.email, body.datafast_visitor_id).catch(
-      (err) => {}
-    );
-
-    await NewsletterService.register(providerUser.email);
 
     try {
       if (providerInstance?.postRegistration) {
@@ -187,31 +196,6 @@ export class AuthService {
     }
 
     return create.users[0].user;
-  }
-
-  private async _track(
-    name: string,
-    email: string,
-    datafast_visitor_id: string
-  ) {
-    if (email && datafast_visitor_id && process.env.DATAFAST_API_KEY) {
-      try {
-        await fetch('https://datafa.st/api/v1/goals', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${process.env.DATAFAST_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            datafast_visitor_id: datafast_visitor_id,
-            name: name,
-            metadata: {
-              email,
-            },
-          }),
-        });
-      } catch (err) {}
-    }
   }
 
   async forgot(email: string) {
@@ -244,7 +228,7 @@ export class AuthService {
     return this._userService.updatePassword(user.id, body.password);
   }
 
-  async activate(code: string, tracking: string) {
+  async activate(code: string) {
     const user = AuthChecker.verifyJWT(code) as {
       id: string;
       activated: boolean;
@@ -257,8 +241,6 @@ export class AuthService {
       }
       await this._userService.activateUser(user.id);
       user.activated = true;
-      this._track('register', user.email, tracking).catch((err) => {});
-      await NewsletterService.register(user.email);
       return this.jwt(user as any);
     }
 

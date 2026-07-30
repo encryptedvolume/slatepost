@@ -11,7 +11,7 @@ export const GithubProvider = () => {
   return (
     <div
       onClick={gotoLogin}
-      className={`cursor-pointer bg-surface h-large rounded-control flex justify-center items-center text-customColor16 gap-[4px]`}
+      className={`cursor-pointer bg-surface h-large rounded-control flex justify-center items-center text-ink gap-[4px]`}
     >
       <div>
         <svg

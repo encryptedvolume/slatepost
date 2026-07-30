@@ -1,40 +1,28 @@
 'use client';
 
-import { FC, ReactNode, useCallback } from 'react';
+import { FC, ReactNode } from 'react';
 import { useUser } from '@gitroom/frontend/components/layout/user.context';
-import { useVariables } from '@gitroom/react/helpers/variable.context';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import { MenuItem } from '@gitroom/frontend/components/new-layout/menu-item';
-import { useModals } from '@gitroom/frontend/components/layout/new-modal';
-import { AgentMediaModal } from '@gitroom/frontend/components/layout/agent.media.modal';
 
 interface MenuItemInterface {
   name: string;
   icon: ReactNode;
   path: string;
-  role?: string[];
-  hide?: boolean;
-  requireBilling?: boolean;
-  onClick?: () => void;
 }
 
+/**
+ * The whole signed-in shell. Three rows, one for each surface the product
+ * has: the queue, the media it posts, and the one account. There is no
+ * second menu, no role gate and no tier gate — a single-channel scheduler
+ * has nothing to gate.
+ */
 export const useMenuItem = () => {
-  const { isGeneral } = useVariables();
   const t = useT();
-  const { openModal } = useModals();
 
-  const handleAgentMediaClick = useCallback(() => {
-    openModal({
-      title: t('agent_media_title', 'UGC videos by AgentMedia'),
-      closeOnClickOutside: true,
-      closeOnEscape: true,
-      children: <AgentMediaModal />,
-    });
-  }, [openModal, t]);
-
-  const firstMenu = [
+  const all = [
     {
-      name: isGeneral ? t('calendar', 'Calendar') : t('launches', 'Launches'),
+      name: t('calendar', 'Calendar'),
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -77,85 +65,6 @@ export const useMenuItem = () => {
       path: '/launches',
     },
     {
-      name: 'Agent',
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M10 2.5v3.75"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M6.25 6.25h7.5a2.5 2.5 0 0 1 2.5 2.5v4.5a2.5 2.5 0 0 1-2.5 2.5h-7.5a2.5 2.5 0 0 1-2.5-2.5v-4.5a2.5 2.5 0 0 1 2.5-2.5Z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M7.75 10.25v1.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12.25 10.25v1.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      path: '/agents',
-    },
-    {
-      name: t('analytics', 'Analytics'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M2.75 2.75v12.5a1.5 1.5 0 0 0 1.5 1.5h13"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M6 12.25 9.25 9l2 2 4.5-4.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M13.5 6.5h2.75v2.75"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      path: '/analytics',
-    },
-    {
       name: t('media', 'Media'),
       icon: (
         <svg
@@ -192,175 +101,6 @@ export const useMenuItem = () => {
       path: '/media',
     },
     {
-      name: t('plugs', 'Plugs'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M8.25 11.75a3.25 3.25 0 0 0 4.9.35l2.5-2.5a3.25 3.25 0 0 0-4.6-4.6l-1.43 1.43"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M11.75 8.25a3.25 3.25 0 0 0-4.9-.35l-2.5 2.5a3.25 3.25 0 0 0 4.6 4.6l1.43-1.43"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      path: '/plugs',
-    },
-    {
-      name: t('integrations', 'Integrations'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M7.25 3.5a1.75 1.75 0 1 1 3.5 0v.75h2a1.5 1.5 0 0 1 1.5 1.5v2h.75a1.75 1.75 0 1 1 0 3.5h-.75v2a1.5 1.5 0 0 1-1.5 1.5h-2v-.75a1.75 1.75 0 1 0-3.5 0v.75h-2a1.5 1.5 0 0 1-1.5-1.5v-2H3a1.75 1.75 0 1 0 0-3.5h.75v-2a1.5 1.5 0 0 1 1.5-1.5h2Z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      path: '/third-party',
-    },
-  ] satisfies MenuItemInterface[] as MenuItemInterface[];
-
-  const secondMenu = [
-    {
-      name: t('UGC', 'UGC'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M2.75 6.25a1.5 1.5 0 0 1 1.5-1.5h6.5a1.5 1.5 0 0 1 1.5 1.5v7.5a1.5 1.5 0 0 1-1.5 1.5h-6.5a1.5 1.5 0 0 1-1.5-1.5v-7.5Z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12.25 9l3.5-2.25a.5.5 0 0 1 .75.42v5.66a.5.5 0 0 1-.75.42L12.25 11"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      path: '#',
-      role: ['ADMIN', 'SUPERADMIN', 'USER'],
-      requireBilling: true,
-      onClick: handleAgentMediaClick,
-    },
-    {
-      name: t('affiliate', 'Affiliate'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M13.25 15.75v-1.5a2.5 2.5 0 0 0-2.5-2.5h-4a2.5 2.5 0 0 0-2.5 2.5v1.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M8.75 9.25a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M16.75 15.75v-1.5a2.5 2.5 0 0 0-1.875-2.42"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12.75 4.42a2.5 2.5 0 0 1 0 4.66"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      path: 'https://affiliate.slatepost.lol',
-      role: ['ADMIN', 'SUPERADMIN', 'USER'],
-      requireBilling: true,
-    },
-    {
-      name: t('billing', 'Billing'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M10 17.25a7.25 7.25 0 1 0 0-14.5 7.25 7.25 0 0 0 0 14.5Z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M10 5.5v9"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12.25 7.75a1.75 1.75 0 0 0-1.75-1.5H9.25a1.75 1.75 0 0 0 0 3.5h1.5a1.75 1.75 0 0 1 0 3.5H9a1.75 1.75 0 0 1-1.75-1.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      path: '/billing',
-      role: ['ADMIN', 'SUPERADMIN'],
-      requireBilling: true,
-    },
-    {
       name: t('settings', 'Settings'),
       icon: (
         <svg
@@ -388,83 +128,31 @@ export const useMenuItem = () => {
         </svg>
       ),
       path: '/settings',
-      role: ['ADMIN', 'USER', 'SUPERADMIN'],
     },
   ] satisfies MenuItemInterface[] as MenuItemInterface[];
 
   return {
-    all: [...firstMenu, ...secondMenu],
-    firstMenu,
-    secondMenu,
+    all,
   };
 };
 
 export const TopMenu: FC = () => {
   const user = useUser();
-  const { firstMenu, secondMenu } = useMenuItem();
-  const { isGeneral, billingEnabled } = useVariables();
+  const { all } = useMenuItem();
   return (
-    <>
-      <div className="flex flex-1 flex-col gap-[4px] blurMe">
-        {
-          // @ts-ignore
-          user?.orgId &&
-            // @ts-ignore
-            (user.tier !== 'FREE' || !isGeneral || !billingEnabled) &&
-            firstMenu
-              .filter((f) => {
-                if (f.hide) {
-                  return false;
-                }
-                if (f.requireBilling && !billingEnabled) {
-                  return false;
-                }
-                if (f.name === 'Billing' && user?.isLifetime) {
-                  return false;
-                }
-                if (f.role) {
-                  return f.role.includes(user?.role!);
-                }
-                return true;
-              })
-              .map((item, index) => (
-                <MenuItem
-                  path={item.path}
-                  label={item.name}
-                  icon={item.icon}
-                  key={item.name}
-                  onClick={item.onClick}
-                />
-              ))
-        }
-      </div>
-      <div className="flex flex-col gap-[4px] blurMe">
-        {secondMenu
-          .filter((f) => {
-            if (f.hide) {
-              return false;
-            }
-            if (f.requireBilling && !billingEnabled) {
-              return false;
-            }
-            if (f.name === 'Billing' && user?.isLifetime) {
-              return false;
-            }
-            if (f.role) {
-              return f.role.includes(user?.role!);
-            }
-            return true;
-          })
-          .map((item, index) => (
+    <div className="flex flex-1 flex-col gap-[4px] blurMe">
+      {
+        // @ts-ignore
+        user?.orgId &&
+          all.map((item) => (
             <MenuItem
               path={item.path}
               label={item.name}
               icon={item.icon}
               key={item.name}
-              onClick={item.onClick}
             />
-          ))}
-      </div>
-    </>
+          ))
+      }
+    </div>
   );
 };

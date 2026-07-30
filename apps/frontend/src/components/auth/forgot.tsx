@@ -23,17 +23,39 @@ export function Forgot() {
     resolver,
   });
   const fetchData = useFetch();
+  // "We have sent you an email" was shown whatever came back, including a 500 —
+  // so the user waited for a message that was never sent. The panel now only
+  // appears when the request was accepted.
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setLoading(true);
-    await fetchData('/auth/forgot', {
-      method: 'POST',
-      body: JSON.stringify({
-        ...data,
-        provider: 'LOCAL',
-      }),
-    });
-    setState(true);
-    setLoading(false);
+
+    try {
+      const response = await fetchData('/auth/forgot', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...data,
+          provider: 'LOCAL',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+
+      setState(true);
+      setLoading(false);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      setLoading(false);
+      form.setError('email', {
+        type: 'manual',
+        message: t(
+          'forgot_password_unreachable',
+          'We could not send the reset email just now. Check the address and try again in a moment.'
+        ),
+      });
+    }
   };
   return (
     <div className="flex flex-1 flex-col">
@@ -46,7 +68,7 @@ export function Forgot() {
           </div>
           {!state ? (
             <>
-              <div className="space-y-[16px] text-textColor">
+              <div className="space-y-[16px] text-ink">
                 <Input
                   label="Email"
                   translationKey="label_email"

@@ -1,6 +1,7 @@
 import {
   IsDefined,
   IsEmail,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -30,11 +31,15 @@ export class CreateOrgUserDto {
   @ValidateIf((o) => !o.providerToken)
   email: string;
 
+  /**
+   * Slate is one self-hosted user, and the organisation is an implementation
+   * detail they never see: the org switcher is gone from the shell and no
+   * screen prints this name. Requiring it blocked account creation until the
+   * user invented a company, so it is optional and the auth service falls back
+   * to the email local-part.
+   */
+  @IsOptional()
   @IsString()
-  @IsDefined()
-  @MinLength(3)
   @MaxLength(128)
-  company: string;
-
-  datafast_visitor_id: string;
+  company?: string;
 }

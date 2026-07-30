@@ -1,13 +1,12 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import clsx from 'clsx';
-import SafeImage from '@gitroom/react/helpers/safe.image';
 import { useLaunchStore } from '@gitroom/frontend/components/new-launch/store';
 import { useShallow } from 'zustand/react/shallow';
 import { useExistingData } from '@gitroom/frontend/components/launches/helpers/use.existing.data';
-import { makeId } from '@gitroom/nestjs-libraries/services/make.is';
 import ImageWithFallback from '@gitroom/react/helpers/image.with.fallback';
+import { PlatformGlyph } from '@gitroom/frontend/components/ui/platform.glyph';
 
 export const PicksSocialsComponent: FC<{ toolTip?: boolean }> = ({
   toolTip,
@@ -26,6 +25,12 @@ export const PicksSocialsComponent: FC<{ toolTip?: boolean }> = ({
       addOrRemoveSelectedIntegration: state.addOrRemoveSelectedIntegration,
       locked: state.locked,
     }))
+  );
+
+  const isSelected = useCallback(
+    (id: string) =>
+      selectedIntegrations.some((p) => p.integration.id === id),
+    [selectedIntegrations]
   );
 
   return (
@@ -49,7 +54,10 @@ export const PicksSocialsComponent: FC<{ toolTip?: boolean }> = ({
                     'data-tooltip-content': integration.name,
                   })}
                 >
-                  <div
+                  <button
+                    type="button"
+                    aria-pressed={isSelected(integration.id)}
+                    aria-label={integration.name}
                     onClick={() => {
                       if (exising.integration) {
                         return;
@@ -57,45 +65,30 @@ export const PicksSocialsComponent: FC<{ toolTip?: boolean }> = ({
                       addOrRemoveSelectedIntegration(integration, {});
                     }}
                     className={clsx(
-                      'cursor-pointer border-[2px] relative rounded-pill flex justify-center items-center bg-fifth filter transition-all duration-state ease-state',
-                      selectedIntegrations.findIndex(
-                        (p) => p.integration.id === integration.id
-                      ) === -1
-                        ? 'grayscale border-transparent'
-                        : 'border-primaryBg'
+                      'cursor-pointer border relative rounded-pill flex justify-center items-center bg-hairline filter transition-all duration-state ease-state',
+                      isSelected(integration.id)
+                        ? 'border-primaryBg'
+                        : 'grayscale border-transparent'
                     )}
                   >
                     <ImageWithFallback
                       fallbackSrc="/no-picture.jpg"
                       src={integration.picture || '/no-picture.jpg'}
                       className={clsx(
-                        'rounded-pill transition-all min-w-[42px] border-[1.5px] min-h-[42px]',
-                        selectedIntegrations.findIndex(
-                          (p) => p.integration.id === integration.id
-                        ) === -1
-                          ? 'border-transparent'
-                          : 'border-primaryText'
+                        'rounded-pill transition-all min-w-[42px] border min-h-[42px]',
+                        isSelected(integration.id)
+                          ? 'border-primaryText'
+                          : 'border-transparent'
                       )}
-                      alt={integration.identifier}
+                      alt={integration.name}
                       width={42}
                       height={42}
                     />
-                    {integration.identifier === 'youtube' ? (
-                      <img
-                        src="/icons/platforms/youtube.svg"
-                        className="absolute z-10 bottom-0 -end-[4px] min-w-[16px]"
-                        width={16}
-                      />
-                    ) : (
-                      <SafeImage
-                        src={`/icons/platforms/${integration.identifier}.png`}
-                        className="rounded-thumb absolute z-10 bottom-0 -end-[4px] min-w-[16px] min-h-[16px]"
-                        alt={integration.identifier}
-                        width={16}
-                        height={16}
-                      />
-                    )}
-                  </div>
+                    <PlatformGlyph
+                      identifier={integration.identifier}
+                      className="absolute z-10 bottom-0 -end-[4px] text-ink"
+                    />
+                  </button>
                 </div>
               ))}
           </div>

@@ -7,6 +7,7 @@ import { textSlicer } from '@gitroom/helpers/utils/count.length';
 import SafeImage from '@gitroom/react/helpers/safe.image';
 import { useLaunchStore } from '@gitroom/frontend/components/new-launch/store';
 import { stripHtmlValidation } from '@gitroom/helpers/utils/strip.html.validation';
+import { PlatformGlyph } from '@gitroom/frontend/components/ui/platform.glyph';
 
 export const GeneralPreviewComponent: FC<{
   maximumCharacters?: number;
@@ -73,17 +74,15 @@ export const GeneralPreviewComponent: FC<{
                 />
 
                 {current !== 'global' && (
-                  <SafeImage
-                    src={`/icons/platforms/${integration?.identifier}.png`}
-                    className="min-w-[20px] min-h-[20px] rounded-pill absolute z-10 -bottom-[4px] -end-[4px] border border-fifth"
-                    alt={integration.identifier}
-                    width={20}
-                    height={20}
+                  <PlatformGlyph
+                    identifier={integration?.identifier}
+                    size={20}
+                    className="absolute z-10 -bottom-[4px] -end-[4px] text-ink"
                   />
                 )}
               </div>
               {index !== topValue.length - 1 && (
-                <div className="flex-1 w-[2px] h-[calc(100%-10px)] bg-customColor25 absolute top-[8px] z-[1]" />
+                <div className="flex-1 w-[2px] h-[calc(100%-10px)] bg-line absolute top-[8px] z-[1]" />
               )}
             </div>
             <div className="flex-1 flex flex-col gap-[4px]">
@@ -91,7 +90,7 @@ export const GeneralPreviewComponent: FC<{
                 <div className="h-[22px] t-body-emphasis">
                   {current === 'global' ? 'Global Edit' : integration?.name}
                 </div>
-                <div className="t-body text-customColor26 mt-[1px] ms-[2px]">
+                <div className="t-body text-ink mt-[1px] ms-[2px]">
                   <svg
                     viewBox="0 0 22 22"
                     aria-label="Verified account"
@@ -104,7 +103,7 @@ export const GeneralPreviewComponent: FC<{
                     </g>
                   </svg>
                 </div>
-                <div className="t-body text-customColor27 ms-[4px]">
+                <div className="t-body text-inkTertiary ms-[4px]">
                   {current === 'global'
                     ? ''
                     : integration?.display || '@username'}

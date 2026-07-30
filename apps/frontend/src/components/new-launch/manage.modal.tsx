@@ -28,8 +28,6 @@ import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import { makeId } from '@gitroom/nestjs-libraries/services/make.is';
 import { useModals } from '@gitroom/frontend/components/layout/new-modal';
 import { capitalize } from 'lodash';
-import { SelectCustomer } from '@gitroom/frontend/components/launches/select.customer';
-import { CopilotPopup } from '@copilotkit/react-ui';
 import { DummyCodeComponent } from '@gitroom/frontend/components/new-launch/dummy.code.component';
 import { CreationMethodBadge } from '@gitroom/frontend/components/launches/creation.method.badge';
 import {
@@ -40,9 +38,42 @@ import {
   DropdownArrowSmallIcon,
 } from '@gitroom/frontend/components/ui/icons';
 import { useHasScroll } from '@gitroom/frontend/components/ui/is.scroll.hook';
-import { useShortlinkPreference } from '@gitroom/frontend/components/settings/shortlink-preference.component';
+import { PlatformGlyph } from '@gitroom/frontend/components/ui/platform.glyph';
 import dayjs from 'dayjs';
 import { Button } from '@gitroom/react/form/button';
+
+/**
+ * Turn a rejected save into a sentence the author can act on.
+ *
+ * `/posts` refuses a post with a readable reason — "Your post should have at
+ * least one character or one image", "post is too long" — carried as `message`
+ * alongside the channel `name`, and that reason is worth repeating verbatim.
+ * Anything else on that wire (a NestJS envelope, a proxy's HTML page, a stack,
+ * a wall of text) is not, so it is dropped for one plain sentence. Same rule as
+ * the auth forms: the payload never reaches the screen.
+ */
+const readPostError = async (response: Response, t: ReturnType<typeof useT>) => {
+  const fallback = t(
+    'post_not_saved',
+    'We could not save this post. Nothing has been scheduled — your text is still here, try again in a moment.'
+  );
+
+  try {
+    const body = await response.json();
+    const message =
+      typeof body?.message === 'string' ? body.message.trim() : '';
+
+    if (!message || message.length > 160) {
+      return fallback;
+    }
+
+    return typeof body?.name === 'string' && body.name
+      ? `${body.name}: ${message}`
+      : message;
+  } catch {
+    return fallback;
+  }
+};
 
 export const ManageModal: FC<AddEditModalProps> = (props) => {
   const t = useT();
@@ -53,7 +84,6 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
   const toaster = useToaster();
   const modal = useModals();
   const [showSettings, setShowSettings] = useState(false);
-  const { data: shortlinkPreferenceData } = useShortlinkPreference();
 
   const { addEditSets, mutate, customClose, dummy } = props;
 
@@ -67,7 +97,6 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
     tags,
     setTags,
     integrations,
-    setSelectedIntegrations,
     locked,
     current,
     activateExitButton,
@@ -85,7 +114,6 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
       setTags: state.setTags,
       selectedIntegrations: state.selectedIntegrations,
       integrations: state.integrations,
-      setSelectedIntegrations: state.setSelectedIntegrations,
       locked: state.locked,
       activateExitButton: state.activateExitButton,
     }))
@@ -114,10 +142,10 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
     return (
       <div className="flex items-center gap-[8px]">
         <div className="relative">
-          <img
-            src={`/icons/platforms/${currentIntegration.identifier}.png`}
-            className="w-[20px] h-[20px] rounded-thumb"
-            alt={currentIntegration.identifier}
+          <PlatformGlyph
+            identifier={currentIntegration.identifier}
+            size={20}
+            className="text-ink"
           />
           <SettingsIcon
             size={15}
@@ -130,21 +158,6 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
       </div>
     );
   }, [current]);
-
-  const changeCustomer = useCallback(
-    (customer: string) => {
-      const neededIntegrations = integrations.filter(
-        (p) => p?.customer?.id === customer
-      );
-      setSelectedIntegrations(
-        neededIntegrations.map((p) => ({
-          settings: {},
-          selectedIntegrations: p,
-        }))
-      );
-    },
-    [integrations]
-  );
 
   const askClose = useCallback(async () => {
     if (!activateExitButton || dummy) {
@@ -272,12 +285,23 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
       }));
 
       if (!dummy) {
-        const checkAllValid = await (
-          await fetch('/posts/valid', {
-            method: 'POST',
-            body: JSON.stringify({ type, posts }),
-          })
-        ).json();
+        // The pre-flight check is a request like any other and can fail. When it
+        // did, the array methods below threw inside the click handler: the
+        // Schedule button spun forever with nothing said. A failure here is
+        // reported and the composer stays put — the server validates again on
+        // save, so nothing is skipped by giving up on the pre-flight.
+        const validResponse = await fetch('/posts/valid', {
+          method: 'POST',
+          body: JSON.stringify({ type, posts }),
+        });
+
+        if (!validResponse.ok) {
+          setLoading(false);
+          toaster.show(await readPostError(validResponse, t), 'warning');
+          return;
+        }
+
+        const checkAllValid = await validResponse.json();
 
         const focus = (id: string, where: 'fix' | 'preview') => {
           integrationById(id)?.ref?.current?.[where]?.();
@@ -345,49 +369,10 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
         }
       }
 
-      const shortlinkPreference = shortlinkPreferenceData?.shortlink || 'ASK';
-
-      let shortLink = false;
-
-      if (!dummy && shortlinkPreference !== 'NO') {
-        const shortLinkUrl = await (
-          await fetch('/posts/should-shortlink', {
-            method: 'POST',
-            body: JSON.stringify({
-              messages: allValues
-                // platforms that remove links won't keep shortlinks either
-                .filter(
-                  (p: any) => !integrationById(p.id)?.integration?.stripLinks
-                )
-                .flatMap((p: any) => p.values.flatMap((a: any) => a.content)),
-            }),
-          })
-        ).json();
-
-        if (shortLinkUrl.ask) {
-          if (shortlinkPreference === 'YES') {
-            // Automatically shortlink without asking
-            shortLink = true;
-          } else {
-            // ASK: Show the dialog
-            shortLink = await deleteDialog(
-              t(
-                'shortlink_urls_question',
-                'Do you want to shortlink the URLs? it will let you get statistics over clicks'
-              ),
-              t('yes_shortlink_it', 'Yes, shortlink it!'),
-              undefined,
-              t('no_original_urls', 'No, original URLs')
-            );
-          }
-        }
-      }
-
       const data = {
         type,
         ...(repeater ? { inter: repeater } : {}),
         tags,
-        shortLink,
         date: date.utc().format('YYYY-MM-DDTHH:mm:ss'),
         posts,
       };
@@ -397,7 +382,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
           title: '',
           children: <DummyCodeComponent code={data} />,
           classNames: {
-            modal: 'w-[100%] bg-transparent text-textColor',
+            modal: 'w-[100%] bg-transparent text-ink',
           },
           size: '100%',
           withCloseButton: false,
@@ -409,12 +394,25 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
       }
 
       if (!dummy) {
-        addEditSets
-          ? addEditSets(data)
-          : await fetch('/posts', {
-              method: 'POST',
-              body: JSON.stringify(data),
-            });
+        if (addEditSets) {
+          addEditSets(data);
+        } else {
+          // The response used to be discarded, so a rejected or failed save
+          // still closed the composer and announced "Added successfully" — the
+          // post silently never existed, which for a scheduler is the worst
+          // failure it can have. A refusal now keeps the composer open with
+          // everything the user wrote still in it.
+          const response = await fetch('/posts', {
+            method: 'POST',
+            body: JSON.stringify(data),
+          });
+
+          if (!response.ok) {
+            setLoading(false);
+            toaster.show(await readPostError(response, t), 'warning');
+            return;
+          }
+        }
 
         if (!addEditSets) {
           mutate();
@@ -435,15 +433,15 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
         }
       }
     },
-    [ref, repeater, tags, date, addEditSets, dummy, shortlinkPreferenceData]
+    [ref, repeater, tags, date, addEditSets, dummy]
   );
 
   return (
     <div className="w-full h-full flex-1 p-[32px] flex relative">
-      <div className="flex flex-1 bg-newBgColorInner rounded-pill flex-col">
+      <div className="flex flex-1 bg-surface rounded-card flex-col">
         <div className="flex-1 flex">
-          <div className="flex flex-col flex-1 border-e border-newBorder">
-            <div className="bg-newBgColor h-[65px] rounded-s-pill !rounded-b-none flex items-center gap-[12px] px-[20px] t-title-2">
+          <div className="flex flex-col flex-1 border-e border-line">
+            <div className="bg-canvas h-[65px] rounded-ss-card flex items-center gap-[12px] px-[20px] t-title-2">
               {t('create_post_title', 'Create Post')}
               <CreationMethodBadge
                 creationMethod={existingData?.posts?.[0]?.creationMethod}
@@ -461,14 +459,6 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                   <div className="flex w-full">
                     <div className="flex flex-1">
                       <PicksSocialsComponent toolTip={true} />
-                    </div>
-                    <div>
-                      {!dummy && (
-                        <SelectCustomer
-                          onChange={changeCustomer}
-                          integrations={integrations}
-                        />
-                      )}
                     </div>
                   </div>
                   <div className="flex flex-1 gap-[8px] flex-col">
@@ -494,7 +484,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                   current === 'global' && 'hidden'
                 )}
               >
-                <div className="flex-1 flex flex-col rounded-card gap-[12px] overflow-hidden bg-newSettings">
+                <div className="flex-1 flex flex-col rounded-card gap-[12px] overflow-hidden bg-surfaceActive">
                   <div
                     onClick={() => setShowSettings(!showSettings)}
                     className={clsx(
@@ -515,13 +505,13 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                   <div
                     className={clsx(
                       !showSettings ? 'hidden' : 'flex-1',
-'t-control text-textColor relative'
+'t-control text-ink relative'
                     )}
                   >
                     <div className="absolute left-0 top-0 w-full h-full flex flex-col overflow-x-hidden overflow-y-auto scrollbar scrollbar-thumb-lineStrong scrollbar-track-transparent">
                       <div
                         id="social-settings"
-                        className="flex flex-col gap-[20px] bg-newBgColor"
+                        className="flex flex-col gap-[20px] bg-canvas"
                       />
                     </div>
                   </div>
@@ -533,7 +523,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
             </div>
           </div>
           <div className="w-[580px] flex flex-col">
-            <div className="bg-newBgColor h-[65px] rounded-e-pill !rounded-b-none flex items-center px-[20px] t-title-2">
+            <div className="bg-canvas h-[65px] rounded-se-card flex items-center px-[20px] t-title-2">
               <div className="flex-1">{t('post_preview', 'Post Preview')}</div>
               <div className="cursor-pointer">
                 <CloseIcon onClick={askClose} className="text-inkSecondary" />
@@ -549,7 +539,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
             </div>
           </div>
         </div>
-        <div className="select-none h-[84px] py-[20px] border-t border-newBorder flex items-center">
+        <div className="select-none h-[84px] py-[20px] border-t border-line flex items-center">
           <div className="flex-1 flex ps-[20px] gap-[8px]">
             {!dummy && (
               <TagsComponent
@@ -585,11 +575,11 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                   selectedIntegrations.length === 0 || loading || locked
                 }
                 onClick={schedule('draft')}
-                className="relative cursor-pointer disabled:cursor-not-allowed px-[20px] h-large bg-btnSimple justify-center items-center flex rounded-control t-body-strong"
+                className="relative cursor-pointer disabled:cursor-not-allowed px-[20px] h-large bg-surfaceActive justify-center items-center flex rounded-control t-body-strong"
               >
                 {loading && (
                   <div className="absolute left-[50%] top-[50%] -translate-y-[50%] -translate-x-[50%]">
-                    <div className="animate-spin h-[20px] w-[20px] border-4 border-textColor border-t-transparent rounded-pill" />
+                    <div className="animate-spin h-[20px] w-[20px] border border-ink border-t-transparent rounded-pill" />
                   </div>
                 )}
                 <div className={clsx(loading && 'invisible')}>
@@ -619,7 +609,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                 >
                   {loading && (
                     <div className="absolute left-[50%] top-[50%] -translate-y-[50%] -translate-x-[50%]">
-                      <div className="animate-spin h-[20px] w-[20px] border-4 border-line border-t-transparent rounded-pill" />
+                      <div className="animate-spin h-[20px] w-[20px] border border-primaryText border-t-transparent rounded-pill" />
                     </div>
                   )}
                   <div
@@ -628,9 +618,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                       loading && 'invisible'
                     )}
                   >
-                    {selectedIntegrations.length === 0
-                      ? t('check_circles_above', 'Check the circles above')
-                      : dummy
+                    {dummy
                       ? t('create_output', 'Create output')
                       : !existingData?.integration
                       ? t('add_to_calendar', 'Add to calendar')
@@ -651,7 +639,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                     disabled={
                       selectedIntegrations.length === 0 || loading || locked
                     }
-                    className="rounded-control z-[300] disabled:cursor-not-allowed disabled:opacity-80 hidden group-hover:flex absolute bottom-[100%] -left-[12px] p-[12px] w-[206px] bg-newBgColorInner"
+                    className="rounded-control z-[300] disabled:cursor-not-allowed disabled:opacity-80 hidden group-hover:flex absolute bottom-[100%] -left-[12px] p-[12px] w-[206px] bg-surface"
                   >
                     <div className="text-primaryText rounded-control bg-primaryBg h-large w-full flex justify-center items-center post-now">
                       {t('post_now', 'Post Now')}
@@ -663,28 +651,6 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
           </div>
         </div>
       </div>
-      <CopilotPopup
-        hitEscapeToClose={false}
-        clickOutsideToClose={true}
-        instructions={`
-You are an assistant that help the user to schedule their social media posts,
-Here are the things you can do:
-- Add a new comment / post to the list of posts
-- Delete a comment / post from the list of posts
-- Add content to the comment / post
-- Activate or deactivate the comment / post
-
-Post content can be added using the addPostContentFor{num} function.
-After using the addPostFor{num} it will create a new addPostContentFor{num+ 1} function.
-`}
-        labels={{
-          title: t('your_assistant', 'Your Assistant'),
-          initial: t(
-            'assistant_initial_message',
-            'Hi! I can help you to refine your social media posts.'
-          ),
-        }}
-      />
     </div>
   );
 };

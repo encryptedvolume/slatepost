@@ -34,6 +34,28 @@ export const ssoRowClassName =
   '[&>div]:transition-colors [&>div]:duration-state [&>div]:ease-state [&>div:hover]:!bg-surfaceHover ' +
   '[&_svg]:!w-[16px] [&_svg]:!h-[16px] [&_svg_path]:!fill-current [&_svg_path]:!stroke-current';
 
+/**
+ * The one place an auth failure turns into words.
+ *
+ * The API answers a rejected sign-in or sign-up with `400` and a bare sentence
+ * ("Invalid user name or password", "Email already exists"), which is fine to
+ * show. Anything else that can come back over that wire — an empty body, a
+ * NestJS JSON envelope, a proxy's HTML error page, a wall of text — is not, so
+ * it is dropped in favour of the caller's own sentence. Both auth forms read
+ * their errors through here, which is what keeps a raw payload out of a form
+ * field.
+ */
+export const readAuthError = async (response: Response, fallback: string) => {
+  const raw = (await response.text().catch(() => '')).trim();
+  const isPayloadNotProse =
+    !raw ||
+    raw.length > 160 ||
+    raw.startsWith('{') ||
+    raw.startsWith('[') ||
+    raw.startsWith('<');
+  return isPayloadNotProse ? fallback : raw;
+};
+
 export function Login() {
   const t = useT();
   const [loading, setLoading] = useState(false);
@@ -54,23 +76,54 @@ export function Login() {
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setLoading(true);
     setNotActivated(false);
-    const login = await fetchData('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({
-        ...data,
-        provider: 'LOCAL',
-      }),
-    });
-    if (login.status === 400) {
-      const errorMessage = await login.text();
-      if (errorMessage === 'User is not activated') {
-        setNotActivated(true);
-      } else {
+
+    // A successful sign-in comes back with a `reload` header and the fetch
+    // wrapper navigates, so the button stays busy on purpose in that one case.
+    // Every other outcome has to put the form back and say something: before
+    // this, a 500 or a dropped connection left the button spinning forever with
+    // no message at all.
+    try {
+      const login = await fetchData('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...data,
+          provider: 'LOCAL',
+        }),
+      });
+
+      if (login.status === 400) {
+        const errorMessage = await readAuthError(
+          login,
+          t('sign_in_rejected', 'That email and password did not match.')
+        );
+        if (errorMessage === 'User is not activated') {
+          setNotActivated(true);
+        } else {
+          form.setError('email', {
+            message: errorMessage,
+          });
+        }
+        setLoading(false);
+        return;
+      }
+
+      if (!login.ok) {
+        setLoading(false);
         form.setError('email', {
-          message: errorMessage,
+          message: t(
+            'sign_in_server_error',
+            'We could not sign you in just now. Please try again in a moment.'
+          ),
         });
       }
+    } catch {
       setLoading(false);
+      form.setError('email', {
+        message: t(
+          'sign_in_unreachable',
+          'We could not reach Slate. Check your connection and try again.'
+        ),
+      });
     }
   };
   return (

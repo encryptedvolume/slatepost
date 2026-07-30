@@ -14,15 +14,15 @@ export const Slider: FC<{
   return (
     <div
       className={clsx(
-        'w-[56px] h-control p-[4px] border-fifth border rounded-pill',
-        value === 'on' && fill && 'bg-customColor4'
+        'w-[56px] h-control p-[4px] border-lineControl border rounded-pill',
+        value === 'on' && fill && 'bg-inkSecondary'
       )}
       onClick={change}
     >
       <div className="w-full h-full relative rounded-pill">
         <div
           className={clsx(
-            'absolute left-0 top-0 w-[26px] h-[26px] bg-customColor5 rounded-pill transition-all cursor-pointer',
+            'absolute left-0 top-0 w-[26px] h-[26px] bg-primaryBg rounded-pill transition-all cursor-pointer',
             value === 'on' ? 'left-[100%] -translate-x-[100%]' : 'left-0'
           )}
         />

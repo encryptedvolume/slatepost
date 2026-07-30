@@ -4,9 +4,49 @@ module.exports = {
   content: ['./src/**/*.{ts,tsx,html}', '../../libraries/**/*.{ts,tsx,html}'],
   theme: {
     // ---- Hard overrides (NOT `extend`) ----
-    // These four scales replace Tailwind's stock ramps outright, so the stock
-    // classes stop compiling and the only way to set type, weight, radius or
-    // a control height is to name a Slate token.
+    // These scales replace Tailwind's stock ramps outright, so the stock
+    // classes stop compiling and the only way to set a breakpoint, type,
+    // weight, radius, spacing step, duration or animation is to name a Slate
+    // token.
+
+    // The breakpoint set. A hard override, not `extend`, so Tailwind's stock
+    // `sm: md: lg: xl: 2xl:` min-width ramp no longer compiles at all.
+    //
+    // There used to be both: 23 stock min-width utilities alongside 16 custom
+    // max-width ones. They are opposite directions, and they overlapped — the
+    // declared `mobile` is `(max-width: 1025px)` while stock `lg` is
+    // `(min-width: 1024px)`, so at 1024-1025px BOTH branches applied and two
+    // layouts fought (the auth screen was built on `lg:`, the app shell on
+    // `mobile:`). One direction only, and it is max-width: the base classes
+    // describe the full-size layout and a breakpoint takes things away.
+    screens: {
+      phone: {
+        raw: '(max-width: 640px)',
+      },
+      mobile: {
+        raw: '(max-width: 1025px)',
+      },
+      tablet: {
+        raw: '(max-width: 1300px)',
+      },
+      maxMedia: {
+        raw: '(max-width: 1400px)',
+      },
+      iconBreak: {
+        raw: '(max-width: 1560px)',
+      },
+      xs: {
+        max: '401px',
+      },
+      // Height, not width — these two gate on viewport height and are
+      // therefore orthogonal to the ladder above.
+      minCustom: {
+        raw: '(min-height: 800px)',
+      },
+      custom: {
+        raw: '(max-height: 800px)',
+      },
+    },
 
     // The type scale. Sixteen tokens, letter-spacing and weight baked in —
     // never set ad hoc. text-lg / text-xs / text-2xl no longer resolve.
@@ -145,9 +185,8 @@ module.exports = {
       surface: '240ms',
     },
     // Every duration below is 120 / 180 / 240ms. The only figure that is
-    // not is the 4s on `fadeDown` and the 4s delay on `newMessages`, and
-    // neither is a duration of motion: they are dwell time on a
-    // self-dismissing toast. The motion inside fadeDown is 180ms in and
+    // not is the 4s on `fadeDown`, and that is not a duration of motion: it
+    // is dwell time on a self-dismissing toast. The motion inside fadeDown is 180ms in and
     // 180ms out (the 4.5% keyframe stops below).
     //
     // Also a hard override rather than `extend`: under `extend`, Tailwind's
@@ -171,7 +210,6 @@ module.exports = {
       fadeDown: 'fadeDown 4s cubic-bezier(0.32, 0.72, 0, 1) forwards',
       normalFadeDown:
         'normalFadeDown 240ms cubic-bezier(0.32, 0.72, 0, 1) forwards',
-      newMessages: 'newMessages 240ms cubic-bezier(0.4, 0, 0.2, 1) 4s forwards',
     },
     extend: {
       // Control heights are exactly 28 / 36 / 44 — nothing in between, and
@@ -247,77 +285,18 @@ module.exports = {
         // colour swatch, a control over a media thumbnail. Constant in both
         // themes; see the note in colors.scss.
         onSwatch: 'var(--slate-on-swatch)',
-
-        primary: 'var(--color-primary)',
-        // NOTE: the legacy `secondary` colour alias was removed — it collided
-        // with the `secondary` type token in the fontSize scale above, which
-        // would have made `text-secondary` set a colour as well as a size.
-        // Its value was `--slate-surface`; call sites now say `surface`.
-        textColor: 'var(--new-btn-text)',
-        third: 'var(--color-third)',
-        forth: 'var(--color-forth)',
-        fifth: 'var(--color-fifth)',
-        sixth: 'var(--color-sixth)',
-        seventh: 'var(--color-seventh)',
-        gray: 'var(--color-gray)',
-        input: 'var(--color-input)',
-        tableBorder: 'var(--color-table-border)',
-        customColor1: 'var(--color-custom1)',
-        customColor2: 'var(--color-custom2)',
-        customColor3: 'var(--color-custom3)',
-        customColor4: 'var(--color-custom4)',
-        customColor5: 'var(--color-custom5)',
-        customColor8: 'var(--color-custom8)',
-        customColor10: 'var(--color-custom10)',
-        customColor11: 'var(--color-custom11)',
-        customColor12: 'var(--color-custom12)',
-        customColor13: 'var(--color-custom13)',
-        customColor14: 'var(--color-custom14)',
-        customColor16: 'var(--color-custom16)',
-        customColor17: 'var(--color-custom17)',
-        customColor21: 'var(--color-custom21)',
-        customColor25: 'var(--color-custom25)',
-        customColor26: 'var(--color-custom26)',
-        customColor27: 'var(--color-custom27)',
-        customColor28: 'var(--color-custom28)',
-        customColor29: 'var(--color-custom29)',
-        customColor30: 'var(--color-custom30)',
-        customColor39: 'var(--color-custom39)',
-        customColor40: 'var(--color-custom40)',
-        customColor45: 'var(--color-custom45)',
-        customColor51: 'var(--color-custom51)',
-        customColor52: 'var(--color-custom52)',
-        customColor53: 'var(--color-custom53)',
-        customColor54: 'var(--color-custom54)',
-        customColor55: 'var(--color-custom55)',
-        modalCustom: 'var(--color-modalCustom)',
-
-        newBgColor: 'var(--new-bgColor)',
-        newBackdrop: 'var(--new-back-drop)',
-        newSep: 'var(--new-sep)',
-        newBorder: 'var(--new-border)',
-        newBgColorInner: 'var(--new-bgColorInner)',
-        newBgLineColor: 'var(--new-bgLineColor)',
-        textItemFocused: 'var(--new-textItemFocused)',
-        textItemBlur: 'var(--new-textItemBlur)',
-        boxFocused: 'var(--new-boxFocused)',
-        newTextColor: 'rgb(var(--new-textColor) / <alpha-value>)',
-        blockSeparator: 'var(--new-blockSeparator)',
-        btnSimple: 'var(--new-btn-simple)',
-        btnText: 'var(--new-btn-text)',
-        btnPrimary: 'var(--new-btn-primary)',
-        ai: 'var(--new-ai-btn)',
-        boxHover: 'var(--new-box-hover)',
-        newTableBorder: 'var(--new-table-border)',
-        newTableHeader: 'var(--new-table-header)',
-        newTableText: 'var(--new-table-text)',
-        newTableTextFocused: 'var(--new-table-text-focused)',
-        newColColor: 'var(--new-col-color)',
-        newSettings: 'var(--new-settings)',
-        menuDots: 'var(--new-menu-dots)',
-        menuDotsHover: 'var(--new-menu-hover)',
-        bigStrip: 'var(--new-big-strips)',
-        popup: 'var(--popup-color)',
+        // The `new*` / ordinal / `customColor*` alias layer that used to sit
+        // here is gone — 64 keys, every one of them a second name for a token
+        // already listed above. Call sites now name the semantic token. Do not
+        // add an alias back: several of the old ones resolved to a *different*
+        // semantic token per theme, which is how invisible text shipped.
+        //
+        // (The legacy `secondary` colour alias went earlier for a different
+        // reason: it collided with the `secondary` type token in the fontSize
+        // scale above, so `text-secondary` would have set a colour as well as
+        // a size.)
+        //
+        // These three are product chrome for the TikTok preview, not aliases.
         bgTiktokItem: 'var(--tiktok-item-bg)',
         bgTiktokItemIcon: 'var(--tiktok-item-icon-bg)',
         borderPreview: 'var(--border-preview)',
@@ -446,40 +425,7 @@ module.exports = {
             transform: 'translateY(0)',
           },
         },
-        // Only background-color moves here — font-weight is neither a
-        // transitionable property nor a permitted weight.
-        newMessages: {
-          '0%': {
-            backgroundColor: 'var(--color-seventh)',
-          },
-          '100%': {
-            backgroundColor: 'var(--color-third)',
-          },
-        },
       }),
-      screens: {
-        mobile: {
-          raw: '(max-width: 1025px)',
-        },
-        tablet: {
-          raw: '(max-width: 1300px)',
-        },
-        iconBreak: {
-          raw: '(max-width: 1560px)',
-        },
-        maxMedia: {
-          raw: '(max-width: 1400px)',
-        },
-        minCustom: {
-          raw: '(min-height: 800px)',
-        },
-        custom: {
-          raw: '(max-height: 800px)',
-        },
-        xs: {
-          max: '401px',
-        },
-      },
     },
   },
   plugins: [

@@ -10,14 +10,14 @@ import { classValidatorResolver } from '@hookform/resolvers/class-validator';
 import { CreateOrgUserDto } from '@gitroom/nestjs-libraries/dtos/auth/create.org.user.dto';
 import { GithubProvider } from '@gitroom/frontend/components/auth/providers/github.provider';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { LoadingComponent } from '@gitroom/frontend/components/layout/loading';
-import { ssoRowClassName as ssoRow } from '@gitroom/frontend/components/auth/login';
+import { Skeleton } from '@gitroom/frontend/components/ui/skeleton';
+import {
+  readAuthError,
+  ssoRowClassName as ssoRow,
+} from '@gitroom/frontend/components/auth/login';
 import { GoogleProvider } from '@gitroom/frontend/components/auth/providers/google.provider';
 import { OauthProvider } from '@gitroom/frontend/components/auth/providers/oauth.provider';
-import { useFireEvents } from '@gitroom/helpers/utils/use.fire.events';
 import { useVariables } from '@gitroom/react/helpers/variable.context';
-import { useTrack } from '@gitroom/react/helpers/use.track';
-import { TrackEnum } from '@gitroom/nestjs-libraries/user/track.enum';
 import { FarcasterProvider } from '@gitroom/frontend/components/auth/providers/farcaster.provider';
 import dynamic from 'next/dynamic';
 import { WalletUiProvider } from '@gitroom/frontend/components/auth/providers/placeholder/wallet.ui.provider';
@@ -33,11 +33,11 @@ const WalletProvider = dynamic(
 type Inputs = {
   email: string;
   password: string;
-  company: string;
   providerToken: string;
   provider: string;
 };
 export function Register() {
+  const t = useT();
   const getQuery = useSearchParams();
   const fetch = useFetch();
   const [provider] = useState(getQuery?.get('provider')?.toUpperCase());
@@ -65,21 +65,30 @@ export function Register() {
   if (!code && !provider) {
     return <RegisterAfter token="" provider="LOCAL" />;
   }
+  // Waiting on the provider's token exchange. It is the same column the form is
+  // about to occupy, with the heading already in place and the fields drawn as
+  // placeholders, so the screen does not go blank behind a spinner mid-sign-up.
   if (!show) {
-    return <LoadingComponent />;
+    return (
+      <div className="flex-1 flex flex-col" aria-busy="true">
+        <h1 className="t-title-1 text-ink">{t('sign_up', 'Sign Up')}</h1>
+        <p className="t-secondary text-inkSecondary mt-[8px]">
+          {t(
+            'finishing_sign_up',
+            'Checking your account with your sign-in provider. This takes a second.'
+          )}
+        </p>
+        <div className="flex flex-col gap-[16px] mt-[32px]">
+          <Skeleton className="h-large w-full rounded-control" />
+          <Skeleton className="h-large w-full rounded-control" />
+          <Skeleton className="h-large w-full rounded-control" />
+        </div>
+      </div>
+    );
   }
   return (
     <RegisterAfter token={code} provider={provider?.toUpperCase() || 'LOCAL'} />
   );
-}
-function getHelpfulReasonForRegistrationFailure(httpCode: number) {
-  switch (httpCode) {
-    case 400:
-      return 'Email already exists';
-    case 404:
-      return 'Your browser got a 404 when trying to contact the API, the most likely reasons for this are the NEXT_PUBLIC_BACKEND_URL is set incorrectly, or the backend is not running.';
-  }
-  return 'Unhandled error: ' + httpCode;
 }
 export function RegisterAfter({
   token,
@@ -93,9 +102,6 @@ export function RegisterAfter({
     useVariables();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const fireEvents = useFireEvents();
-  const track = useTrack();
-  const [datafast_visitor_id] = useCookie('datafast_visitor_id');
   const isAfterProvider = useMemo(() => {
     return !!token && !!provider;
   }, [token, provider]);
@@ -112,38 +118,61 @@ export function RegisterAfter({
   const fetchData = useFetch();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setLoading(true);
-    await fetchData('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({
-        ...data,
-        datafast_visitor_id,
-      }),
-    })
-      .then(async (response) => {
-        setLoading(false);
-        if (response.status === 200) {
-          fireEvents('register');
-          return track(TrackEnum.CompleteRegistration).then(() => {
-            if (response.headers.get('activate') === 'true') {
-              router.push('/auth/activate');
-            } else {
-              router.push('/auth/login');
-            }
-          });
-        } else {
-          form.setError('email', {
-            message: await response.text(),
-          });
-        }
-      })
-      .catch((e) => {
-        form.setError('email', {
-          message:
-            'General error: ' +
-            e.toString() +
-            '. Please check your browser console.',
-        });
+
+    // The API rejects a registration with a sentence ("Email already exists",
+    // "Registration is disabled"), and that sentence is worth showing. What is
+    // not worth showing — and what this used to print into the email field — is
+    // `e.toString()` with "please check your browser console" bolted on.
+    try {
+      const response = await fetchData('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(data),
       });
+
+      if (response.status === 200) {
+        if (response.headers.get('activate') === 'true') {
+          setLoading(false);
+          router.push('/auth/activate');
+          return;
+        }
+
+        // No activation step means the response already signed this user in: it
+        // set the `auth` cookie and an `onboarding` header, and the fetch
+        // interceptor (components/layout/layout.context.tsx) has already sent
+        // the browser to /launches?onboarding=true on the strength of it.
+        //
+        // So there is nothing to do here. This used to `router.push('/auth/login')`
+        // on the same 200 — a second navigation racing the first, from one
+        // response, asking an already-signed-in user to sign in again. Whichever
+        // won was luck. The interceptor owns this redirect because it needs a
+        // full document load for the server components to read the new cookie,
+        // which `router.push` would not give it.
+        //
+        // `loading` deliberately stays true: the page is on its way out, and
+        // re-enabling the button would invite a second registration.
+        return;
+      }
+
+      setLoading(false);
+
+      form.setError('email', {
+        message: await readAuthError(
+          response,
+          t(
+            'sign_up_failed',
+            'We could not create the account just now. Please try again in a moment.'
+          )
+        ),
+      });
+    } catch {
+      setLoading(false);
+      form.setError('email', {
+        message: t(
+          'sign_up_unreachable',
+          'We could not reach Slate. Check your connection and try again.'
+        ),
+      });
+    }
   };
   return (
     <FormProvider {...form}>
@@ -203,14 +232,6 @@ export function RegisterAfter({
                     />
                   </>
                 )}
-                <Input
-                  label="Company"
-                  translationKey="label_company"
-                  {...form.register('company')}
-                  autoComplete="off"
-                  type="text"
-                  placeholder={t('label_company', 'Company')}
-                />
               </div>
               <div className="t-secondary text-inkSecondary measure">
                 {t(

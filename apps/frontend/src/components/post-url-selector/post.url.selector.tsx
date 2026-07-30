@@ -10,6 +10,7 @@ import removeMd from 'remove-markdown';
 import clsx from 'clsx';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import { newDayjs } from '@gitroom/frontend/components/layout/set.timezone';
+import { PlatformGlyph } from '@gitroom/frontend/components/ui/platform.glyph';
 const postUrlEmitter = new EventEmitter();
 export const ShowPostSelector = () => {
   const [showPostSelector, setShowPostSelector] = useState(false);
@@ -117,14 +118,14 @@ export const PostSelector: FC<{
           <div
             className={
               !noModal
-                ? 'text-textColor fixed start-0 top-0 bg-scrim z-[300] w-full h-full p-[64px] animate-fade'
+                ? 'text-ink fixed start-0 top-0 bg-scrim z-[300] w-full h-full p-[64px] animate-fade'
                 : ''
             }
           >
             <div
               className={
                 !noModal
-                  ? 'flex flex-col w-full max-w-[1200px] mx-auto h-full bg-sixth border-tableBorder border-2 rounded-card pb-[20px] px-[20px] relative'
+                  ? 'flex flex-col w-full max-w-[1200px] mx-auto h-full bg-surface border border-line rounded-card pb-[20px] px-[20px] relative'
                   : ''
               }
             >
@@ -140,7 +141,7 @@ export const PostSelector: FC<{
                   </div>
                   <button
                     onClick={onCloseWithEmptyString}
-                    className="outline-none absolute end-[20px] top-[20px] mantine-UnstyledButton-root mantine-ActionIcon-root bg-primary hover:bg-tableBorder cursor-pointer mantine-Modal-close mantine-1dcetaa"
+                    className="outline-none absolute end-[20px] top-[20px] mantine-UnstyledButton-root mantine-ActionIcon-root bg-canvas hover:bg-hairline cursor-pointer mantine-Modal-close mantine-1dcetaa"
                     type="button"
                   >
                     <svg
@@ -167,8 +168,8 @@ export const PostSelector: FC<{
                       <div
                         onClick={select(p.id)}
                         className={clsx(
-                          'cursor-pointer overflow-hidden flex gap-[20px] flex-col w-[200px] h-[200px] text-ellipsis p-[12px] border border-tableBorder rounded-control hover:bg-primary',
-                          current === p.id ? 'bg-primary' : 'bg-surface'
+                          'cursor-pointer overflow-hidden flex gap-[20px] flex-col w-[200px] h-[200px] text-ellipsis p-[12px] border border-hairline rounded-control hover:bg-canvas',
+                          current === p.id ? 'bg-canvas' : 'bg-surface'
                         )}
                         key={p.id}
                       >
@@ -178,13 +179,10 @@ export const PostSelector: FC<{
                               src={p.integration.picture}
                               className="w-[32px] h-[32px] rounded-pill"
                             />
-                            <img
-                              className="w-[20px] h-[20px] rounded-pill absolute z-10 -bottom-[4px] -end-[4px] border border-fifth"
-                              src={
-                                `/icons/platforms/` +
-                                p?.integration?.providerIdentifier +
-                                '.png'
-                              }
+                            <PlatformGlyph
+                              identifier={p?.integration?.providerIdentifier}
+                              size={20}
+                              className="absolute z-10 -bottom-[4px] -end-[4px] text-ink"
                             />
                           </div>
                           <div>{p.integration.name}</div>

@@ -8,6 +8,7 @@ import SafeImage from '@gitroom/react/helpers/safe.image';
 import { capitalize } from 'lodash';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import { hasLinks } from '@gitroom/helpers/utils/strip.links';
+import { PlatformGlyph } from '@gitroom/frontend/components/ui/platform.glyph';
 
 const Valid: FC = () => {
   return (
@@ -172,7 +173,7 @@ export const InformationComponent: FC<{
     <div
       className={clsx(
         'group rounded-thumb gap-[4px] h-compact px-[8px] flex justify-center items-center relative',
-        isValid ? 'border border-newColColor' : 'bg-criticalTint text-critical'
+        isValid ? 'border border-surfaceActive' : 'bg-criticalTint text-critical'
       )}
     >
       {isValid ? <Valid /> : <Invalid />}
@@ -205,8 +206,8 @@ export const InformationComponent: FC<{
       {((isGlobal && selectedIntegrations.length) || !isValid) && (
         <div
           className={clsx(
-            'z-[300] hidden rounded-card bg-newBgColorInner group-hover:flex absolute end-0 bottom-[100%] mb-[4px] p-[12px] flex-col',
-            isValid ? 'border border-newColColor' : 'border border-criticalBorder'
+            'z-[300] hidden rounded-card bg-surface group-hover:flex absolute end-0 bottom-[100%] mb-[4px] p-[12px] flex-col',
+            isValid ? 'border border-surfaceActive' : 'border border-criticalBorder'
           )}
         >
           {!isPicture && !totalChars && (
@@ -224,12 +225,9 @@ export const InformationComponent: FC<{
               {selectedIntegrations.map((p, index) => (
                 <Fragment key={p.integration.id}>
                   <div>
-                    <SafeImage
-                      src={`/icons/platforms/${p.integration.identifier}.png`}
-                      alt={p.integration.name}
-                      className="rounded-thumb w-[16px] h-[16px] min-w-[16px] min-h-[16px]"
-                      width={16}
-                      height={16}
+                    <PlatformGlyph
+                      identifier={p.integration.identifier}
+                      className="text-ink"
                     />
                   </div>
                   <div

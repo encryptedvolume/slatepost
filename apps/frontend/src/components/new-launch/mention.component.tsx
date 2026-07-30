@@ -3,6 +3,8 @@
 import React, { FC, useEffect, useImperativeHandle, useState } from 'react';
 import { computePosition, flip, shift } from '@floating-ui/dom';
 import { posToDOMRect, ReactRenderer } from '@tiptap/react';
+import { useT } from '@gitroom/react/translation/get.transation.service.client';
+import { Skeleton } from '@gitroom/frontend/components/ui/skeleton';
 
 // Debounce utility for TipTap
 const debounce = <T extends any[]>(
@@ -12,21 +14,53 @@ const debounce = <T extends any[]>(
   let timeout: NodeJS.Timeout;
   return (...args: any[]): Promise<T> => {
     clearTimeout(timeout);
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       timeout = setTimeout(async () => {
         try {
           const result = await func(...args);
           resolve(result);
         } catch (error) {
+          // A failed lookup is rejected rather than turned into an empty array,
+          // because the dropdown has two different things to say: "there is
+          // nobody by that name" and "we could not check". Swallowing the error
+          // here made every failure read as the first one.
           console.error('Debounced function error:', error);
-          resolve([] as T);
+          reject(error);
         }
       }, wait);
     });
   };
 };
 
+/**
+ * The wait inside the mention dropdown: two rows in the shape of a result —
+ * avatar plus name — rather than the word "Loading" in an empty panel.
+ */
+const SearchingHandles: FC = () => {
+  const t = useT();
+
+  return (
+    <div
+      role="status"
+      aria-busy="true"
+      aria-live="polite"
+      className="flex flex-col gap-[8px] p-[8px]"
+    >
+      <span className="sr-only">
+        {t('searching_handles', 'Searching handles')}
+      </span>
+      {[0, 1].map((row) => (
+        <div key={row} className="flex gap-[8px] items-center">
+          <Skeleton className="w-[32px] h-[32px] rounded-pill shrink-0" />
+          <Skeleton className="h-[16px] flex-1 rounded-thumb" />
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const MentionList: FC = (props: any) => {
+  const t = useT();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const selectItem = (index: number) => {
@@ -81,16 +115,26 @@ const MentionList: FC = (props: any) => {
   return (
     <div className="dropdown-menu bg-surfaceOverlay border border-line rounded-card shadow-overlay max-h-[240px] overflow-y-auto p-[8px]">
       {props?.items?.none ? (
-        <div className="flex items-center justify-center p-[8px] t-secondary text-inkSecondary">
-          We don't have autocomplete for this social media
+        <div className="flex items-center justify-center p-[8px] t-secondary text-inkSecondary text-center">
+          {t(
+            'mentions_not_supported',
+            'This channel has no handle lookup. Type the @handle yourself and it posts as written.'
+          )}
+        </div>
+      ) : props?.failed ? (
+        <div className="flex items-center justify-center p-[8px] t-secondary text-inkSecondary text-center">
+          {t(
+            'mentions_lookup_failed',
+            'We could not look that up just now. Keep typing — the handle posts as written.'
+          )}
         </div>
       ) : props?.loading ? (
-        <div className="flex items-center justify-center p-[8px] t-secondary text-inkSecondary">
-          Loading...
-        </div>
+        <SearchingHandles />
       ) : props?.items ? (
         props.items.length === 0 ? (
-          <div className="p-[8px] t-secondary text-inkSecondary text-center">No results found</div>
+          <div className="p-[8px] t-secondary text-inkSecondary text-center">
+            {t('no_handles_found', 'No handles match that')}
+          </div>
         ) : (
           props?.items?.map((item: any, index: any) => (
             <button
@@ -110,7 +154,7 @@ const MentionList: FC = (props: any) => {
           ))
         )
       ) : (
-        <div className="p-[8px] text-inkTertiary text-center">Loading...</div>
+        <SearchingHandles />
       )}
     </div>
   );
@@ -161,10 +205,13 @@ export const suggestion = (
       }
 
       try {
-        component.updateProps({ loading: true, stop: false });
+        component.updateProps({ loading: true, stop: false, failed: false });
         const result = await debouncedLoadList(query);
         return result;
       } catch (error) {
+        // Say the lookup failed rather than letting the empty list below claim
+        // nobody goes by that handle.
+        component.updateProps({ loading: false, stop: false, failed: true });
         return [];
       }
     },

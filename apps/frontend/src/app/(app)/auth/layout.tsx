@@ -20,7 +20,7 @@ export default async function AuthLayout({
   return (
     <div className="bg-canvas text-ink flex flex-1 min-h-screen w-screen">
       <ReturnUrlComponent />
-      <div className="flex flex-col flex-1 lg:flex-none lg:w-[560px] px-[24px] py-[48px] lg:px-[64px]">
+      <div className="flex flex-col flex-none w-[560px] px-[64px] py-[48px] mobile:flex-1 mobile:w-auto mobile:px-[24px]">
         <Link href="/auth" aria-label="Slate home">
           <LogoTextComponent />
         </Link>
@@ -38,7 +38,7 @@ export default async function AuthLayout({
         </div>
       </div>
 
-      <div className="hidden lg:flex flex-1 border-s border-hairline">
+      <div className="flex mobile:hidden flex-1 border-s border-hairline">
         <div className="flex flex-col justify-center px-[64px] max-w-[34rem]">
           <h2 className="t-display text-ink">One channel. Every post on time.</h2>
           <p className="t-body text-inkSecondary mt-[24px]">

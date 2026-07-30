@@ -41,14 +41,8 @@ const raw = {
   objectStorageProvider: process.env.NEXT_PUBLIC_LEGAL_OBJECT_STORAGE_PROVIDER,
   /** Named transactional email provider. */
   emailProvider: process.env.NEXT_PUBLIC_LEGAL_EMAIL_PROVIDER,
-  /** e.g. "13 months" — how long performance snapshots are kept. */
-  analyticsRetentionPeriod: process.env.NEXT_PUBLIC_LEGAL_ANALYTICS_RETENTION,
   /** e.g. "90 days" — how long server and application logs are kept. */
   logRetentionPeriod: process.env.NEXT_PUBLIC_LEGAL_LOG_RETENTION,
-  /** Prose list of analytics / monitoring providers actually enabled. */
-  analyticsProviders: process.env.NEXT_PUBLIC_LEGAL_ANALYTICS_PROVIDERS,
-  /** Named payment processor. */
-  paymentProcessor: process.env.NEXT_PUBLIC_LEGAL_PAYMENT_PROCESSOR,
   /** Liability cap as written in the terms. */
   liabilityCap: process.env.NEXT_PUBLIC_LEGAL_LIABILITY_CAP,
   /** Governing law and forum, used twice in one sentence. */
@@ -67,10 +61,7 @@ const variableFor: Record<keyof typeof raw, string> = {
   hostingProvider: 'NEXT_PUBLIC_LEGAL_HOSTING_PROVIDER',
   objectStorageProvider: 'NEXT_PUBLIC_LEGAL_OBJECT_STORAGE_PROVIDER',
   emailProvider: 'NEXT_PUBLIC_LEGAL_EMAIL_PROVIDER',
-  analyticsRetentionPeriod: 'NEXT_PUBLIC_LEGAL_ANALYTICS_RETENTION',
   logRetentionPeriod: 'NEXT_PUBLIC_LEGAL_LOG_RETENTION',
-  analyticsProviders: 'NEXT_PUBLIC_LEGAL_ANALYTICS_PROVIDERS',
-  paymentProcessor: 'NEXT_PUBLIC_LEGAL_PAYMENT_PROCESSOR',
   liabilityCap: 'NEXT_PUBLIC_LEGAL_LIABILITY_CAP',
   governingLaw: 'NEXT_PUBLIC_LEGAL_GOVERNING_LAW',
 };

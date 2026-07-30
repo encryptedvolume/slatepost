@@ -1,23 +1,41 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
+import { jsonOrThrow, useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import useSWR from 'swr';
 import { Slider } from '@gitroom/react/form/slider';
 import { useToaster } from '@gitroom/react/toaster/toaster';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
+import { ErrorState } from '@gitroom/frontend/components/ui/state.notice';
+import {
+  Skeleton,
+  SkeletonRegion,
+} from '@gitroom/frontend/components/ui/skeleton';
 
+/**
+ * Two emails, both about a post: it went out, or it did not.
+ *
+ * A third toggle used to sit here — "Streak Reminder Emails", "when your posting
+ * streak is about to end" — for a streak indicator this fork deliberately
+ * removed from the shell as a multi-network, multi-tenant device. The feature
+ * was gone and the notification for it was not, so the setting promised mail
+ * about something the product no longer measures.
+ */
 interface EmailNotifications {
   sendSuccessEmails: boolean;
   sendFailureEmails: boolean;
-  sendStreakEmails: boolean;
 }
 
 export const useEmailNotifications = () => {
   const fetch = useFetch();
 
+  // Throwing on a failed load is what lets the panel below say so, instead of
+  // drawing three toggles in their default positions as if those were the
+  // user's saved choices.
   const load = useCallback(async () => {
-    return (await fetch('/user/email-notifications')).json();
+    return jsonOrThrow<EmailNotifications>(
+      await fetch('/user/email-notifications')
+    );
   }, []);
 
   return useSWR<EmailNotifications>('email-notifications', load, {
@@ -34,12 +52,11 @@ const EmailNotificationsComponent = () => {
   const t = useT();
   const fetch = useFetch();
   const toaster = useToaster();
-  const { data, isLoading } = useEmailNotifications();
+  const { data, isLoading, error, mutate } = useEmailNotifications();
 
   const [localSettings, setLocalSettings] = useState<EmailNotifications>({
     sendSuccessEmails: true,
     sendFailureEmails: true,
-    sendStreakEmails: true,
   });
 
   // Keep a ref to always have the latest state
@@ -65,10 +82,32 @@ const EmailNotificationsComponent = () => {
       // Update local state immediately
       setLocalSettings(newData);
 
-      await fetch('/user/email-notifications', {
-        method: 'POST',
-        body: JSON.stringify(newData),
-      });
+      // The toggle moves before the server has agreed, which is the right trade
+      // for a switch — but only if a refusal moves it back. Saying "Settings
+      // updated" over a failed write leaves the user believing they turned an
+      // email off that will keep arriving.
+      try {
+        const response = await fetch('/user/email-notifications', {
+          method: 'POST',
+          body: JSON.stringify(newData),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Request failed: ${response.status}`);
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error(err);
+        setLocalSettings(currentSettings);
+        toaster.show(
+          t(
+            'email_notifications_save_failed',
+            'We could not save that. Your email settings are unchanged — try again in a moment.'
+          ),
+          'warning'
+        );
+        return;
+      }
 
       toaster.show(t('settings_updated', 'Settings updated'), 'success');
     },
@@ -89,20 +128,43 @@ const EmailNotificationsComponent = () => {
     [updateSetting]
   );
 
-  const handleStreakEmailsChange = useCallback(
-    (value: 'on' | 'off') => {
-      updateSetting('sendStreakEmails', value === 'on');
-    },
-    [updateSetting]
-  );
-
+  // Placeholders in the shape of the two toggle rows, inside the real card,
+  // so the settings page keeps its layout while the values arrive.
   if (isLoading) {
     return (
-      <div className="my-[16px] mt-[16px] bg-surface border border-line rounded-card p-[20px]">
-        <div className="t-body text-inkTertiary">
-          {t('loading', 'Loading...')}
-        </div>
-      </div>
+      <SkeletonRegion
+        label={t('loading_email_notifications', 'Loading email notifications')}
+        className="my-[16px] mt-[16px] bg-surface border border-line rounded-card p-[20px] flex flex-col gap-[24px]"
+      >
+        <Skeleton className="h-[20px] w-[160px] rounded-thumb mt-[4px]" />
+        {[0, 1].map((row) => (
+          <div key={row} className="flex items-center justify-between gap-[24px]">
+            <div className="flex flex-col gap-[4px] flex-1">
+              <Skeleton className="h-[16px] w-[140px] rounded-thumb" />
+              <Skeleton className="h-[12px] w-full max-w-[360px] rounded-thumb" />
+            </div>
+            <Skeleton className="h-[24px] w-[44px] rounded-pill shrink-0" />
+          </div>
+        ))}
+      </SkeletonRegion>
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorState
+        className="my-[16px] mt-[16px]"
+        compact={true}
+        title={t(
+          'email_notifications_failed_title',
+          'We could not load your email notification settings'
+        )}
+        body={t(
+          'email_notifications_failed_body',
+          'Nothing has changed. Try again to see which emails are switched on.'
+        )}
+        onRetry={() => mutate()}
+      />
     );
   }
 
@@ -144,24 +206,6 @@ const EmailNotificationsComponent = () => {
         <Slider
           value={localSettings.sendFailureEmails ? 'on' : 'off'}
           onChange={handleFailureEmailsChange}
-          fill={true}
-        />
-      </div>
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col">
-          <div className="t-control">
-            {t('streak_emails', 'Streak Reminder Emails')}
-          </div>
-          <div className="t-caption text-inkSecondary">
-            {t(
-              'streak_emails_description',
-              'Receive email reminders when your posting streak is about to end'
-            )}
-          </div>
-        </div>
-        <Slider
-          value={localSettings.sendStreakEmails ? 'on' : 'off'}
-          onChange={handleStreakEmailsChange}
           fill={true}
         />
       </div>

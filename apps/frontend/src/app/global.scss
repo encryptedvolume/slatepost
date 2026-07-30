@@ -1,5 +1,4 @@
 @use './colors.scss';
-@use './polonto.css';
 @use '@uppy/core/dist/style.css' as uppyCore;
 @use '@uppy/dashboard/dist/style.css' as uppyDashboard;
 
@@ -195,7 +194,7 @@ time,
 }
 
 .table1 thead {
-  @apply bg-customColor8 border-b border-b-fifth text-caption;
+  @apply bg-surfaceHover border-b border-b-hairline text-caption;
   height: 44px;
 }
 .table1 thead th,
@@ -213,16 +212,16 @@ time,
 }
 
 .swal2-modal {
-  @apply bg-primary #{!important};
-  @apply border-b-[2px] border-b-sixth;
+  @apply bg-canvas #{!important};
+  @apply border-b border-b-hairline;
 }
 
 .swal2-modal * {
-  @apply text-textColor #{!important};
+  @apply text-ink #{!important};
 }
 
 .swal2-icon {
-  @apply text-textColor bg-primary #{!important};
+  @apply text-ink bg-canvas #{!important};
 }
 
 .swal2-cancel {
@@ -242,10 +241,10 @@ time,
    to be 42 / 8, which is on neither ladder, and put it 6px taller than the
    Input it sits beside in every provider settings row. */
 .react-tags {
-  @apply border border-newTableBorder placeholder-textColor text-control;
+  @apply border border-line placeholder-inkTertiary text-control;
   position: relative;
   padding-left: 16px;
-  background-color: var(--new-bgColorInner);
+  background-color: var(--slate-surface);
   height: 36px;
   border-radius: 10px;
   /* clicking anywhere will focus the input */
@@ -256,16 +255,16 @@ time,
 }
 
 .react-tags input {
-  @apply placeholder-textColor text-control;
+  @apply placeholder-inkTertiary text-control;
 }
 
 .react-tags.is-active {
-  @apply border-customColor51;
+  @apply border-surfaceActive;
 }
 
 .react-tags.is-disabled {
   opacity: 0.75;
-  @apply bg-customColor52;
+  @apply bg-surfaceSunken;
   /* Prevent any clicking on the component */
   pointer-events: none;
   cursor: not-allowed;
@@ -305,14 +304,14 @@ time,
   padding: 2px 8px;
   border: 0;
   border-radius: 6px;
-  @apply bg-seventh;
+  @apply bg-surfaceActive;
   /* match the font styles */
   font-size: inherit;
   line-height: inherit;
 }
 
 .react-tags__tag:hover {
-  @apply text-textColor bg-customColor51;
+  @apply text-ink bg-surfaceActive;
 }
 
 .react-tags__tag::after {
@@ -335,11 +334,11 @@ time,
     50% 40%
   );
   margin-left: 0.5rem;
-  @apply bg-customColor53;
+  @apply bg-inkTertiary;
 }
 
 .react-tags__tag:hover::after {
-  @apply bg-primary;
+  @apply bg-ink;
 }
 
 .react-tags__combobox {
@@ -365,7 +364,7 @@ time,
 }
 
 .react-tags__combobox-input::placeholder {
-  @apply text-customColor53;
+  @apply text-inkTertiary;
   opacity: 1;
 }
 
@@ -378,7 +377,7 @@ time,
   right: -2px;
   max-height: 12.5rem;
   overflow-y: auto;
-  @apply bg-input border border-customColor54;
+  @apply bg-surface border border-lineStrong;
   border-radius: 14px;
   box-shadow: var(--slate-shadow-overlay);
 }
@@ -390,15 +389,15 @@ time,
 
 .react-tags__listbox-option:hover {
   cursor: pointer;
-  @apply bg-third;
+  @apply bg-surfaceHover;
 }
 
 .react-tags__listbox-option:not([aria-disabled='true']).is-active {
-  @apply text-textColor bg-customColor51;
+  @apply text-ink bg-surfaceActive;
 }
 
 .react-tags__listbox-option[aria-disabled='true'] {
-  @apply text-customColor53;
+  @apply text-inkTertiary;
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -409,7 +408,7 @@ time,
 }
 
 .react-tags__listbox-option[aria-selected='true']:not(.is-active)::after {
-  @apply text-customColor51;
+  @apply text-ink;
 }
 
 .react-tags__listbox-option-highlight {
@@ -420,7 +419,7 @@ time,
 /*    display: none;*/
 /*}*/
 .w-md-editor {
-  @apply bg-input #{!important};
+  @apply bg-surface #{!important};
   border: 0 !important;
   box-shadow: none !important;
   /* Control radius — it is a text control. 8 was on no step. */
@@ -431,7 +430,7 @@ time,
 
 /* Toolbar buttons are controls, so the toolbar is a control row: 36, not 40. */
 .w-md-editor-toolbar {
-  @apply bg-input border-fifth #{!important};
+  @apply bg-surface border-hairline #{!important};
   height: 36px !important;
   min-height: 36px !important;
   padding: 0 8px !important;
@@ -447,15 +446,7 @@ time,
 }
 
 .editor :not(.removeEditor *) {
-  @apply text-textColor;
-}
-
-.editor .polonto * {
-  color: black !important;
-}
-
-.bp5-portal {
-  z-index: 9999 !important;
+  @apply text-ink;
 }
 
 :empty + .existing-empty {
@@ -485,7 +476,7 @@ time,
 }
 
 .uppy-ProgressBar-inner {
-  @apply bg-customColor51;
+  @apply bg-surfaceActive;
   height: 36px;
   border-radius: 6px;
 }
@@ -562,14 +553,14 @@ div div .set-font-family {
 .tags-top .react-tags__combobox {
   height: 36px;
   display: flex;
-  background-color: var(--new-bgColorInner);
+  background-color: var(--slate-surface);
   padding-left: 12px;
   padding-right: 12px;
   min-width: 150px;
   text-align: left;
   border-width: 1px;
   border-radius: 10px;
-  border-color: var(--new-table-border);
+  border-color: var(--slate-line);
   @apply text-control;
 }
 
@@ -578,7 +569,7 @@ div div .set-font-family {
 }
 
 .tags-top input::placeholder {
-  color: var(--new-textColor);
+  color: var(--slate-text-tertiary);
 }
 
 /* Chips inside a 36 field take the compact step, which leaves 4px of air top
@@ -624,10 +615,6 @@ div div .set-font-family {
   margin: 0;
 }
 
-.hideCopilot .copilotKitPopup {
-  display: none !important;
-}
-
 html[dir='rtl'] .rbox {
   direction: rtl !important;
 }
@@ -645,7 +632,7 @@ html[dir='rtl'] [dir='ltr'] {
 }
 
 .uppy-Dashboard-inner * {
-  @apply text-textColor;
+  @apply text-ink;
 }
 
 .uppy-Dashboard-inner,
@@ -661,9 +648,6 @@ html[dir='rtl'] [dir='ltr'] {
 }
 .bigWrap .uppy-StatusBar {
   height: 32px !important;
-}
-.uppy-StatusBar {
-  //@apply bg-customColor55;
 }
 //
 //.uppy-Dashboard-inner {
@@ -774,7 +758,7 @@ html[dir='rtl'] [dir='ltr'] {
 
     &:hover,
     &:hover.is-selected {
-      background-color: var(--new-bgLineColor);
+      background-color: var(--slate-hairline);
     }
   }
 }
@@ -810,29 +794,12 @@ html[dir='rtl'] [dir='ltr'] {
   filter: none;
 }
 
-.agent {
-  .copilotKitInputContainer {
-    padding: 0 24px !important;
-  }
-
-  .copilotKitInput {
-    width: 100% !important;
-  }
-}
 .rm-bg .b2 {
   padding-top: 0 !important;
 }
 .rm-bg .b1 {
   background: transparent !important;
   gap: 0 !important;
-}
-
-.copilotKitMessage img {
-  width: 200px;
-}
-
-.copilotKitMessage a {
-  color: var(--new-btn-text) !important;
 }
 
 /* No gradients. */

@@ -144,7 +144,7 @@ export const DataTable = ({
      and past the gutter on anything under 1072. Below xl the table simply
      scrolls inside its own overflow-x container, which is what that
      container is for. */
-  <div className="overflow-x-auto border border-line mb-[16px] last:mb-0 xl:me-[-176px]">
+  <div className="overflow-x-auto border border-line mb-[16px] last:mb-0 me-[-176px] tablet:me-0">
     <table className="w-full min-w-[560px] border-collapse">
       <caption className="sr-only">{caption}</caption>
       <thead>
@@ -236,7 +236,7 @@ export const LegalShell = ({
             className="flex items-center gap-[12px] no-underline text-ink"
           >
             <Logo />
-            <span className="t-secondary text-inkTertiary hidden sm:inline">
+            <span className="t-secondary text-inkTertiary inline phone:hidden">
               One channel. Every post on time.
             </span>
           </Link>
@@ -249,10 +249,10 @@ export const LegalShell = ({
         </div>
       </header>
 
-      <div className="max-w-[1280px] mx-auto px-[24px] pt-[48px] pb-[96px] grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)] gap-[48px] lg:gap-[64px] items-start">
+      <div className="max-w-[1280px] mx-auto px-[24px] pt-[48px] pb-[96px] grid grid-cols-[240px_minmax(0,1fr)] gap-[64px] mobile:grid-cols-1 mobile:gap-[48px] items-start">
         {/* Sticky rails need a ceiling: without one the tail of an 18-entry
             TOC is clipped and unreachable on any viewport under ~1000px tall. */}
-        <aside className="lg:sticky lg:top-[48px] lg:max-h-[calc(100vh-96px)] lg:overflow-y-auto flex flex-col gap-[32px]">
+        <aside className="sticky top-[48px] max-h-[calc(100vh-96px)] overflow-y-auto mobile:static mobile:top-auto mobile:max-h-none mobile:overflow-visible flex flex-col gap-[32px]">
           <nav
             aria-label="Legal documents"
             className="flex flex-col gap-[12px]"
@@ -290,7 +290,7 @@ export const LegalShell = ({
               document nav (two entries) stays; the TOC does not. */}
           <nav
             aria-label="On this page"
-            className="hidden lg:flex flex-col gap-[12px]"
+            className="flex mobile:hidden flex-col gap-[12px]"
           >
             <p className="t-overline text-inkSecondary ps-[24px]">
               On this page

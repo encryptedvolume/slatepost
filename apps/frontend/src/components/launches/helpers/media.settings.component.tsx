@@ -238,7 +238,7 @@ export const CreateThumbnail: FC<{
               step="0.1"
               value={currentTime}
               onChange={handleSeek}
-              className="w-full h-[8px] bg-fifth rounded-control appearance-none cursor-pointer slider"
+              className="w-full h-[8px] bg-hairline rounded-control appearance-none cursor-pointer slider"
               style={{
                 // Hard stop, not a blend: the played portion is ink, the rest
                 // is the track. Two tokens, no third colour.
@@ -249,7 +249,7 @@ export const CreateThumbnail: FC<{
                 }%, var(--slate-surface-active) 100%)`,
               }}
             />
-            <div className="flex justify-between t-secondary text-textColor">
+            <div className="flex justify-between t-secondary text-ink">
               <span>{formatTime(currentTime)}</span>
               <span>{formatTime(duration)}</span>
             </div>
@@ -366,7 +366,7 @@ export const MediaComponentInner: FC<{
   return (
     <div className="mt-[8px] flex flex-col gap-[20px]">
       <div className="flex flex-col space-y-[8px]">
-        <label className="t-secondary-emphasis text-textColor">
+        <label className="t-secondary-emphasis text-ink">
           Alt Text (for accessibility)
         </label>
         <input
@@ -374,7 +374,7 @@ export const MediaComponentInner: FC<{
           value={altText}
           onChange={(e) => setAltText(e.target.value)}
           placeholder="Describe the image/video content..."
-          className="w-full px-[12px] py-[8px] bg-fifth border border-tableBorder rounded-control text-textColor placeholder-inkTertiary focus:outline-none focus:ring-2 focus:ring-forth focus:border-transparent"
+          className="w-full px-[12px] py-[8px] bg-surfaceSunken border border-lineControl rounded-control text-ink placeholder-inkTertiary"
         />
       </div>
       {hasExtension(media?.path, 'mp4') && (
@@ -386,13 +386,13 @@ export const MediaComponentInner: FC<{
                 {/* Show existing thumbnail if it exists */}
                 {(newThumbnail || thumbnail) && (
                   <div className="flex flex-col space-y-[8px]">
-                    <span className="t-secondary text-textColor">
+                    <span className="t-secondary text-ink">
                       Current Thumbnail:
                     </span>
                     <img
                       src={newThumbnail || thumbnail}
                       alt="Current thumbnail"
-                      className="max-w-full max-h-[500px] object-contain rounded-control border border-tableBorder"
+                      className="max-w-full max-h-[500px] object-contain rounded-control border border-hairline"
                     />
                   </div>
                 )}
@@ -430,7 +430,7 @@ export const MediaComponentInner: FC<{
                 <div className="flex justify-start">
                   <button
                     onClick={() => setIsEditingThumbnail(false)}
-                    className="text-textColor hover:text-ink transition-colors flex items-center space-x-[8px]"
+                    className="text-ink hover:text-ink transition-colors flex items-center space-x-[8px]"
                   >
                     <svg
                       width="16"

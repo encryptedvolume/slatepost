@@ -28,25 +28,53 @@ export function ForgotReturn({ token }: { token: string }) {
     },
   });
   const fetchData = useFetch();
+  // The success panel used to be switched on before the answer was read, so an
+  // expired link and a dead server both ended on "We successfully reset your
+  // password" — with the real explanation set on a field that had just been
+  // unmounted. The form now only steps forward when the reset actually happened.
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setLoading(true);
-    const { reset } = await (
-      await fetchData('/auth/forgot-return', {
+
+    try {
+      const response = await fetchData('/auth/forgot-return', {
         method: 'POST',
         body: JSON.stringify({
           ...data,
         }),
-      })
-    ).json();
-    setState(true);
-    if (!reset) {
+      });
+
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+
+      const { reset } = await response.json();
+
+      if (!reset) {
+        setLoading(false);
+        form.setError('password', {
+          type: 'manual',
+          message: t(
+            'password_reset_link_expired',
+            'Your password reset link has expired. Please try again.'
+          ),
+        });
+        return;
+      }
+
+      setState(true);
+      setLoading(false);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      setLoading(false);
       form.setError('password', {
         type: 'manual',
-        message: t('password_reset_link_expired', 'Your password reset link has expired. Please try again.'),
+        message: t(
+          'password_reset_unreachable',
+          'We could not change your password just now. Your old password still works — try again in a moment.'
+        ),
       });
-      return false;
     }
-    setLoading(false);
   };
   return (
     <FormProvider {...form}>
@@ -58,7 +86,7 @@ export function ForgotReturn({ token }: { token: string }) {
         </div>
         {!state ? (
           <>
-            <div className="space-y-[16px] text-textColor">
+            <div className="space-y-[16px] text-ink">
               <Input
                 label="New Password"
                 translationKey="label_new_password"

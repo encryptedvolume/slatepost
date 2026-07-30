@@ -2,7 +2,7 @@
 
 import { FC, useCallback, useMemo, useState } from 'react';
 import { ReactTags } from 'react-tag-autocomplete';
-import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
+import { jsonOrThrow, useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import useSWR from 'swr';
 import { Input } from '@gitroom/react/form/input';
 import { ColorPicker } from '@gitroom/react/form/color.picker';
@@ -18,6 +18,10 @@ import {
   PlusIcon,
   CheckmarkIcon,
 } from '@gitroom/frontend/components/ui/icons';
+import {
+  Skeleton,
+  SkeletonRegion,
+} from '@gitroom/frontend/components/ui/skeleton';
 
 export const TagsComponent: FC<{
   name: string;
@@ -33,13 +37,39 @@ export const TagsComponent: FC<{
   const fetch = useFetch();
 
   const loadTags = useCallback(async () => {
-    return (await fetch('/posts/tags')).json();
+    return jsonOrThrow(await fetch('/posts/tags'));
   }, []);
 
-  const { data, isLoading, mutate } = useSWR('load-tags', loadTags);
+  const { data, isLoading, error, mutate } = useSWR('load-tags', loadTags);
+  const t = useT();
 
+  // This control lives in the composer's bottom bar next to the date picker, so
+  // both waiting and failing have to keep the bar's geometry: returning `null`
+  // used to shift the whole row sideways the moment the tags arrived.
   if (isLoading) {
-    return null;
+    return (
+      <SkeletonRegion label={t('loading_tags', 'Loading your tags')}>
+        <Skeleton className="h-large w-[140px] rounded-control" />
+      </SkeletonRegion>
+    );
+  }
+
+  // Tags are optional metadata, so a failure here must not read as an error in
+  // the post itself — it says what is unavailable, in the space the control
+  // would have occupied, and offers the one thing that fixes it.
+  if (error && !data) {
+    return (
+      <button
+        type="button"
+        onClick={() => mutate()}
+        className="h-large px-[16px] rounded-control border border-criticalBorder bg-criticalTint text-inkSecondary t-secondary flex items-center gap-[8px]"
+      >
+        {t('tags_unavailable', 'Tags unavailable')}
+        <span className="text-ink underline underline-offset-2">
+          {t('try_again', 'Try again')}
+        </span>
+      </button>
+    );
   }
 
   return <TagsComponentInner {...props} allTags={data} mutate={mutate} />;
@@ -196,7 +226,17 @@ export const TagsComponentInner: FC<{
         </div>
       </div>
       {isOpen && (
-        <div className="z-[300] absolute start-0 bottom-[100%] w-[240px] bg-newBgColorInner p-[12px] menu-shadow -translate-y-[8px] flex flex-col">
+        <div className="z-[300] absolute start-0 bottom-[100%] w-[240px] bg-surface p-[12px] menu-shadow -translate-y-[8px] flex flex-col">
+          {/* The button below is the one next action, so the empty state says
+              what a tag is for rather than repeating it. */}
+          {!data?.tags?.length && (
+            <div className="t-secondary text-inkTertiary text-center pb-[4px]">
+              {t(
+                'no_tags_yet',
+                'No tags yet. Tags group posts so you can filter the calendar.'
+              )}
+            </div>
+          )}
           {(data?.tags || []).map((p: any) => (
             <div
               onClick={() => {
@@ -267,7 +307,7 @@ const Check: FC<{ value: boolean; onChange: (value: boolean) => void }> = ({
     <div
       onClick={() => onChange(!value)}
       className={clsx(
-'t-caption text-center flex border border-btnSimple rounded-thumb min-w-[20px] min-h-[20px] w-[20px] h-[20px] justify-center items-center',
+'t-caption text-center flex border border-surfaceActive rounded-thumb min-w-[20px] min-h-[20px] w-[20px] h-[20px] justify-center items-center',
         value && 'bg-primaryBg'
       )}
     >

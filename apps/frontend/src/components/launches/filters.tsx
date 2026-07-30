@@ -4,7 +4,6 @@ import { useCalendar, ListStateFilter } from '@gitroom/frontend/components/launc
 import clsx from 'clsx';
 import dayjs from 'dayjs';
 import { useCallback } from 'react';
-import { SelectCustomer } from '@gitroom/frontend/components/launches/select.customer';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import i18next from 'i18next';
 import { newDayjs } from '@gitroom/frontend/components/layout/set.timezone';
@@ -83,7 +82,6 @@ export const Filters = () => {
       startDate: currentRange.startDate,
       endDate: currentRange.endDate,
       display: calendar.display as 'day' | 'week' | 'month',
-      customer: calendar.customer,
     });
   }, [calendar]);
 
@@ -101,7 +99,6 @@ export const Filters = () => {
       startDate: range.startDate,
       endDate: range.endDate,
       display: 'day',
-      customer: calendar.customer,
     });
   }, [calendar]);
 
@@ -119,7 +116,6 @@ export const Filters = () => {
       startDate: range.startDate,
       endDate: range.endDate,
       display: 'week',
-      customer: calendar.customer,
     });
   }, [calendar]);
 
@@ -137,7 +133,6 @@ export const Filters = () => {
       startDate: range.startDate,
       endDate: range.endDate,
       display: 'month',
-      customer: calendar.customer,
     });
   }, [calendar]);
 
@@ -151,7 +146,6 @@ export const Filters = () => {
       startDate: range.startDate,
       endDate: range.endDate,
       display: 'list',
-      customer: calendar.customer,
     });
   }, [calendar]);
 
@@ -165,24 +159,9 @@ export const Filters = () => {
       startDate: range.startDate,
       endDate: range.endDate,
       display: 'week',
-      customer: calendar.customer,
     });
   }, [calendar]);
 
-  const setCustomer = useCallback(
-    (customer: string) => {
-      if (calendar.customer === customer) {
-        return; // No need to set the same customer
-      }
-      calendar.setFilters({
-        startDate: calendar.startDate,
-        endDate: calendar.endDate,
-        display: calendar.display as 'day' | 'week' | 'month',
-        customer: customer,
-      });
-    },
-    [calendar]
-  );
 
   const next = useCallback(() => {
     const currentStart = newDayjs(calendar.startDate);
@@ -210,7 +189,6 @@ export const Filters = () => {
       startDate: range.startDate,
       endDate: range.endDate,
       display: calendar.display as 'day' | 'week' | 'month',
-      customer: calendar.customer,
     });
   }, [calendar]);
 
@@ -240,7 +218,6 @@ export const Filters = () => {
       startDate: range.startDate,
       endDate: range.endDate,
       display: calendar.display as 'day' | 'week' | 'month',
-      customer: calendar.customer,
     });
   }, [calendar]);
 
@@ -287,13 +264,13 @@ export const Filters = () => {
   }, [calendar]);
 
   return (
-    <div className="text-textColor flex flex-col md:flex-row gap-[8px] items-center select-none">
+    <div className="text-ink flex flex-row mobile:flex-col gap-[8px] items-center select-none">
       {!isListView && (
         <div className="flex flex-grow flex-row items-center gap-[8px]">
           <div className="border h-large border-line bg-line gap-[1px] flex items-center rounded-control overflow-hidden">
             <div
               onClick={previous}
-              className="cursor-pointer text-textColor rtl:rotate-180 px-[8px] bg-newBgColorInner h-full flex items-center justify-center hover:text-ink hover:bg-surfaceActive"
+              className="cursor-pointer text-ink rtl:rotate-180 px-[8px] bg-surface h-full flex items-center justify-center hover:text-ink hover:bg-surfaceActive"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -311,14 +288,14 @@ export const Filters = () => {
                 />
               </svg>
             </div>
-            <div className="min-w-[200px] text-center bg-newBgColorInner h-full flex items-center justify-center">
+            <div className="min-w-[200px] text-center bg-surface h-full flex items-center justify-center">
               <div className="py-[2px] px-[8px] rounded-thumb transition-all t-control">
                 {getDisplayText()}
               </div>
             </div>
             <div
               onClick={next}
-              className="cursor-pointer text-textColor rtl:rotate-180 px-[8px] bg-newBgColorInner h-full flex items-center justify-center hover:text-ink hover:bg-surfaceActive"
+              className="cursor-pointer text-ink rtl:rotate-180 px-[8px] bg-surface h-full flex items-center justify-center hover:text-ink hover:bg-surfaceActive"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -341,7 +318,7 @@ export const Filters = () => {
             <div className="text-center flex h-large">
               <div
                 onClick={setToday}
-                className="hover:text-ink hover:bg-surfaceActive py-[2px] px-[8px] flex justify-center items-center rounded-control transition-all cursor-pointer t-control bg-newBgColorInner border border-line"
+                className="hover:text-ink hover:bg-surfaceActive py-[2px] px-[8px] flex justify-center items-center rounded-control transition-all cursor-pointer t-control bg-surface border border-line"
               >
                 {t('today', 'Today')}
               </div>
@@ -355,7 +332,7 @@ export const Filters = () => {
             <div
               onClick={previousPage}
               className={clsx(
-                'text-textColor rtl:rotate-180 px-[8px] bg-newBgColorInner h-full flex items-center justify-center',
+                'text-ink rtl:rotate-180 px-[8px] bg-surface h-full flex items-center justify-center',
                 calendar.listPage > 0
                   ? 'cursor-pointer hover:text-ink hover:bg-surfaceActive'
                   : 'opacity-50 cursor-not-allowed'
@@ -377,7 +354,7 @@ export const Filters = () => {
                 />
               </svg>
             </div>
-            <div className="min-w-[200px] text-center bg-newBgColorInner h-full flex items-center justify-center">
+            <div className="min-w-[200px] text-center bg-surface h-full flex items-center justify-center">
               <div className="py-[2px] px-[8px] rounded-thumb transition-all t-control">
                 {t('page', 'Page')} {calendar.listPage + 1} {t('of', 'of')} {Math.max(1, calendar.listTotalPages)}
               </div>
@@ -385,7 +362,7 @@ export const Filters = () => {
             <div
               onClick={nextPage}
               className={clsx(
-                'text-textColor rtl:rotate-180 px-[8px] bg-newBgColorInner h-full flex items-center justify-center',
+                'text-ink rtl:rotate-180 px-[8px] bg-surface h-full flex items-center justify-center',
                 calendar.listPage < calendar.listTotalPages - 1
                   ? 'cursor-pointer hover:text-ink hover:bg-surfaceActive'
                   : 'opacity-50 cursor-not-allowed'
@@ -441,11 +418,6 @@ export const Filters = () => {
           <div className="flex-1" />
         </div>
       )}
-      <SelectCustomer
-        customer={calendar.customer as string}
-        onChange={(customer: string) => setCustomer(customer)}
-        integrations={calendar.integrations}
-      />
       {/* 4 + 28 + 4 = the 36 control step. 74 was on no step of the
           spacing scale; 64 is. */}
       {!isListView && (

@@ -49,11 +49,22 @@ export const Checkbox = forwardRef<
         ref={ref}
         {...disableForm ? {} : form.register(props.name!)}
         onClick={changeStatus}
+        /*
+         * The tick draws in `currentColor`, so the box and its text colour have
+         * to be set together. The default variant was `bg-forth` — which is
+         * `--slate-primary-bg`, the *ink* token — inside a box that inherited
+         * `text-ink`: identical ramp step, 1.00:1, an invisible tick in both
+         * themes. A filled box takes the primary pair (ink fill, inverse mark),
+         * which is the same pairing every primary button uses. The hollow
+         * variant is a control boundary, so it is one hairline of
+         * `lineControl` (3:1, SC 1.4.11) — it used to be a 2px
+         * `--color-custom1` rule, and the system allows 1px only.
+         */
         className={clsx(
-          'cursor-pointer rounded-thumb select-none w-[24px] h-[24px] justify-center items-center flex text-ink',
+          'cursor-pointer rounded-thumb select-none w-[24px] h-[24px] justify-center items-center flex',
           variant === 'default' || !variant
-            ? 'bg-forth'
-            : 'border-customColor1 border-2 bg-customColor2',
+            ? 'bg-primaryBg text-primaryText'
+            : 'border border-lineControl bg-surface text-ink',
           className
         )}
       >

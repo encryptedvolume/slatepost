@@ -13,10 +13,10 @@ acceptLanguage.languages(languages);
 // This function can be marked `async` if using `await` inside
 export async function proxy(request: NextRequest) {
   const nextUrl = request.nextUrl;
-  const authCookie =
-    request.cookies.get('auth') ||
-    request.headers.get('auth') ||
-    nextUrl.searchParams.get('loggedAuth');
+  // Cookie or header only. Upstream also accepted `?loggedAuth=<token>`, which
+  // put a live credential in the URL bar, browser history, referrers and logs
+  // so the browser extension could hand one over. There is no extension here.
+  const authCookie = request.cookies.get('auth') || request.headers.get('auth');
   const lng = request.cookies.has(cookieName)
     ? acceptLanguage.get(request.cookies.get(cookieName).value)
     : acceptLanguage.get(
@@ -39,14 +39,9 @@ export async function proxy(request: NextRequest) {
     topResponse.headers.set(cookieName, lng);
   }
 
-  if (nextUrl.pathname.startsWith('/modal/') && !authCookie) {
-    return NextResponse.redirect(new URL(`/auth/login-required`, nextUrl.href));
-  }
-
   if (
     nextUrl.pathname.startsWith('/uploads/') ||
     nextUrl.pathname.startsWith('/p/') ||
-    nextUrl.pathname.startsWith('/provider/') ||
     nextUrl.pathname.startsWith('/icons/')
   ) {
     return topResponse;
@@ -80,8 +75,11 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  // The register form lives on /auth itself; there is no /auth/register route,
+  // so this guard never fired. Operators who want the door hard-closed set
+  // DISABLE_REGISTRATION and get sent to the login form instead.
   if (
-    nextUrl.pathname.startsWith('/auth/register') &&
+    nextUrl.pathname === '/auth' &&
     process.env.DISABLE_REGISTRATION === 'true'
   ) {
     return NextResponse.redirect(new URL('/auth/login', nextUrl.href));
@@ -156,12 +154,8 @@ export async function proxy(request: NextRequest) {
       return redirect;
     }
     if (nextUrl.pathname === '/') {
-      return NextResponse.redirect(
-        new URL(
-          !!process.env.IS_GENERAL ? '/launches' : `/analytics`,
-          nextUrl.href
-        )
-      );
+      // The queue is the home screen. There is no other one to branch to.
+      return NextResponse.redirect(new URL('/launches', nextUrl.href));
     }
 
     return topResponse;

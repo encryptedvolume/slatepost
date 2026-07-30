@@ -18,7 +18,10 @@ export class OrganizationService {
     private _notificationsService: NotificationService
   ) {}
   async createOrgAndUser(
-    body: Omit<CreateOrgUserDto, 'providerToken'> & { providerId?: string },
+    body: Omit<CreateOrgUserDto, 'providerToken' | 'company'> & {
+      company: string;
+      providerId?: string;
+    },
     ip: string,
     userAgent: string
   ) {

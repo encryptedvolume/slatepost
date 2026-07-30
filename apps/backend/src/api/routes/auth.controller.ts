@@ -22,7 +22,6 @@ import { EmailService } from '@gitroom/nestjs-libraries/services/email.service';
 import { RealIP } from 'nestjs-real-ip';
 import { UserAgent } from '@gitroom/nestjs-libraries/user/user.agent';
 import { Provider } from '@prisma/client';
-import * as Sentry from '@sentry/nestjs';
 
 @ApiTags('Auth')
 @Controller('/auth')
@@ -103,7 +102,6 @@ export class AuthController {
         }
       }
 
-      Sentry.metrics.count('new_user', 1);
       response.header('onboarding', 'true');
       response.status(200).json({
         register: true,
@@ -220,13 +218,9 @@ export class AuthController {
   @Post('/activate')
   async activate(
     @Body('code') code: string,
-    @Body('datafast_visitor_id') datafast_visitor_id: string,
     @Res({ passthrough: false }) response: Response
   ) {
-    const activate = await this._authService.activate(
-      code,
-      datafast_visitor_id
-    );
+    const activate = await this._authService.activate(code);
     if (!activate) {
       return response.status(200).json({ can: false });
     }

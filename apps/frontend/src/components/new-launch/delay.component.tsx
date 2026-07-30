@@ -95,14 +95,14 @@ export const DelayComponent: FC<{
         <DelayIcon />
       </div>
       {isOpen && (
-        <div className="z-[300] absolute end-0 top-[100%] w-[200px] bg-newBgColorInner p-[8px] menu-shadow translate-y-[8px] flex flex-col rounded-control">
+        <div className="z-[300] absolute end-0 top-[100%] w-[200px] bg-surface p-[8px] menu-shadow translate-y-[8px] flex flex-col rounded-control">
           <div className="grid grid-cols-4 gap-[4px]">
             {delayOptions.map((option) => (
               <div
                 onClick={() => handleSelectDelay(option.value)}
                 key={option.value}
                 className={clsx(
-                  'h-[32px] flex items-center justify-center rounded-thumb cursor-pointer hover:bg-newBgColor t-secondary',
+                  'h-[32px] flex items-center justify-center rounded-thumb cursor-pointer hover:bg-canvas t-secondary',
                   currentDelay === option.value && 'bg-primaryBg text-primaryText hover:bg-primaryBgHover'
                 )}
               >
@@ -120,7 +120,7 @@ export const DelayComponent: FC<{
                 onClick={(e) => e.stopPropagation()}
                 placeholder="Custom min"
                 className={clsx(
-                  'flex-1 w-full h-[32px] px-[8px] rounded-thumb bg-newBgColor border t-secondary outline-none focus:border-lineStrong',
+                  'flex-1 w-full h-[32px] px-[8px] rounded-thumb bg-canvas border t-secondary outline-none focus:border-lineStrong',
                   isCustomDelay ? 'border-lineStrong' : 'border-line'
                 )}
               />

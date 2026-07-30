@@ -4,7 +4,7 @@ import { useMediaDirectory } from '@gitroom/react/helpers/use.media.directory';
 import { stripHtmlValidation } from '@gitroom/helpers/utils/strip.html.validation';
 import { textSlicer } from '@gitroom/helpers/utils/count.length';
 import { FC, ReactNode } from 'react';
-import { SliderComponent } from '@gitroom/frontend/components/third-parties/slider.component';
+import { SliderComponent } from '@gitroom/frontend/components/ui/slider.component';
 import { VideoOrImage } from '@gitroom/react/helpers/video.or.image';
 
 const TikTokItem: FC<{ icon: ReactNode; num: string }> = ({ icon, num }) => {
@@ -57,7 +57,7 @@ export const TiktokPreview: FC<{
     return { text: finalValue, images: p.image };
   });
   return (
-    <div className="p-[16px] absolute left-0 top-0 w-full h-full flex justify-center bg-newBgColorInner">
+    <div className="p-[16px] absolute left-0 top-0 w-full h-full flex justify-center bg-surface">
       <div className="relative">
         <SliderComponent
           list={renderContent?.[0]?.images.map((image, index) => (

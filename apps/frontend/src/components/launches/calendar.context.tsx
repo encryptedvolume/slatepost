@@ -13,7 +13,7 @@ import {
 } from 'react';
 import dayjs from 'dayjs';
 import useSWR from 'swr';
-import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
+import { jsonOrThrow, useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import { Post, Integration, Tags } from '@prisma/client';
 import { useSearchParams } from 'next/navigation';
 import isoWeek from 'dayjs/plugin/isoWeek';
@@ -31,8 +31,13 @@ export type ListStateFilter = 'all' | 'scheduled' | 'draft' | 'published';
 export const CalendarContext = createContext({
   startDate: newDayjs().startOf('isoWeek').format('YYYY-MM-DD'),
   endDate: newDayjs().endOf('isoWeek').format('YYYY-MM-DD'),
-  customer: null as string | null,
   loading: true,
+  /**
+   * True when the request behind the current view failed. It is a boolean, not
+   * the error: nothing downstream is allowed to render a status code or a
+   * response body at the user, so nothing downstream is given one.
+   */
+  loadError: false,
   sets: [] as { name: string; id: string; content: string[] }[],
   signature: undefined as any,
   comments: [] as Array<{
@@ -59,7 +64,6 @@ export const CalendarContext = createContext({
     startDate: string;
     endDate: string;
     display: 'week' | 'month' | 'day' | 'list';
-    customer: string | null;
   }) => {
     /** empty **/
   },
@@ -159,7 +163,6 @@ export const CalendarWeekProvider: FC<{
   // Initialize with current date range based on URL params or defaults
   const initStartDate = searchParams.get('startDate');
   const initEndDate = searchParams.get('endDate');
-  const initCustomer = searchParams.get('customer');
 
   const initialRange =
     initStartDate && initEndDate
@@ -169,7 +172,6 @@ export const CalendarWeekProvider: FC<{
   const [filters, setFilters] = useState({
     startDate: initialRange.startDate,
     endDate: initialRange.endDate,
-    customer: initCustomer || null,
     display,
   });
 
@@ -178,7 +180,6 @@ export const CalendarWeekProvider: FC<{
       display: filters.display,
       startDate: filters.startDate,
       endDate: filters.endDate,
-      customer: filters?.customer?.toString() || '',
     }).toString();
   }, [filters]);
 
@@ -186,12 +187,14 @@ export const CalendarWeekProvider: FC<{
   const loadData = useCallback(async () => {
     const modifiedParams = new URLSearchParams({
       display: filters.display,
-      customer: filters?.customer?.toString() || '',
       startDate: newDayjs(filters.startDate).startOf('day').utc().format(),
       endDate: newDayjs(filters.endDate).endOf('day').utc().format(),
     }).toString();
 
-    const data = await (await fetch(`/posts?${modifiedParams}`)).json();
+    // `expandPosts` will happily expand an error envelope into `{posts: []}`,
+    // so the status is checked before the body is trusted: an unanswered
+    // request has to reach `loadError`, never the "your queue is empty" state.
+    const data = await jsonOrThrow(await fetch(`/posts?${modifiedParams}`));
     return expandPosts(data);
   }, [filters, params]);
 
@@ -200,20 +203,20 @@ export const CalendarWeekProvider: FC<{
     return new URLSearchParams({
       page: listPage.toString(),
       limit: '100',
-      customer: filters?.customer?.toString() || '',
       state: listState,
     }).toString();
-  }, [listPage, filters.customer, listState]);
+  }, [listPage, listState]);
 
   const loadListData = useCallback(async () => {
     const response = await fetch(`/posts/list?${listParams}`);
-    return expandPostsList(await response.json());
+    return expandPostsList(await jsonOrThrow(response));
   }, [listParams]);
 
   // SWR for calendar view
   const {
     data: calendarData,
     isLoading: calendarIsLoading,
+    error: calendarError,
     mutate: mutateCalendar,
   } = useSWR(
     filters.display !== 'list' ? `/posts-${params}` : null,
@@ -230,6 +233,7 @@ export const CalendarWeekProvider: FC<{
   const {
     data: listData,
     isLoading: listIsLoading,
+    error: listError,
     mutate: mutateList,
   } = useSWR(
     filters.display === 'list' ? `/posts-list-${listParams}` : null,
@@ -272,7 +276,6 @@ export const CalendarWeekProvider: FC<{
       startDate: string;
       endDate: string;
       display: 'week' | 'month' | 'day' | 'list';
-      customer: string | null;
     }) => {
       setDisplaySaved(newFilters.display);
       setFilters(newFilters);
@@ -287,7 +290,6 @@ export const CalendarWeekProvider: FC<{
         `startDate=${newFilters.startDate}`,
         `endDate=${newFilters.endDate}`,
         `display=${newFilters.display}`,
-        newFilters.customer ? `customer=${newFilters.customer}` : ``,
       ].filter((f) => f);
       window.history.replaceState(null, '', `/launches?${path.join('&')}`);
     },
@@ -334,6 +336,15 @@ export const CalendarWeekProvider: FC<{
   // Determine loading state based on current view
   const loading = filters.display === 'list' ? listIsLoading : calendarIsLoading;
 
+  // A failure only takes over the view when there is nothing left to show. SWR
+  // keeps the last good payload, so a revalidation that fails after the queue
+  // has drawn should leave the queue on screen rather than replace posts the
+  // user can still read with an apology.
+  const loadError =
+    filters.display === 'list'
+      ? !!listError && !listPosts.length
+      : !!calendarError && !internalData.length;
+
   return (
     <CalendarContext.Provider
       value={{
@@ -342,6 +353,7 @@ export const CalendarWeekProvider: FC<{
         ...filters,
         posts: calendarIsLoading ? [] : internalData,
         loading,
+        loadError,
         integrations,
         setFilters: setFiltersWrapper,
         changeDate,

@@ -92,7 +92,7 @@ export const CustomSelect: FC<{
       )}
       <div
         className={clsx(
-          'bg-input h-control border-lineControl border rounded-control text-ink placeholder:text-inkTertiary items-center justify-center flex'
+          'bg-surface h-control border-lineControl border rounded-control text-ink placeholder:text-inkTertiary items-center justify-center flex'
         )}
         onClick={changeOpen}
       >
@@ -142,14 +142,14 @@ export const CustomSelect: FC<{
         <div
           className={clsx(
             label && !removeError && '-mt-[24px]',
-            'z-[100] absolute w-full top-[100%] start-0 flex items-center rounded-bl-thumb rounded-br-thumb flex-col bg-fifth gap-[1px] border-l border-r border-b border-fifth overflow-hidden'
+            'z-[100] absolute w-full top-[100%] start-0 flex items-center rounded-bl-thumb rounded-br-thumb flex-col bg-hairline gap-[1px] border-l border-r border-b border-line overflow-hidden'
           )}
         >
           {options.map((option) => (
             <div
               key={option.value}
               onClick={setOption(option)}
-              className="px-[16px] py-[8px] bg-input w-full flex gap-[8px] hover:bg-customColor3 select-none cursor-pointer"
+              className="px-[16px] py-[8px] bg-surface w-full flex gap-[8px] hover:bg-surfaceHover select-none cursor-pointer"
             >
               {!!option.icon && (
                 <div className="flex justify-center items-center">
