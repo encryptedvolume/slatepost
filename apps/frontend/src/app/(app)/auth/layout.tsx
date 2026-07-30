@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { ReactNode } from 'react';
+import Link from 'next/link';
 import loadDynamic from 'next/dynamic';
 import { LogoTextComponent } from '@gitroom/frontend/components/ui/logo-text.component';
 const ReturnUrlComponent = loadDynamic(() => import('./return.url.component'));
@@ -20,11 +21,21 @@ export default async function AuthLayout({
     <div className="bg-canvas text-ink flex flex-1 min-h-screen w-screen">
       <ReturnUrlComponent />
       <div className="flex flex-col flex-1 lg:flex-none lg:w-[560px] px-[24px] py-[48px] lg:px-[64px]">
-        <LogoTextComponent />
+        <Link href="/auth" aria-label="Slate home">
+          <LogoTextComponent />
+        </Link>
         <div className="flex flex-1 items-center">
           <div className="w-full max-w-[34rem] mx-auto flex">{children}</div>
         </div>
-        <div className="t-secondary text-inkTertiary">slatepost.lol</div>
+        <div className="t-secondary text-inkTertiary flex gap-[16px]">
+          <span>slatepost.lol</span>
+          <Link href="/terms" className="hover:text-inkSecondary">
+            Terms
+          </Link>
+          <Link href="/privacy" className="hover:text-inkSecondary">
+            Privacy
+          </Link>
+        </div>
       </div>
 
       <div className="hidden lg:flex flex-1 border-s border-hairline">

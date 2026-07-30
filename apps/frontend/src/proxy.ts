@@ -61,9 +61,10 @@ export async function proxy(request: NextRequest) {
 
   // If the URL is logout, delete the cookie and redirect to login
   if (nextUrl.href.indexOf('/auth/logout') > -1) {
-    const response = NextResponse.redirect(
-      new URL('/auth/login', nextUrl.href)
-    );
+    // Land on /auth rather than /auth/login: that is the branded entry screen,
+    // and it is the closest thing a signed-out visitor has to a home. Dropping
+    // someone onto a bare login form with no way back was the complaint.
+    const response = NextResponse.redirect(new URL('/auth', nextUrl.href));
     response.cookies.set('auth', '', {
       path: '/',
       ...(!process.env.NOT_SECURED
@@ -94,8 +95,15 @@ export async function proxy(request: NextRequest) {
     nextUrl.pathname.startsWith(p)
   );
   if (!nextUrl.pathname.startsWith('/auth') && !isLegalPage && !authCookie) {
+    // Match the OAuth callback path, not any substring of the whole href.
+    // `href.indexOf('settings')` matched /settings, /launches?tab=settings and
+    // anything else containing the word, so a logged-out visit to /settings was
+    // bounced to /auth?provider=GITHUB and rendered a provider flow the user
+    // never asked for.
     const providers = ['google', 'settings'];
-    const findIndex = providers.find((p) => nextUrl.href.indexOf(p) > -1);
+    const findIndex = providers.find((p) =>
+      nextUrl.pathname.split('/').includes(p)
+    );
     const additional = !findIndex
       ? ''
       : (url.indexOf('?') > -1 ? '&' : '?') +
