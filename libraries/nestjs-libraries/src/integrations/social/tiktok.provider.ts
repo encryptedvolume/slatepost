@@ -354,7 +354,7 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
       }${process?.env?.FRONTEND_URL}/integrations/social/tiktok`,
     };
 
-    const { access_token, refresh_token, scope } = await (
+    const tokenResponse = await (
       await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -364,7 +364,35 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
       })
     ).json();
 
-    this.checkScopes(this.scopes, scope);
+    // TikTok answers 200 with an error body. Destructuring straight through
+    // left access_token undefined, and the failure then surfaced from
+    // checkScopes below - because `scope` was undefined too - so a rejected
+    // token exchange was reported to the user as a permissions problem.
+    // Fail here, with what TikTok actually said.
+    if (!tokenResponse?.access_token) {
+      const detail =
+        tokenResponse?.error_description ||
+        tokenResponse?.error ||
+        JSON.stringify(tokenResponse)?.slice(0, 300);
+      // eslint-disable-next-line no-console
+      console.error('[tiktok] token exchange failed:', detail);
+      throw new Error(`TikTok token exchange failed: ${detail}`);
+    }
+
+    const { access_token, refresh_token, scope } = tokenResponse;
+
+    try {
+      this.checkScopes(this.scopes, scope);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(
+        '[tiktok] scope mismatch. requested:',
+        this.scopes.join(','),
+        '| granted:',
+        scope
+      );
+      throw err;
+    }
 
     const {
       data: {
