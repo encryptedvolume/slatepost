@@ -68,4 +68,6 @@ ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
 
 RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
 
-CMD ["sh", "-c", "nginx && pnpm run pm2"]
+RUN chmod +x /app/var/docker/entrypoint.sh
+
+CMD ["sh", "/app/var/docker/entrypoint.sh"]
