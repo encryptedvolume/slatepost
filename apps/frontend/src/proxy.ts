@@ -95,27 +95,12 @@ export async function proxy(request: NextRequest) {
     nextUrl.pathname.startsWith(p)
   );
   if (!nextUrl.pathname.startsWith('/auth') && !isLegalPage && !authCookie) {
-    // Match the OAuth callback path, not any substring of the whole href.
-    // `href.indexOf('settings')` matched /settings, /launches?tab=settings and
-    // anything else containing the word, so a logged-out visit to /settings was
-    // bounced to /auth?provider=GITHUB and rendered a provider flow the user
-    // never asked for.
-    const providers = ['google', 'settings'];
-    const findIndex = providers.find((p) =>
-      nextUrl.pathname.split('/').includes(p)
-    );
-    const additional = !findIndex
-      ? ''
-      : (url.indexOf('?') > -1 ? '&' : '?') +
-        `provider=${(findIndex === 'settings'
-          ? process.env.POSTIZ_GENERIC_OAUTH
-            ? 'generic'
-            : 'github'
-          : findIndex
-        ).toUpperCase()}`;
-    return NextResponse.redirect(
-      new URL(`/auth${url}${additional}`, nextUrl.href)
-    );
+    // Upstream inspected the requested path and pre-selected an OAuth provider
+    // on the sign-in screen, so a signed-out visit to /settings arrived as
+    // /auth?provider=GITHUB. This build authenticates with email or Google, so
+    // that pre-selection only ever showed a flow the visitor had not asked for.
+    // Send them to a clean /auth and let them choose.
+    return NextResponse.redirect(new URL(`/auth${url}`, nextUrl.href));
   }
 
   // If the url is /auth and the cookie exists, redirect to /
