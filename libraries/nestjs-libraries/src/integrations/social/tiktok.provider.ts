@@ -31,14 +31,16 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
   name = 'Tiktok';
   isBetweenSteps = false;
   convertToJPEG = true;
-  scopes = [
-    'video.list',
-    'user.info.basic',
-    'video.publish',
-    'video.upload',
-    'user.info.profile',
-    'user.info.stats',
-  ];
+  // Only what scheduling actually needs. TikTok rejects an authorize request
+  // carrying scopes the app has not been granted, and its review guidelines
+  // warn that unused scopes delay or fail review, so this list must stay in
+  // sync with the scopes registered in the TikTok developer portal.
+  //   user.info.basic - show which account is connected
+  //   video.publish   - DIRECT_POST, publishes at the scheduled time
+  //   video.upload    - UPLOAD, sends to the creator's inbox as a draft
+  // Dropped: video.list, user.info.profile, user.info.stats - analytics only,
+  // which this build does not offer.
+  scopes = ['user.info.basic', 'video.publish', 'video.upload'];
   override maxConcurrentJob = 10000;
   dto = TikTokDto;
   editor = 'normal' as const;
