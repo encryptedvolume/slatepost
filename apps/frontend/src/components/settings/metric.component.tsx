@@ -33,7 +33,9 @@ const MetricComponent = () => {
   };
   return (
     <div className="my-[16px] mt-[16px] bg-surface border border-line rounded-card p-[20px] flex flex-col gap-[24px]">
-      <div className="mt-[4px]">Date Metrics</div>
+      {/* The control picks 12- or 24-hour time. "Date Metrics" described
+          neither dates nor metrics. */}
+      <div className="mt-[4px]">Time format</div>
       <Select name="metric" disableForm={true} label="" onChange={changeMetric} value={currentMetric ? 'US' : 'GLOBAL'}>
         {dateMetrics.map((metric) => (
           <option

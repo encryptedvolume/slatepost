@@ -128,6 +128,14 @@ const EmailNotificationsComponent = () => {
     [updateSetting]
   );
 
+  // A deployment with no email provider configured cannot send either of these,
+  // so the switches would promise mail that never arrives. Two dead controls are
+  // worse than none: hide the panel entirely, and it returns the moment an
+  // operator configures a provider.
+  if (process.env.NEXT_PUBLIC_EMAIL_ENABLED !== 'true') {
+    return null;
+  }
+
   // Placeholders in the shape of the two toggle rows, inside the real card,
   // so the settings page keeps its layout while the values arrive.
   if (isLoading) {
