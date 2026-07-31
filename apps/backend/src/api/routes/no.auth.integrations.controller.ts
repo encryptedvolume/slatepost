@@ -163,6 +163,18 @@ export class NoAuthIntegrationsController {
           });
         }
 
+        // Every non-scope failure used to collapse to the string
+        // "Authentication failed" and the original exception was dropped on the
+        // floor, so a refused token exchange, an expired state and a network
+        // fault were indistinguishable - to the user AND in the server logs.
+        // Keep the flat message on the wire, but record what actually happened.
+        // eslint-disable-next-line no-console
+        console.error(
+          '[social-connect] provider authentication threw:',
+          (err as any)?.message || err,
+          (err as any)?.stack ? `\n${(err as any).stack}` : ''
+        );
+
         return res({
           error: 'Authentication failed',
           accessToken: '',
