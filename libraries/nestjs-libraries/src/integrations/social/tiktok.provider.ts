@@ -394,13 +394,15 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
       throw err;
     }
 
-    const {
-      data: {
-        user: { avatar_url, display_name, open_id, username },
-      },
-    } = await (
+    // Only fields that user.info.basic actually grants. `username` needs
+    // user.info.profile, which this build does not request - asking for it
+    // anyway made TikTok return an error body with no `user` object, and the
+    // destructure below then threw "Cannot read properties of undefined
+    // (reading 'avatar_url')", which the connect handler reported as a flat
+    // "Authentication failed".
+    const userInfo = await (
       await fetch(
-        'https://open.tiktokapis.com/v2/user/info/?fields=open_id,avatar_url,display_name,union_id,username',
+        'https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name',
         {
           method: 'GET',
           headers: {
@@ -410,6 +412,19 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
       )
     ).json();
 
+    const user = userInfo?.data?.user;
+    if (!user?.open_id) {
+      const detail =
+        userInfo?.error?.message ||
+        userInfo?.error?.code ||
+        JSON.stringify(userInfo)?.slice(0, 300);
+      // eslint-disable-next-line no-console
+      console.error('[tiktok] user/info failed:', detail);
+      throw new Error(`TikTok did not return a profile: ${detail}`);
+    }
+
+    const { avatar_url, display_name, open_id } = user;
+
     return {
       id: open_id.replace(/-/g, ''),
       name: display_name,
@@ -417,7 +432,8 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
       refreshToken: refresh_token,
       expiresIn: dayjs().add(23, 'hours').unix() - dayjs().unix(),
       picture: avatar_url,
-      username: username,
+      // user.info.basic carries no username; the display name is what we have.
+      username: display_name,
     };
   }
 
