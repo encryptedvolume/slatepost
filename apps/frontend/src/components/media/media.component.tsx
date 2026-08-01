@@ -227,12 +227,14 @@ export const MediaBox: FC<{
   const [loading, setLoading] = useState(false);
 
   const uppy = useUppyUploader({
+    // macOS records .mov by default and TikTok accepts it, so refusing
+    // video/quicktime rejected the most common file a user has to hand.
     allowedFileTypes:
       type == 'image'
         ? 'image/*'
         : type == 'video'
-        ? 'video/mp4'
-        : 'image/*,video/mp4',
+        ? 'video/mp4,video/quicktime'
+        : 'image/*,video/mp4,video/quicktime',
     onUploadSuccess: async (arr) => {
       await mutate();
       if (standalone) {

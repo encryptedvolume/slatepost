@@ -84,7 +84,10 @@ export function useUppyUploader(props: {
           if (type === 'video/*') {
             return ['video/mp4', 'video/mpeg', 'video/quicktime'];
           }
-          if (type === 'video/mp4' && transloadit && transloadit.length > 0) {
+          // Without transloadit the file is stored as uploaded rather than
+          // transcoded, but .mov is still a format TikTok accepts, so there is
+          // no reason to refuse it here.
+          if (type === 'video/mp4') {
             return ['video/mp4', 'video/mpeg', 'video/quicktime'];
           }
           return [type];

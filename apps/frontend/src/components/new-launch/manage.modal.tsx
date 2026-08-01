@@ -60,8 +60,14 @@ const readPostError = async (response: Response, t: ReturnType<typeof useT>) => 
 
   try {
     const body = await response.json();
-    const message =
-      typeof body?.message === 'string' ? body.message.trim() : '';
+    // A DTO rejection arrives as an array of validator sentences
+    // (["privacy_level must be a string"]); only reading the string form sent
+    // every settings error to the generic fallback, which is how "we could not
+    // save this post" ended up standing in for a named missing field.
+    const raw = Array.isArray(body?.message)
+      ? body.message.filter((m: unknown) => typeof m === 'string').join('. ')
+      : body?.message;
+    const message = typeof raw === 'string' ? raw.trim() : '';
 
     if (!message || message.length > 160) {
       return fallback;
