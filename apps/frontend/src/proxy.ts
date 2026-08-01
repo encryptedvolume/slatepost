@@ -56,10 +56,12 @@ export async function proxy(request: NextRequest) {
 
   // If the URL is logout, delete the cookie and redirect to login
   if (nextUrl.href.indexOf('/auth/logout') > -1) {
-    // Land on /auth rather than /auth/login: that is the branded entry screen,
-    // and it is the closest thing a signed-out visitor has to a home. Dropping
-    // someone onto a bare login form with no way back was the complaint.
-    const response = NextResponse.redirect(new URL('/auth', nextUrl.href));
+    // /auth is the register screen. Someone who just signed out already has an
+    // account, so send them to the sign-in form - landing a returning user on
+    // "Create Account" reads as though the logout lost their account. The way
+    // back out is covered: the wordmark links to /auth and the form carries a
+    // "Sign Up" link.
+    const response = NextResponse.redirect(new URL('/auth/login', nextUrl.href));
     response.cookies.set('auth', '', {
       path: '/',
       ...(!process.env.NOT_SECURED

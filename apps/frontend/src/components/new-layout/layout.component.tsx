@@ -1,6 +1,7 @@
 'use client';
 
 import React, { ReactNode, useCallback } from 'react';
+import Link from 'next/link';
 import { Logo } from '@gitroom/frontend/components/new-layout/logo';
 const ModeComponent = dynamic(
   () => import('@gitroom/frontend/components/layout/mode.component'),
@@ -62,7 +63,11 @@ export const LayoutComponent = ({ children }: { children: ReactNode }) => {
                     is px-[12px] and MenuItem adds px-[12px], so the
                     mark and every nav icon share one left edge. */}
                 <div className="h-[64px] flex items-center px-[24px] mobile:justify-center mobile:px-0 shrink-0">
-                  <Logo />
+                  {/* Clicking the wordmark is how people expect to get back to
+                      the start of an app. The queue is that place here. */}
+                  <Link href="/launches" aria-label="Slate — go to the calendar">
+                    <Logo />
+                  </Link>
                 </div>
                 <div className="flex flex-col flex-1 gap-[32px] px-[12px] mobile:px-[8px] pb-[16px] overflow-y-auto">
                   <TopMenu />
