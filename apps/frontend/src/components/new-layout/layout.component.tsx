@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ReactNode, useCallback } from 'react';
+import React, { ReactNode, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { Logo } from '@gitroom/frontend/components/new-layout/logo';
 const ModeComponent = dynamic(
@@ -30,7 +30,7 @@ export const LayoutComponent = ({ children }: { children: ReactNode }) => {
   const load = useCallback(async (path: string) => {
     return await (await fetch(path)).json();
   }, []);
-  const { data: user } = useSWR('/user/self', load, {
+  const { data: user, error } = useSWR('/user/self', load, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     revalidateIfStale: false,
@@ -38,7 +38,18 @@ export const LayoutComponent = ({ children }: { children: ReactNode }) => {
     refreshWhenHidden: false,
   });
 
-  if (!user) return null;
+  // A cookie that is present but no longer valid gets past the proxy - it only
+  // checks that one exists - and then /user/self fails. Rendering null for that
+  // case left the shell drawing its own chrome and nothing else: no nav, no
+  // sign-in link, no way out of the page. Route the stale session through
+  // logout, which clears the cookie and lands on the sign-in form.
+  useEffect(() => {
+    if (error) {
+      window.location.href = '/auth/logout';
+    }
+  }, [error]);
+
+  if (error || !user) return null;
 
   return (
     <ContextWrapper user={user}>
