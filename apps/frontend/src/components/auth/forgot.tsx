@@ -38,6 +38,21 @@ export function Forgot() {
         }),
       });
 
+      // Rate limited. Telling someone to "check the address" when the address
+      // was fine sends them hunting for a typo that isn't there - the only
+      // thing that helps is knowing to wait.
+      if (response.status === 429) {
+        setLoading(false);
+        form.setError('email', {
+          type: 'manual',
+          message: t(
+            'forgot_password_rate_limited',
+            'Too many reset requests from here. Wait a few minutes and try again — the address is fine.'
+          ),
+        });
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(`Request failed: ${response.status}`);
       }
