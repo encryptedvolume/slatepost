@@ -20,6 +20,7 @@ import { AuthService as AuthChecker } from '@gitroom/helpers/auth/auth.service';
 import { OrganizationService } from '@gitroom/nestjs-libraries/database/prisma/organizations/organization.service';
 import { CheckPolicies } from '@gitroom/backend/services/auth/permissions/permissions.ability';
 import { getCookieUrlFromDomain } from '@gitroom/helpers/subdomain/subdomain.management';
+import { clearCookie } from '@gitroom/backend/services/auth/auth.middleware';
 import { pricing } from '@gitroom/nestjs-libraries/database/prisma/subscriptions/pricing';
 import { ApiTags } from '@nestjs/swagger';
 import { UsersService } from '@gitroom/nestjs-libraries/database/prisma/users/users.service';
@@ -295,35 +296,11 @@ export class UsersController {
   logout(@Res({ passthrough: true }) response: Response) {
     response.header('logout', 'true');
 
-    // Every cookie is cleared twice: once carrying Domain, once host-only.
-    // The setters put `domain` inside the NOT_SECURED conditional, so sessions
-    // opened while that flag was set were written host-only - and a Set-Cookie
-    // that specifies Domain cannot delete a host-only cookie, the browser
-    // treats the two as unrelated. Clearing only the Domain variant left the
-    // real session cookie in place and logout silently did nothing.
-    const clear = (name: string) => {
-      const options = {
-        ...(!process.env.NOT_SECURED
-          ? {
-              secure: true,
-              httpOnly: true,
-              sameSite: 'none' as const,
-            }
-          : {}),
-        maxAge: -1,
-        expires: new Date(0),
-      };
-
-      response.cookie(name, '', {
-        ...options,
-        domain: getCookieUrlFromDomain(process.env.FRONTEND_URL!),
-      });
-      response.cookie(name, '', options);
-    };
-
-    clear('auth');
-    clear('showorg');
-    clear('impersonate');
+    // clearCookie expires each name in both the Domain and host-only scopes —
+    // see its comment in auth.middleware.ts for why one is not enough.
+    clearCookie(response, 'auth');
+    clearCookie(response, 'showorg');
+    clearCookie(response, 'impersonate');
 
     response.status(200).send();
   }

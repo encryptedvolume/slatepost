@@ -8,19 +8,38 @@ import { getCookieUrlFromDomain } from '@gitroom/helpers/subdomain/subdomain.man
 import { HttpForbiddenException } from '@gitroom/nestjs-libraries/services/exception.filter';
 import { MastraService } from '@gitroom/nestjs-libraries/chat/mastra.service';
 
-export const removeAuth = (res: Response) => {
-  res.cookie('auth', '', {
-    domain: getCookieUrlFromDomain(process.env.FRONTEND_URL!),
+/**
+ * Expire a cookie in both scopes: once carrying Domain, once host-only.
+ *
+ * The setters put `domain` inside the NOT_SECURED conditional, so any session
+ * opened while that flag was set was written without a Domain attribute. A
+ * Set-Cookie that specifies Domain cannot delete a host-only cookie — the
+ * browser treats them as unrelated — so clearing only one scope left the real
+ * session cookie in place and logout silently did nothing. Expiring a cookie
+ * that does not exist is a no-op, so sending both is always safe.
+ */
+export const clearCookie = (res: Response, name: string) => {
+  const options = {
     ...(!process.env.NOT_SECURED
       ? {
           secure: true,
           httpOnly: true,
-          sameSite: 'none',
+          sameSite: 'none' as const,
         }
       : {}),
     expires: new Date(0),
     maxAge: -1,
+  };
+
+  res.cookie(name, '', {
+    ...options,
+    domain: getCookieUrlFromDomain(process.env.FRONTEND_URL!),
   });
+  res.cookie(name, '', options);
+};
+
+export const removeAuth = (res: Response) => {
+  clearCookie(res, 'auth');
   res.header('logout', 'true');
 };
 

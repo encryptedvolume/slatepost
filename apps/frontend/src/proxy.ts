@@ -62,27 +62,32 @@ export async function proxy(request: NextRequest) {
     // back out is covered: the wordmark links to /auth and the form carries a
     // "Sign Up" link.
     const response = NextResponse.redirect(new URL('/auth/login', nextUrl.href));
-    const expire = {
-      path: '/',
-      ...(!process.env.NOT_SECURED
-        ? {
-            secure: true,
-            httpOnly: true,
-            sameSite: false as const,
-          }
-        : {}),
-      maxAge: -1,
-    };
-    // Cleared twice - with Domain and host-only. The setter puts `domain`
-    // inside the NOT_SECURED conditional, so a session opened while that flag
-    // was set has no Domain attribute, and a Set-Cookie carrying Domain cannot
-    // delete a host-only cookie. Without the second call the cookie survived
-    // logout and the calendar kept rendering the signed-out user's channels.
-    response.cookies.set('auth', '', {
-      ...expire,
-      domain: getCookieUrlFromDomain(process.env.FRONTEND_URL!),
-    });
-    response.cookies.set('auth', '', expire);
+
+    // Expired in both scopes: once carrying Domain, once host-only. The setter
+    // puts `domain` inside the NOT_SECURED conditional, so a session opened
+    // while that flag was set has no Domain attribute, and a Set-Cookie that
+    // specifies Domain cannot delete a host-only cookie - the browser treats
+    // them as unrelated. Clearing one scope only left the cookie in place and
+    // the calendar kept rendering the signed-out user's channels.
+    //
+    // Written as raw headers rather than response.cookies.set(): that API is
+    // keyed by cookie name, so setting 'auth' twice replaces the first entry
+    // and only one Set-Cookie is emitted. headers.append sends both.
+    const attributes = [
+      'auth=',
+      'Path=/',
+      'Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'Max-Age=-1',
+      ...(!process.env.NOT_SECURED ? ['Secure', 'HttpOnly'] : []),
+    ].join('; ');
+
+    response.headers.append(
+      'set-cookie',
+      `${attributes}; Domain=${getCookieUrlFromDomain(
+        process.env.FRONTEND_URL!
+      )}`
+    );
+    response.headers.append('set-cookie', attributes);
     return response;
   }
 
