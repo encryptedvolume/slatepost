@@ -99,9 +99,14 @@ export class CreatePostDto {
   @IsString()
   order?: string;
 
-  @IsDefined()
+  // Short-linking came from the Dub integration, which this build removed along
+  // with the other third-party services. Nothing in the UI can set the flag any
+  // more, so requiring it rejected every post with "shortLink should not be null
+  // or undefined". Optional, and falsy means "leave links alone" — which is the
+  // only behaviour available now that the provider resolves to 'empty'.
+  @IsOptional()
   @IsBoolean()
-  shortLink: boolean;
+  shortLink?: boolean;
 
   @IsOptional()
   @IsNumber()
