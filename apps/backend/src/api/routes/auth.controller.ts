@@ -8,6 +8,7 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { Response, Request } from 'express';
 
 import { CreateOrgUserDto } from '@gitroom/nestjs-libraries/dtos/auth/create.org.user.dto';
@@ -175,6 +176,10 @@ export class AuthController {
     }
   }
 
+  // Five attempts per fifteen minutes per address. Generous for anyone who
+  // mistypes their email a couple of times, useless as a mail cannon. The
+  // global default is 90/hour and is not applied to signed-out routes at all.
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
   @Post('/forgot')
   async forgot(@Body() body: ForgotPasswordDto) {
     try {

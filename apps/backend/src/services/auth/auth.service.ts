@@ -10,6 +10,19 @@ import dayjs from 'dayjs';
 import { NotificationService } from '@gitroom/nestjs-libraries/database/prisma/notifications/notification.service';
 import { ForgotReturnPasswordDto } from '@gitroom/nestjs-libraries/dtos/auth/forgot-return.password.dto';
 import { EmailService } from '@gitroom/nestjs-libraries/services/email.service';
+import { ioRedis } from '@gitroom/nestjs-libraries/redis/redis.service';
+import { createHash } from 'crypto';
+
+/**
+ * Short hash of the stored password hash, used to tie a reset link to the
+ * password it was issued against. Never the hash itself: the token is emailed
+ * in the clear, so it must not carry anything worth stealing.
+ */
+const passwordFingerprint = (password: string | null | undefined) =>
+  createHash('sha256')
+    .update(password ?? '')
+    .digest('hex')
+    .slice(0, 16);
 
 @Injectable()
 export class AuthService {
@@ -216,9 +229,24 @@ export class AuthService {
       return false;
     }
 
+    // Per-address cooldown. IP throttling alone cannot stop someone pointing a
+    // botnet at one victim's address and burying their inbox, because each
+    // source stays under its own limit. Keyed on the account, so it holds no
+    // matter where the requests come from. Returning early still reports
+    // success upstream, so this reveals nothing either.
+    const cooldownKey = `reset:cooldown:${user.email.toLowerCase()}`;
+    if (await ioRedis.get(cooldownKey)) {
+      return false;
+    }
+
     const resetValues = AuthChecker.signJWT({
       id: user.id,
       expires: dayjs().add(20, 'minutes').format('YYYY-MM-DD HH:mm:ss'),
+      // Fingerprint of the password the link was issued against. Changing the
+      // password changes this, which is what makes the link single-use - see
+      // forgotReturn. It is a hash of a hash, so the token carries nothing
+      // usable even if the link leaks.
+      pw: passwordFingerprint(user.password),
     });
 
     // Sync rather than the queued path: the queued one hands off through
@@ -235,18 +263,23 @@ export class AuthService {
       throw new Error(`Reset email to ${user.email} could not be delivered`);
     }
 
+    // Only after a confirmed send - a failed attempt must not lock the address
+    // out of trying again.
+    await ioRedis.set(cooldownKey, '1', 'EX', 120);
+
     return true;
   }
 
-  forgotReturn(body: ForgotReturnPasswordDto) {
+  async forgotReturn(body: ForgotReturnPasswordDto) {
     // A tampered, truncated or foreign token makes verifyJWT throw, which
     // surfaced as a 500 and an empty screen rather than "this link is no
     // longer valid". Every rejection now takes the same path as an expired one.
-    let user: { id: string; expires: string } | null = null;
+    let user: { id: string; expires: string; pw?: string } | null = null;
     try {
       user = AuthChecker.verifyJWT(body.token) as {
         id: string;
         expires: string;
+        pw?: string;
       };
     } catch (err) {
       return false;
@@ -257,6 +290,24 @@ export class AuthService {
     }
 
     if (dayjs(user.expires).isBefore(dayjs())) {
+      return false;
+    }
+
+    const current = await this._userService.getUserById(user.id);
+    if (!current) {
+      return false;
+    }
+
+    // Single use. The link is valid for twenty minutes, which previously meant
+    // it stayed usable for the rest of that window even after the password had
+    // been changed - so anyone who got hold of a used link could change it
+    // straight back. Comparing against the current password makes the token
+    // stop matching the moment it has done its job.
+    //
+    // Tokens minted before this claim existed carry no fingerprint. Those are
+    // allowed through rather than dead-ending someone mid-reset; the twenty
+    // minute expiry retires them on its own.
+    if (user.pw && user.pw !== passwordFingerprint(current.password)) {
       return false;
     }
 
