@@ -199,8 +199,20 @@ export class AuthService {
   }
 
   async forgot(email: string) {
+    // Checked before the account lookup on purpose. A misconfigured server is
+    // not a fact about the address being asked for, so failing here cannot be
+    // used to probe which accounts exist - it fails identically for everyone.
+    if (!this._emailService.hasProvider()) {
+      throw new Error(
+        'No email provider is configured, a reset link cannot be sent'
+      );
+    }
+
     const user = await this._userService.getUserByEmail(email);
     if (!user || user.providerName !== Provider.LOCAL) {
+      // Deliberately silent. An unknown address and a Google-registered one
+      // both look like success, so the response never reveals who has an
+      // account. Nothing is sent.
       return false;
     }
 
@@ -209,18 +221,41 @@ export class AuthService {
       expires: dayjs().add(20, 'minutes').format('YYYY-MM-DD HH:mm:ss'),
     });
 
-    await this._notificationService.sendEmail(
+    // Sync rather than the queued path: the queued one hands off through
+    // Temporal with an optional-chained client, so if Temporal is unreachable
+    // the send evaporates and the caller still sees success. Reset is the one
+    // email where the user is standing there waiting for it.
+    const sent = await this._emailService.sendEmailSync(
       user.email,
       'Reset your password',
-      `You have requested to reset your passsord. <br />Click <a href="${process.env.FRONTEND_URL}/auth/forgot/${resetValues}">here</a> to reset your password<br />The link will expire in 20 minutes`
+      `You have requested to reset your password. <br />Click <a href="${process.env.FRONTEND_URL}/auth/forgot/${resetValues}">here</a> to reset your password<br />The link will expire in 20 minutes`
     );
+
+    if (!sent) {
+      throw new Error(`Reset email to ${user.email} could not be delivered`);
+    }
+
+    return true;
   }
 
   forgotReturn(body: ForgotReturnPasswordDto) {
-    const user = AuthChecker.verifyJWT(body.token) as {
-      id: string;
-      expires: string;
-    };
+    // A tampered, truncated or foreign token makes verifyJWT throw, which
+    // surfaced as a 500 and an empty screen rather than "this link is no
+    // longer valid". Every rejection now takes the same path as an expired one.
+    let user: { id: string; expires: string } | null = null;
+    try {
+      user = AuthChecker.verifyJWT(body.token) as {
+        id: string;
+        expires: string;
+      };
+    } catch (err) {
+      return false;
+    }
+
+    if (!user?.id || !user?.expires) {
+      return false;
+    }
+
     if (dayjs(user.expires).isBefore(dayjs())) {
       return false;
     }

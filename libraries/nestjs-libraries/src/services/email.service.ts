@@ -3,6 +3,7 @@ import { EmailInterface } from '@gitroom/nestjs-libraries/emails/email.interface
 import { ResendProvider } from '@gitroom/nestjs-libraries/emails/resend.provider';
 import { EmptyProvider } from '@gitroom/nestjs-libraries/emails/empty.provider';
 import { NodeMailerProvider } from '@gitroom/nestjs-libraries/emails/node.mailer.provider';
+import { MailBridgeProvider } from '@gitroom/nestjs-libraries/emails/mail.bridge.provider';
 import { TemporalService } from 'nestjs-temporal-core';
 import { timer } from '@gitroom/helpers/utils/timer';
 
@@ -29,6 +30,8 @@ export class EmailService {
         return new ResendProvider();
       case 'nodemailer':
         return new NodeMailerProvider();
+      case 'mailbridge':
+        return new MailBridgeProvider();
       default:
         return new EmptyProvider();
     }
@@ -59,15 +62,18 @@ export class EmailService {
     html: string,
     replyTo?: string
   ) {
+    // Returns whether the message actually left. Callers that need to tell the
+    // user something - password reset above all - cannot do that if every
+    // failure mode looks identical to success.
     if (to.indexOf('@') === -1) {
-      return;
+      return false;
     }
 
     if (!process.env.EMAIL_FROM_ADDRESS || !process.env.EMAIL_FROM_NAME) {
       console.log(
         'Email sender information not found in environment variables'
       );
-      return;
+      return false;
     }
 
     const modifiedHtml = `
@@ -136,7 +142,7 @@ export class EmailService {
           replyTo
         );
         console.log(sends);
-        return;
+        return true;
       } catch (err) {
         lastErr = err;
         console.log(`Email attempt ${attempt + 1}/3 failed:`, err);
@@ -146,5 +152,6 @@ export class EmailService {
       }
     }
     console.log(`Email to ${to} failed after 3 attempts:`, lastErr);
+    return false;
   }
 }
