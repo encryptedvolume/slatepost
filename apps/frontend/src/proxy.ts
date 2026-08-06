@@ -62,18 +62,27 @@ export async function proxy(request: NextRequest) {
     // back out is covered: the wordmark links to /auth and the form carries a
     // "Sign Up" link.
     const response = NextResponse.redirect(new URL('/auth/login', nextUrl.href));
-    response.cookies.set('auth', '', {
+    const expire = {
       path: '/',
       ...(!process.env.NOT_SECURED
         ? {
             secure: true,
             httpOnly: true,
-            sameSite: false,
+            sameSite: false as const,
           }
         : {}),
       maxAge: -1,
+    };
+    // Cleared twice - with Domain and host-only. The setter puts `domain`
+    // inside the NOT_SECURED conditional, so a session opened while that flag
+    // was set has no Domain attribute, and a Set-Cookie carrying Domain cannot
+    // delete a host-only cookie. Without the second call the cookie survived
+    // logout and the calendar kept rendering the signed-out user's channels.
+    response.cookies.set('auth', '', {
+      ...expire,
       domain: getCookieUrlFromDomain(process.env.FRONTEND_URL!),
     });
+    response.cookies.set('auth', '', expire);
     return response;
   }
 
